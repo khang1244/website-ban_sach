@@ -40,7 +40,7 @@ export const bannerBooks = [
 export const sanphammoi = [
   {
     maSP: 1,
-    tenSP: "Doraemon - Tập 1",
+    tenSP: " Doraemon - Tập 1 Doraemon",
     gia: 100000,
     giaGiam: 40000,
     hinhAnh: sach1,

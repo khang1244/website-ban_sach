@@ -9,3 +9,10 @@ body {
     justify-content: center;
     align-items: center;
 }
+body {
+  @apply bg-blue-500 text-white ; /* màu chữ đậm vừa phải */
+}
+
+html.dark body {
+  @apply bg-black text-white ; /* font-weight giống nhau */
+}

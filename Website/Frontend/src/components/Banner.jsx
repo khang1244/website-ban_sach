@@ -31,30 +31,30 @@ function Banner() {
   return (
     <div className="w-full px-5">
       {/* tìm kiếm */}
-      <div className="flex justify-between items-center px-10 py-5.5 bg-[#2c51d7] text-white">
+      <div className="flex justify-between items-center px-10 py-5.5 text-white">
         <div className="flex items-center gap-3">
           <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 border-white">
             {/* Avatar */}
             <img src={avatar} alt="avatar" />
           </div>
-          <div>
+          <div className="">
             {/* Tên người dùng */}
-            <p className="text-white font-semibold">Lê Hoàng Khang</p>
+            <p className="text-white font-semibold ">Lê Hoàng Khang</p>
             <p className="text-sm text-gray-50">Xin chào!</p>
           </div>
         </div>
         <div className="w-1/2 relative">
           {/* Thanh tìm kiếm */}
-          <input type="text" placeholder="Nhập tìm kiếm" className="w-full rounded-full bg-white outline-none p-2 text-black px-4" />
+          <input type="text" placeholder="Nhập tìm kiếm" className="w-full rounded-full bg-white outline-none p-2 text-black px-4 " />
           <div className="absolute top-2.5 right-4 text-black text-xl font-extrabold"> 
-            <CiSearch />
+            <CiSearch className="cursor-pointer" />
           </div>
         </div>
       </div>
-      <div className=" relative w-full overflow-hidden">
+      <div className=" relative w-full overflow-hidden rounded-4xl">
          {/* Slides */}
         <div
-            className="flex transition-transform ease-in-out duration-700"
+            className="flex transition-transform ease-in-out duration-700 "
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
             {bannerBooks.map((book) => (
