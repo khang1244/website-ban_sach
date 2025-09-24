@@ -2,6 +2,7 @@ import logo from "../assets/avatar.jpg";
 import { CiShoppingCart } from "react-icons/ci";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import SangToi from "./sangtoi";
+import { Link } from "react-router-dom";
 function Navigation() {
   return (
     <nav className="px-6 py-6 flex justify-between items-center  text-shadow-black border-b-[1px] border-b-[#abd1db]   ">
@@ -26,9 +27,14 @@ function Navigation() {
           <SangToi />
         </div>
         <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer"/> 
-        <div className="space-x-0">
+        <div className="space-x-0 gap-2 flex">
+          <Link to="/dangnhap">
           <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-600" >Đăng nhập</button>
-          <button className="hidden px-3 py-1">Đăng xuất</button>
+          </Link>
+           <Link to="/dangky">
+          <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-600" >Đăng Ký</button>
+          </Link>
+            <button className="hidden px-3 py-1">Đăng xuất</button>
         </div>
       </div>
     </nav>
