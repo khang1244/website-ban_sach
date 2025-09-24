@@ -5,12 +5,18 @@ import SangToi from "./sangtoi";
 import { Link } from "react-router-dom";
 function Navigation() {
   return (
-    <nav className="px-6 py-6 flex justify-between items-center  text-shadow-black border-b-[1px] border-b-[#abd1db]   ">
+    <nav className=" bg-amber-900 px-6 py-6 flex justify-between items-center  text-shadow-black border-b-[1px] border-b-[#abd1db] sticky top-0 z-50 shadow-lg ">
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-2">
-          <img src={logo} alt="logo" className="h-12 w-12 rounded-full" />
-           <div>
-          <h1 className="text-2xl font-bold italic text-amber-300 font-black">HOÀNG KHANG</h1>
+          <Link to="/">
+            <img src={logo} alt="logo" className="h-12 w-12 rounded-full" />
+          </Link>
+          <div>
+            <h1 className="text-2xl italic text-amber-300 font-black">
+              <Link to="/">
+                HOÀNG KHANG
+              </Link>
+            </h1>
         </div>
         </div>
         <ul className="flex space-x-4 justify-end items-center font-semibold">

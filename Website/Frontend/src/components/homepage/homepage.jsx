@@ -1,14 +1,12 @@
 import Navigation from "../Navigation";
 import Banner from "../Banner";
+import Footer from "../Footer";
 import { sanphammoi, sanphambanchay } from "../../lib/data";
 import { useState } from "react";
 import sach4 from "../../assets/sach4.webp";
-import { FaFacebook } from "react-icons/fa6";
-import { FaTwitter } from "react-icons/fa6";
-import { FaTiktok } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
-import avatar from "../../assets/avatar.jpg";
 import { FaFire } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const danhmuc = [
   "Tất cả",
@@ -156,7 +154,9 @@ const bolocsachbanchay = sanphambanchay.filter((product) => {
                     <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-full font-semibold hover:bg-white hover:text-black ">
                       <div className="flex justify-center items-center w-full gap-3">
                         <FaFire className="mt-0 text-amber-400" />
-                         Thêm vào giỏ
+                        <Link to="/chitietsanpham">
+                          Thêm vào giỏ
+                        </Link>
                       </div>
                     </button>
                   </div>
@@ -233,67 +233,8 @@ const bolocsachbanchay = sanphambanchay.filter((product) => {
           ))}
         </ul>
       </div>
-      {/* /// Footer */}
-      <footer className="bg-gradient-to-r from-blue-500 to-purple-500 text-gray-300 px-12 md:px-12 py-10 mt-4 gap-5">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-          {/* Cột 1: Logo & Giới thiệu */}
-          <div className=" flex items-center w-auto gap-5 ">
-            {/* Logo */}
-            <div className="flex items-center">
-            <img src={avatar} alt="Logo" className="items-center w-45 h-45   rounded-full" />
-            </div>
-          </div>
-
-          {/* Cột 2: Danh mục */}
-          <div>
-            <h4 className="text-white  text-lg mb-4">Danh mục</h4>
-            <ul className="space-y-2 text-sm border-l-2 border-whhite pl-3 font-bold">
-              <li><a href="#" className="hover:text-white transition-colors text-base">Truyện tranh</a></li>
-              <li><a href="#" className="hover:text-white transition-colors text-base">Ngôn tình</a></li>
-              <li><a href="#" className="hover:text-white transition-colors text-base">Kinh dị</a></li>
-              <li><a href="#" className="hover:text-white transition-colors text-base">Phiêu lưu</a></li>
-            </ul>
-          </div>
-          {/* Cột 3: Hỗ trợ khách hàng */}
-          <div>
-            <h4 className="text-white text-lg mb-4 ">Hỗ trợ</h4>
-            <ul className="space-y-2 text-sm border-l-2 border-white pl-3">
-              <li><a href="#" className="hover:text-white transition-colors cursor-pointer text-base">Chính sách đổi trả</a></li>
-              <li><a href="#" className="hover:text-white transition-colors cursor-pointer text-base">Chính sách bảo mật</a></li>
-              <li><a href="#" className="hover:text-white transition-colors cursor-pointer text-base">Hướng dẫn thanh toán</a></li>
-              <li><a href="#" className="hover:text-white transition-colors cursor-pointer text-base">Liên hệ</a></li>
-            </ul>
-          </div>
-          {/* Cột 4: Thông tin liên hệ & MXH */}
-          <div>
-            <h4 className="text-white font-semibold text-lg mb-4">Liên hệ</h4>
-            <ul className="text-sm space-y-2 border-l-2 border-white pl-3">
-              <li className=" hover:text-white cursor-pointer text-base">📍 123 Đường ABC, TP. Hồ Chí Minh</li>
-              <li className="hover:text-white  cursor-pointer text-base">📞 0123 456 789</li>
-              <li className=" hover:text-white  cursor-pointer text-base">✉️ info@abcbook.vn</li>
-              {/* Mạng xã hội */}
-            <div className="flex justify-center space-x-13 mt-4 text-1xl">
-              <FaFacebook className="hover:text-blue-800 cursor-pointer" />
-              <FaTwitter className="hover:text-blue-800 cursor-pointer" />
-              <FaTiktok className="hover:text-blue-800 cursor-pointer" />
-            </div>
-            </ul>
-
-            {/* Mạng xã hội
-            <div className="flex justify-center space-x-13 mt-4 text-1xl">
-              <FaFacebook className="hover:text-blue-800 cursor-pointer" />
-              <FaTwitter className="hover:text-blue-800 cursor-pointer" />
-              <FaTiktok className="hover:text-blue-800 cursor-pointer" />
-            </div> */}
-          </div>
-        </div>
-
-        {/* Line cuối cùng */}
-        <div className="mt-10 border-t border-red-700 pt-4 text-center text-sm text-white">
-          © 2025 Công ty TNHH ABC. All rights reserved.
-        </div>
-      </footer>
-
+     
+<Footer />
     </div>
   );
 }

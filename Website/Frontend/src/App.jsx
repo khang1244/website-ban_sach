@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import QuenMatKhau from './components/QuenMatKhau';
 import NhapMaOTP from './components/NhapMaOTP';
 import NhapMatKhauMoi from './components/NhapMatKhauMoi';
+import ChiTietSanPham from './components/ChiTietSanPham';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/quenmatkhau" element={<QuenMatKhau />} />
         <Route path="/nhapmaotp" element={<NhapMaOTP />} />
         <Route path="/nhapmatkhaumoi" element={<NhapMatKhauMoi />} />
+        <Route path="/chitietsanpham" element={<ChiTietSanPham />} />
       </Routes>
     </BrowserRouter>
   );

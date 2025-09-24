@@ -14,5 +14,5 @@ body {
 }
 
 html.dark body {
-  @apply bg-black text-white ; /* font-weight giống nhau */
+  @apply bg-gray-700  text-white ; /* font-weight giống nhau */
 }
