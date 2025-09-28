@@ -7,9 +7,9 @@ function Navigation() {
   return (
     <nav className=" bg-amber-900 px-6 py-6 flex justify-between items-center  text-shadow-black border-b-[1px] border-b-[#abd1db] sticky top-0 z-50 shadow-lg ">
       <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 ">
           <Link to="/">
-            <img src={logo} alt="logo" className="h-12 w-12 rounded-full" />
+            <img src={logo} alt="logo" className="h-12 w-12 rounded-full border-2 border-white hover:scale-125 transition-transform" />
           </Link>
           <div>
             <h1 className="text-2xl italic text-amber-300 font-black">
@@ -28,18 +28,20 @@ function Navigation() {
       </div>
 
       <div className="flex items-center space-x-4">
-          <IoMdNotificationsOutline  className="text-2xl hover:text-red-300 cursor-pointer "/>
-        <div>
-          <SangToi />
-        </div>
-        <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer"/> 
+        <IoMdNotificationsOutline className="text-2xl hover:text-red-300 cursor-pointer hover:scale-125 transition-transform" />
+        <div className="border-l-2 border px-2 py-1 rounded-xl hover:scale-112 transition-transform bg-amber-300 text-black">
+          <div className="flex gap-2 ">
+            <h1>Xám/xanh</h1>
+            <SangToi />
+          </div>
+       </div>
+      
+        <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer hover:scale-125 transition-transform"/> 
         <div className="space-x-0 gap-2 flex">
           <Link to="/dangnhap">
-          <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-600" >Đăng nhập</button>
+          <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-300" >Đăng nhập</button>
           </Link>
-           <Link to="/dangky">
-          <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-600" >Đăng Ký</button>
-          </Link>
+          
             <button className="hidden px-3 py-1">Đăng xuất</button>
         </div>
       </div>

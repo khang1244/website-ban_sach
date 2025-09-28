@@ -28,7 +28,7 @@ function Banner() {
     setCurrentIndex(newIndex);
   };
 
-  return (
+ return (
     <div className="w-full px-5">
       {/* tìm kiếm */}
       <div className="flex justify-between items-center px-10 py-5.5 text-white">
@@ -46,36 +46,36 @@ function Banner() {
         <div className="w-1/2 relative">
           {/* Thanh tìm kiếm */}
           <input type="text" placeholder="Nhập tìm kiếm" className="w-full rounded-full bg-white outline-none p-2 text-black px-4 " />
-          <div className="absolute top-2.5 right-4 text-black text-xl font-extrabold"> 
+          <div className="absolute top-2.5 right-4 text-black text-xl font-extrabold">
             <CiSearch className="cursor-pointer" />
           </div>
         </div>
       </div>
       <div className=" relative w-full overflow-hidden rounded-4xl">
-         {/* Slides */}
+        {/* Slides */}
         <div
-            className="flex transition-transform ease-in-out duration-700 "
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          className="flex transition-transform ease-in-out duration-700"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-            {bannerBooks.map((book) => (
+          {bannerBooks.map((book) => (
             <div
-                key={book.id}
-                className="w-full h-[400px] flex flex-shrink-0 flex-col items-center"
+              key={book.id}
+              className="w-full h-[400px] flex flex-shrink-0 flex-col items-center"
             >
-                <img
+              <img
                 src={book.image}
                 alt={book.title}
                 className="w-full h-full object-cover"
-                />
-                <p className="mt-2 text-white font-semibold">{book.title}</p>
+              />
+              <p className="mt-2 text-white font-semibold">{book.title}</p>
             </div>
-            ))}
+          ))}
         </div>
-    
+
         {/* Nút điều khiển trái phải */}
         <button
           onClick={goToPrev}
-          className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/70 hover:bg-white text-black  w-[30px] h-[30px] rounded-full"
+          className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/70 hover:bg-white text-black w-[30px] h-[30px] rounded-full"
         >
           ‹
         </button>
@@ -98,10 +98,10 @@ function Banner() {
             ></button>
           ))}
         </div>
-     </div>
       </div>
-    
-  );
+    </div>
+);
+
 }
 
 export default Banner;

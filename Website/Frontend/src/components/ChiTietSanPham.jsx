@@ -65,7 +65,11 @@ function ChiTietSanPham() {
     <div className=" min-h-screen w-full">
       <Navigation />
       {/* <h1 className="text-4xl font-bold text-center my-8">CHI TIẾT SẢN PHẨM</h1> */}
-      <div className="max-w-6xl mx-auto py-10  grid grid-cols-1 md:grid-cols-2 gap-10 ">
+  
+      <div className="max-w-6xl mx-auto mt-7 text-white py-1 text-2xl italic ml-38">
+          Trang chủ / Chi tiết sản phẩm
+     </div>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 ">
         {/* Hình ảnh sản phẩm */}
         <div className="flex flex-col items-center border p-4 rounded-xl shadow-lg   ">
           <div className="w-[350px] h-[500px] rounded-xl overflow-hidden shadow-lg mb-4 bg-white flex items-center justify-center">
@@ -97,6 +101,7 @@ function ChiTietSanPham() {
           <h2 className="text-3xl font-bold text-[#00809D] mb-2">
             {product.tenSP}
           </h2>
+          {/* //đánh giá sản phẩm */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-yellow-400 flex">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -110,6 +115,7 @@ function ChiTietSanPham() {
             </span>
             <span className="text-gray-600 ml-2">{product.danhGia}/5</span>
           </div>
+          {/* // Thông số chi tiết 1 quyển sách */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-base">
             <div>
               <span className="font-semibold">Tác giả:</span> {product.tacGia}
@@ -148,7 +154,7 @@ function ChiTietSanPham() {
             <span className="text-2xl text-[#00f821] font-bold">
               {product.giaGiam.toLocaleString()} VNĐ
             </span>
-            <span className="text-red-500 line-through text-lg">
+            <span className="text-red-500 line-through text-2xl">
               {product.gia.toLocaleString()} VNĐ
             </span>
           </div>
@@ -176,7 +182,7 @@ function ChiTietSanPham() {
       </div>
 
       {/* Chi tiết sản phẩm */}
-      <div className="max-w-6xl mx-auto mt-0 bg-white rounded-xl shadow-lg p-8">
+      <div className="max-w-6xl mx-auto mt-3 bg-white rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">
           Chi tiết sản phẩm
         </h3>
@@ -238,12 +244,16 @@ function ChiTietSanPham() {
                 <p className="text-red-500 line-through text-sm mt-2">
                   Giá gốc: {product.gia.toLocaleString()} VNĐ
                 </p>
-                <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
+                <div>
+                   <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
                   <span>
                     <FaShoppingCart />
                   </span>
-                  <span>Thêm Giỏ Hàng</span>
+                  <div className="mt-auto">
+                     <span>Thêm Giỏ Hàng</span>
+                  </div>
                 </button>
+               </div>
               </div>
             </li>
           ))}

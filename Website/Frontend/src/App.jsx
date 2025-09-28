@@ -7,6 +7,9 @@ import QuenMatKhau from './components/QuenMatKhau';
 import NhapMaOTP from './components/NhapMaOTP';
 import NhapMatKhauMoi from './components/NhapMatKhauMoi';
 import ChiTietSanPham from './components/ChiTietSanPham';
+import ThanhToan from './components/ThanhToan';
+import XacNhanDonHang from './components/XacNhanDonHang';
+import GioHang from './components/GioHang';
 
 function App() {
 
@@ -22,6 +25,9 @@ function App() {
         <Route path="/nhapmaotp" element={<NhapMaOTP />} />
         <Route path="/nhapmatkhaumoi" element={<NhapMatKhauMoi />} />
         <Route path="/chitietsanpham" element={<ChiTietSanPham />} />
+        <Route path="/thanhtoan" element={<ThanhToan />} />
+        <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
+        <Route path="/giohang" element={<GioHang />} />
       </Routes>
     </BrowserRouter>
   );

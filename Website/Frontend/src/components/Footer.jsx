@@ -13,7 +13,7 @@ const Footer = () => {
           <div className=" flex items-center w-auto gap-5 ">
             {/* Logo */}
             <div className="flex items-center">
-            <img src={avatar} alt="Logo" className="items-center w-45 h-45   rounded-full" />
+            <img src={avatar} alt="Logo" className="items-center w-45 h-45 rounded-full hover:scale-125 transition-transform" />
             </div>
           </div>
 
