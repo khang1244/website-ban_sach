@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
-import {sanphammoi} from "../lib/data"; 
+import { sanphammoi } from "../lib/data";
 import Footer from "./Footer";
 const product = {
   hinhAnh: [
@@ -65,10 +65,10 @@ function ChiTietSanPham() {
     <div className=" min-h-screen w-full">
       <Navigation />
       {/* <h1 className="text-4xl font-bold text-center my-8">CHI TIẾT SẢN PHẨM</h1> */}
-  
+
       <div className="max-w-6xl mx-auto mt-7 text-white py-1 text-2xl italic ml-38">
-          Trang chủ / Chi tiết sản phẩm
-     </div>
+        Trang chủ / Chi tiết sản phẩm
+      </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 ">
         {/* Hình ảnh sản phẩm */}
         <div className="flex flex-col items-center border p-4 rounded-xl shadow-lg   ">
@@ -173,10 +173,10 @@ function ChiTietSanPham() {
               <FaPlus />
             </button>
             <div className="ml-3">
-             <button className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
-              <FaShoppingCart /> Thêm vào giỏ hàng
-            </button>     
-           </div>
+              <button className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
+                <FaShoppingCart /> Thêm vào giỏ hàng
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -221,12 +221,13 @@ function ChiTietSanPham() {
 
       {/* Sách liên quan */}
       <div className="  max-w-6xl mx-auto mt-10 rounded-xl shadow-lg border p-8">
-        <h3 className="text-2xl font-bold  mb-4">
-          Sách liên quan
-        </h3>
+        <h3 className="text-2xl font-bold  mb-4">Sách liên quan</h3>
         <ul className="grid grid-cols-4 gap-6  ">
           {sanphammoi.map((product) => (
-            <li key={product.maSP} className="w-full h-full rounded-md border p-4 shadow-lg hover:scale-105 transition-all bg-amber-100 ">
+            <li
+              key={product.maSP}
+              className="w-full h-full rounded-md border p-4 shadow-lg hover:scale-105 transition-all bg-amber-100 "
+            >
               <div className="w-full h-[350px] rounded-xl overflow-hidden">
                 <img
                   src={product.hinhAnh}
@@ -245,22 +246,22 @@ function ChiTietSanPham() {
                   Giá gốc: {product.gia.toLocaleString()} VNĐ
                 </p>
                 <div>
-                   <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
-                  <span>
-                    <FaShoppingCart />
-                  </span>
-                  <div className="mt-auto">
-                     <span>Thêm Giỏ Hàng</span>
-                  </div>
-                </button>
-               </div>
+                  <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
+                    <span>
+                      <FaShoppingCart />
+                    </span>
+                    <div className="mt-auto">
+                      <span>Thêm Giỏ Hàng</span>
+                    </div>
+                  </button>
+                </div>
               </div>
             </li>
           ))}
         </ul>
       </div>
-          {/* <Footer /> */}
-          <Footer />
+      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

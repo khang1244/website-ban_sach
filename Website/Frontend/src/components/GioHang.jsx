@@ -6,13 +6,13 @@ import { sanphammoi } from "../lib/data";
 import { Link } from "react-router-dom";
 import { FaCartShopping } from "react-icons/fa6";
 
-// Dữ liệu giỏ hàng mẫu 
-const initialCart = [ 
+// Dữ liệu giỏ hàng mẫu
+const initialCart = [
   {
     id: 1,
     image: sanphammoi[0]?.hinhAnh,
     title: sanphammoi[0]?.tenSP,
-    author:sanphammoi[0]?.tacGia || "Tác giả A",
+    author: sanphammoi[0]?.tacGia || "Tác giả A",
     price: sanphammoi[0]?.giaGiam,
     quantity: 2,
   },
@@ -21,12 +21,10 @@ const initialCart = [
     image: sanphammoi[1]?.hinhAnh,
     title: sanphammoi[1]?.tenSP,
     author: sanphammoi[1]?.tacGia || "Tác giả B",
-    price:sanphammoi[1]?.giaGiam,
+    price: sanphammoi[1]?.giaGiam,
     quantity: 1,
   },
 ];
-
-
 
 function GioHang() {
   // State lưu danh sách sản phẩm trong giỏ hàng
@@ -53,13 +51,12 @@ function GioHang() {
   for (let item of cart) {
     subtotal += item.price * item.quantity;
   }
-
   return (
-    <div className="min-h-screen w-full">
+    <div className=" min-h-screen w-full ">
       <Navigation />
       <div className="max-w-5xl mx-auto py-10 px-4  ">
         <h1 className=" flex text-3xl font-bold text-[#00809D] mb-8 gap-4 justify-center text-black">
-        <FaCartShopping />
+          <FaCartShopping />
           Giỏ Hàng
         </h1>
         {cart.length === 0 ? (
@@ -140,10 +137,7 @@ function GioHang() {
               </tbody>
             </table>
             <div className="flex justify-between items-center mt-8">
-              <Link
-                to="/"
-                className="text-black hover:underline font-semibold"
-              >
+              <Link to="/" className="text-black hover:underline font-semibold">
                 &larr; Tiếp tục mua sắm
               </Link>
               <div className="text-xl font-bold text-black">

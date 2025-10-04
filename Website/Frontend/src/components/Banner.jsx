@@ -13,22 +13,22 @@ function Banner() {
     }, 3000); // đổi slide mỗi 3s
     return () => clearInterval(interval);
   }, [currentIndex]);
-    
-//  chuyển về sidle phía trước
+
+  //  chuyển về sidle phía trước
   const goToPrev = () => {
     // Previous
     const isFirst = currentIndex === 0;
     const newIndex = isFirst ? bannerBooks.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
   };
-// chuyển về slide phía sau
+  // chuyển về slide phía sau
   const goToNext = () => {
     const isLast = currentIndex === bannerBooks.length - 1;
     const newIndex = isLast ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
   };
 
- return (
+  return (
     <div className="w-full px-5">
       {/* tìm kiếm */}
       <div className="flex justify-between items-center px-10 py-5.5 text-white">
@@ -45,7 +45,11 @@ function Banner() {
         </div>
         <div className="w-1/2 relative">
           {/* Thanh tìm kiếm */}
-          <input type="text" placeholder="Nhập tìm kiếm" className="w-full rounded-full bg-white outline-none p-2 text-black px-4 " />
+          <input
+            type="text"
+            placeholder="Nhập tìm kiếm"
+            className="w-full rounded-full bg-white outline-none p-2 text-black px-4 "
+          />
           <div className="absolute top-2.5 right-4 text-black text-xl font-extrabold">
             <CiSearch className="cursor-pointer" />
           </div>
@@ -100,8 +104,7 @@ function Banner() {
         </div>
       </div>
     </div>
-);
-
+  );
 }
 
 export default Banner;

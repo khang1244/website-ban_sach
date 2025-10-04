@@ -1,38 +1,39 @@
 import { Link } from "react-router-dom";
-import {useState} from "react"; 
+import { useState } from "react";
 function DangNhap() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [password, setPassword] = useState("");
 
   const xuLyDangNhap = () => {
-      // Để xử lý sau
-  }
+    // Để xử lý sau
+  };
 
   return (
-    // Tạo form đăng nhập gồm trường để nhập email, mật khẩu, quên mật khẩu và nút đăng nhập
-    <div className="flex justify-center items-center h-screen w-screen bg-amber-400">
-      <form className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-sm mx-auto">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 via-amber-100 to-pink-100">
+      <form className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-md mx-auto flex flex-col items-center">
+        <h2 className="text-3xl font-extrabold text-center text-blue-700 mb-8">
           Đăng Nhập
         </h2>
 
         {/* Email */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Email</label>
+        <div className="mb-5 w-full">
+          <label className="block text-gray-700 font-semibold mb-2">
+            Email
+          </label>
           <input
             type="email"
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+            className="w-full px-4 py-2 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
             placeholder="Nhập email..."
           />
         </div>
 
         {/* Password */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
+        <div className="mb-5 w-full">
+          <label className="block text-gray-700 font-semibold mb-2">
             Mật khẩu
           </label>
           <input
@@ -41,14 +42,17 @@ function DangNhap() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+            className="w-full px-4 py-2 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
             placeholder="Nhập mật khẩu..."
           />
         </div>
 
         {/* Forgot password */}
-        <div className="flex justify-end mb-4">
-          <Link to="/quenmatkhau" className="text-sm text-blue-600 hover:underline">
+        <div className="flex justify-end w-full mb-5">
+          <Link
+            to="/quenmatkhau"
+            className="text-sm text-blue-600 hover:underline font-semibold"
+          >
             Quên mật khẩu?
           </Link>
         </div>
@@ -57,13 +61,16 @@ function DangNhap() {
         <button
           onClick={xuLyDangNhap}
           type="button"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+          className="w-full bg-gradient-to-r from-blue-500 to-amber-400 text-white py-3 rounded-xl font-bold hover:from-blue-600 hover:to-amber-500 transition duration-300 shadow-md"
         >
           Đăng nhập
         </button>
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center">
           <span className="text-gray-600">Chưa có tài khoản? </span>
-          <Link to="/dangky" className="text-blue-600 hover:underline">
+          <Link
+            to="/dangky"
+            className="text-blue-600 hover:underline font-semibold"
+          >
             Đăng ký
           </Link>
         </div>

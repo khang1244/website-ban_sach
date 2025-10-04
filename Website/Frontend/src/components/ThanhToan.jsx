@@ -14,14 +14,13 @@ import { sanphammoi } from "../lib/data";
 import { Link, useNavigate } from "react-router-dom";
 import { ImCreditCard } from "react-icons/im";
 
-
 // Danh sách các sản phẩm trong giỏ hàng
 const cartItems = [
   {
     id: 1, // ID sản phẩm 1
     image: sanphammoi[0]?.hinhAnh, // Hình ảnh sản phẩm
     title: sanphammoi[0]?.tenSP, // Tên sản phẩm
-    author:sanphammoi[0]?.tacGia || "Tác giả A", // Tác giả sản phẩm
+    author: sanphammoi[0]?.tacGia || "Tác giả A", // Tác giả sản phẩm
     price: sanphammoi[0]?.giaGiam, // Giá sản phẩm
     quantity: 2, // Số lượng sản phẩm
   },
@@ -86,9 +85,9 @@ function ThanhToan() {
   const [coupon, setCoupon] = useState(""); // Lưu cái mã giảm giá mà người dùng nhập vào
   const [discount, setDiscount] = useState(0); // Lưu giá trị giảm giá tính theo phần
 
-   const router = useNavigate();
+  const router = useNavigate();
   // Điều khoản
-  const [agreed, setAgreed] = useState(false );
+  const [agreed, setAgreed] = useState(false);
 
   // Hàm để thay đổi số lượng sản phẩm trong giỏ hàng
   const updateQuantity = (idx, delta) => {
@@ -152,15 +151,13 @@ function ThanhToan() {
 
   return (
     <div className="bg-gradient-to-br min-h-screen w-full">
-          <Navigation />
-          <div className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white py-6 mb-6 shadow-lg">
-            <div>
-                <ImCreditCard className="text-4xl "/>
-          </div>
-          <div className="">
-              THANH TOÁN
-          </div>
-         </div>
+      <Navigation />
+      <div className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white py-6 mb-6 shadow-lg">
+        <div>
+          <ImCreditCard className="text-4xl " />
+        </div>
+        <div className="">THANH TOÁN</div>
+      </div>
       <form
         className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8"
         onSubmit={placeOrder}
@@ -176,7 +173,7 @@ function ThanhToan() {
               <input
                 required
                 className=" border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
-                placeholder="Họ và tên" 
+                placeholder="Họ và tên"
                 value={customer.name}
                 onChange={
                   (e) => setCustomer({ ...customer, name: e.target.value }) // spread operator

@@ -14,6 +14,7 @@ function XacNhanDonHang() {
           <h1 className="text-3xl font-bold text-[#00809D] mb-2 text-center">
             Đặt hàng thành công!
           </h1>
+
           <p className="text-lg text-gray-700 mb-6 text-center">
             Cảm ơn bạn đã mua sách tại{" "}
             <span className="font-semibold text-[#00809D]">BookStore</span>.
