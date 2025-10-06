@@ -2,9 +2,13 @@ import { useState, useEffect } from "react";
 import { bannerBooks } from "../lib/data";
 import { CiSearch } from "react-icons/ci";
 import avatar from "../assets/avatar.jpg";
+import { useNavigate } from "react-router-dom";
 
 function Banner() {
   const [currentIndex, setCurrentIndex] = useState(0); // Hook của React
+  const [giaTriTimkiem, setGiaTriTimKiem] = useState(""); //Lưu trữ giá trị tìm kiếm
+
+  const navigate = useNavigate();
 
   // Tự động chạy carousel
   useEffect(() => {
@@ -26,6 +30,18 @@ function Banner() {
     const isLast = currentIndex === bannerBooks.length - 1;
     const newIndex = isLast ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
+  };
+  // Xử lý tìm kiếm khi nhấn Enter
+  const xuLyTimKiemKhiEnter = (e) => {
+    if (e.key === "Enter") {
+      xuLyTimKiem();
+    }
+  };
+  // Xử lý tìm kiếm khi nhấn vào biểu tượng tìm kiếm
+  const xuLyTimKiem = () => {
+    if (giaTriTimkiem.trim() !== "") {
+      navigate(`/ketquatimkiemsach?q=${encodeURIComponent(giaTriTimkiem)}`);
+    }
   };
 
   return (
@@ -49,8 +65,14 @@ function Banner() {
             type="text"
             placeholder="Nhập tìm kiếm"
             className="w-full rounded-full bg-white outline-none p-2 text-black px-4 "
+            value={giaTriTimkiem}
+            onChange={(e) => setGiaTriTimKiem(e.target.value)}
+            onKeyDown={xuLyTimKiemKhiEnter}
           />
-          <div className="absolute top-2.5 right-4 text-black text-xl font-extrabold">
+          <div
+            onClick={xuLyTimKiem}
+            className="absolute top-2.5 right-4 text-black text-xl font-extrabold"
+          >
             <CiSearch className="cursor-pointer" />
           </div>
         </div>

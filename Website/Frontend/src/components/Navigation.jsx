@@ -9,15 +9,17 @@ function Navigation() {
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-2 ">
           <Link to="/">
-            <img src={logo} alt="logo" className="h-12 w-12 rounded-full border-2 border-white hover:scale-125 transition-transform" />
+            <img
+              src={logo}
+              alt="logo"
+              className="h-12 w-12 rounded-full border-2 border-white hover:scale-125 transition-transform"
+            />
           </Link>
           <div>
             <h1 className="text-2xl italic text-amber-300 font-black">
-              <Link to="/">
-                HOÀNG KHANG
-              </Link>
+              <Link to="/">HOÀNG KHANG</Link>
             </h1>
-        </div>
+          </div>
         </div>
         <ul className="flex space-x-4 justify-end items-center font-semibold">
           <li className="hover:text-amber-400 cursor-pointer ">Trang Chủ</li>
@@ -34,15 +36,18 @@ function Navigation() {
             <h1>Xám/xanh</h1>
             <SangToi />
           </div>
-       </div>
-      
-        <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer hover:scale-125 transition-transform"/> 
+        </div>
+        <Link to="/giohang">
+          <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer hover:scale-125 transition-transform" />
+        </Link>
         <div className="space-x-0 gap-2 flex">
           <Link to="/dangnhap">
-          <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-300" >Đăng nhập</button>
+            <button className="bg-white text-black px-3 py-1 rounded-full font-semibold cursor-pointer h-8 hover:bg-amber-300">
+              Đăng nhập
+            </button>
           </Link>
-          
-            <button className="hidden px-3 py-1">Đăng xuất</button>
+
+          <button className="hidden px-3 py-1">Đăng xuất</button>
         </div>
       </div>
     </nav>

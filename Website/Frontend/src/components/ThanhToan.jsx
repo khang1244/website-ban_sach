@@ -163,7 +163,7 @@ function ThanhToan() {
         onSubmit={placeOrder}
       >
         {/* Trái: Thông tin khách, phương thức vận chuyển, thanh toán */}
-        <div className="md:col-span-2 flex flex-col gap-8">
+        <div className="md:col-span-2 flex flex-col gap-2">
           {/* Thôn tin khách hàng */}
           <section className="bg-white text-black rounded-2xl shadow-xl p-8 border border-[#e0eafc]">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-[#00809D] drop-shadow">

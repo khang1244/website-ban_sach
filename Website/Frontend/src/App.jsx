@@ -12,6 +12,7 @@ import GioHang from "./components/GioHang";
 import HoSoNguoiDung from "./components/HoSoNguoiDung";
 import LichSuMuaHang from "./components/LichSuMuaHang";
 import ChiTietDonHang from "./components/ChiTietDonHang";
+import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
         <Route path="/chitietdonhang" element={<ChiTietDonHang />} />
+        <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />
       </Routes>
     </BrowserRouter>
   );

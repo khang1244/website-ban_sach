@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
+import {
+  FaTrash,
+  FaPlus,
+  FaMinus,
+  FaArrowLeft,
+  FaShoppingBag,
+} from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { sanphammoi } from "../lib/data";
 import { Link } from "react-router-dom";
-import { FaCartShopping } from "react-icons/fa6";
 
 // Dữ liệu giỏ hàng mẫu
 const initialCart = [
@@ -27,132 +32,152 @@ const initialCart = [
 ];
 
 function GioHang() {
-  // State lưu danh sách sản phẩm trong giỏ hàng
   const [cart, setCart] = useState(initialCart);
 
-  // Hàm tăng/giảm số lượng sản phẩm
   function updateQuantity(index, delta) {
-    // Tạo bản sao mới của giỏ hàng
     const newCart = [...cart];
-    // Tăng/giảm số lượng, không cho nhỏ hơn 1
     newCart[index].quantity = Math.max(1, newCart[index].quantity + delta);
     setCart(newCart);
   }
 
-  // Hàm xóa sản phẩm khỏi giỏ hàng
   function removeItem(index) {
-    // Lọc ra các sản phẩm khác sản phẩm bị xóa
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
   }
 
-  // Tính tổng tiền các sản phẩm trong giỏ
-  let subtotal = 0;
-  for (let item of cart) {
-    subtotal += item.price * item.quantity;
-  }
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   return (
-    <div className=" min-h-screen w-full ">
+    <div className="min-h-screen bg-gradient-to-br">
       <Navigation />
-      <div className="max-w-5xl mx-auto py-10 px-4  ">
-        <h1 className=" flex text-3xl font-bold text-[#00809D] mb-8 gap-4 justify-center text-black">
-          <FaCartShopping />
-          Giỏ Hàng
-        </h1>
+
+      {/* Header */}
+      <div className="bg-gradient-to-r bg-amber-500 text-white ">
+        <div className="max-w-7xl mx-auto">
+          <div className="py-8">
+            <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
+              <FaShoppingBag className="text-2xl" />
+              Giỏ Hàng Của Bạn
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {cart.length === 0 ? (
-          <div className="bg-white rounded-xl shadow p-8 text-center">
-            <p className="text-lg text-gray-700 mb-4">
-              Giỏ hàng của bạn đang trống.
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md mx-auto">
+            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaShoppingBag className="text-4xl text-blue-600" />
+            </div>
+            <p className="text-xl text-gray-600 mb-6">
+              Giỏ hàng của bạn đang trống
             </p>
             <Link
               to="/"
-              className="text-blue-600 hover:underline font-semibold"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
             >
-              &larr; Tiếp tục mua sắm
+              <FaArrowLeft className="mr-2" />
+              Tiếp tục mua sắm
             </Link>
           </div>
         ) : (
-          <div className="bg-amber-500 rounded-xl shadow-xl p-8">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2">Sản phẩm</th>
-                  <th className="py-2">Tác giả</th>
-                  <th className="py-2">Đơn giá</th>
-                  <th className="py-2">Số lượng</th>
-                  <th className="py-2">Tạm tính</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="space-y-6">
+            {/* Cart Items */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="divide-y divide-gray-200">
                 {cart.map((item, idx) => (
-                  <tr key={idx} className="border-b ">
-                    <td className="py-3 flex items-center gap-4">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-16 h-24 object-cover rounded shadow"
-                      />
-                      <span className="font-semibold  text-black">
+                  <div
+                    key={idx}
+                    className="p-6 flex items-center hover:bg-amber-300 transition-colors bg-amber-200"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-24 h-32 object-cover rounded-lg shadow-sm"
+                    />
+                    <div className="ml-6 flex-1">
+                      <h3 className="font-semibold text-lg text-gray-800">
                         {item.title}
-                      </span>
-                    </td>
-                    <td className="py-3">{item.author}</td>
-                    <td className="py-3 font-bold ">
-                      {item.price.toLocaleString()}đ
-                    </td>
-                    <td className="py-3">
-                      <div className="flex items-center gap-2">
+                      </h3>
+                      <p className="text-gray-600 mb-4">{item.author}</p>
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center bg-gray-100 rounded-lg">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(idx, -1)}
+                            className="p-2 hover:bg-gray-200 rounded-l-lg transition-colors"
+                          >
+                            <FaMinus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="w-12 text-center font-medium text-black">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(idx, 1)}
+                            className="p-2 hover:bg-gray-200 rounded-r-lg transition-colors"
+                          >
+                            <FaPlus className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
                         <button
-                          type="button"
-                          className="p-1 bg-black rounded-full border hover:bg-[#e0eafc]"
-                          onClick={() => updateQuantity(idx, -1)}
+                          onClick={() => removeItem(idx)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
                         >
-                          <FaMinus />
-                        </button>
-                        <span className="px-2 font-bold">{item.quantity}</span>
-                        <button
-                          type="button"
-                          className="p-1 bg-black rounded-full border hover:bg-[#e0eafc]"
-                          onClick={() => updateQuantity(idx, 1)}
-                        >
-                          <FaPlus />
+                          <FaTrash />
                         </button>
                       </div>
-                    </td>
-                    <td className="py-3 font-bold">
-                      {(item.price * item.quantity).toLocaleString()}đ
-                    </td>
-                    <td className="py-3">
-                      <button
-                        type="button"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => removeItem(idx)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="text-right ml-6">
+                      <div className="text-lg font-bold text-gray-800">
+                        {(item.price * item.quantity).toLocaleString()}đ
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {item.price.toLocaleString()}đ × {item.quantity}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-            <div className="flex justify-between items-center mt-8">
-              <Link to="/" className="text-black hover:underline font-semibold">
-                &larr; Tiếp tục mua sắm
-              </Link>
-              <div className="text-xl font-bold text-black">
-                Tổng cộng: {subtotal.toLocaleString()}đ
               </div>
-              <Link
-                to="/thanhtoan"
-                className="bg-[#00809D] text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-[#006b85] transition"
-              >
-                Tiến hành thanh toán
-              </Link>
+            </div>
+
+            {/* Cart Summary */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="max-w-3xl mx-auto">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <Link
+                    to="/"
+                    className="flex items-center text-gray-600 hover:text-gray-800 font-medium"
+                  >
+                    <FaArrowLeft className="mr-2" />
+                    Tiếp tục mua sắm
+                  </Link>
+                  <div className="flex items-center gap-8">
+                    <div>
+                      <span className="text-sm text-gray-500">Tổng cộng:</span>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {subtotal.toLocaleString()}đ
+                      </div>
+                    </div>
+                    <Link
+                      to="/thanhtoan"
+                      className="bg-blue-600 text-white px-8 py-3 rounded-xl font-medium
+                               hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+                    >
+                      Thanh toán ngay
+                      <FaArrowLeft className="rotate-180" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </div>
+
       <Footer />
     </div>
   );
