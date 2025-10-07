@@ -326,7 +326,7 @@ function ThanhToan() {
           </section>
         </div>
         {/* Phải: Tổng quan đơn hàng và chi tiết giá */}
-        <div className="md:col-span-1 flex flex-col gap-8">
+        <div className="md:col-span-1 flex flex-col gap-2">
           {/* Thông tin tổng quan đơn hàng */}
           <section className="bg-white text-black rounded-2xl shadow-xl p-8 border border-[#e0eafc]">
             <h2 className="text-2xl font-bold mb-6 text-[#00809D]">
@@ -392,7 +392,7 @@ function ThanhToan() {
           </section>
           {/* Chi tiết giá  */}
           <section className="bg-white text-black rounded-2xl shadow-xl p-8 border border-[#e0eafc]">
-            <h2 className="text-2xl font-bold mb-6 text-[#00809D]">
+            <h2 className="text-2xl font-bold mb-3 text-[#00809D]">
               📊 Chi tiết thanh toán
             </h2>
             <div className="flex justify-between py-2 text-lg">

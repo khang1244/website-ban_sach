@@ -44,7 +44,6 @@ function Homepage() {
     } else if (selectedPrice === ">200000") {
       matchPrice = product.giaGiam > 200000;
     }
-
     return matchCategory && matchPrice;
   });
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách bán chạy
@@ -65,7 +64,6 @@ function Homepage() {
     if (selectedPriceBC === ">200000") {
       matchPrice = product.giaGiam > 200000;
     }
-
     return matchCategory && matchPrice;
   });
 
