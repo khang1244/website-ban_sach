@@ -4,7 +4,7 @@ import {
   nhanTatCaCacQuyenSach,
   taoSachMoi,
   xoaSach,
-} from "../controllers/SachControllers.js";
+} from "../controller/sachController.js";
 
 const router = express.Router();
 

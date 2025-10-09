@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import sequelize from "./config/mysql_config.js";
 import SachRoutes from "./routes/SachRoutes.js";
+import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
 
 //Tạo lại cấu trúc bảng khi thay đổi cột trong bảng table hoặc thêm cột trong mysql worbench
 await sequelize.sync({ force: true });
@@ -30,6 +31,8 @@ app.get("/", (req, res) => {
 });
 // Sử dụng routes sach
 app.use("/api/sach", SachRoutes); // Sử dụng routes sach
+// Sử dụng routes danhMucSach
+app.use("/api/danhMucSach", DanhMucSachRoutes); // Sử dụng routes danhMucSach
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
