@@ -4,7 +4,7 @@ import sequelize from "../config/mysql_config.js";
 const DanhMucSach = sequelize.define(
   "DanhMucSach",
   {
-    DanhMucSachID: {
+    danhMucSachID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -15,7 +15,7 @@ const DanhMucSach = sequelize.define(
     },
   },
   {
-    tableName: "DanhMucSach",
+    tableName: "Danh_Muc_Sach",
     timestamps: false,
   }
 );

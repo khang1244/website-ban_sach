@@ -5,9 +5,9 @@ import sequelize from "./config/mysql_config.js";
 import SachRoutes from "./routes/SachRoutes.js";
 import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
 
-//Tạo lại cấu trúc bảng khi thay đổi cột trong bảng table hoặc thêm cột trong mysql worbench
-await sequelize.sync({ force: true });
-console.log("Đã tạo mới cấu trúc bảng!");
+//Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
+await sequelize.sync({ alter: true });
+console.log("Đã cập nhật cấu trúc bảng!");
 
 // Đọc biến môi trường từ file .env
 dotenv.config();
@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 app.use("/api/sach", SachRoutes); // Sử dụng routes sach
 // Sử dụng routes danhMucSach
 app.use("/api/danhMucSach", DanhMucSachRoutes); // Sử dụng routes danhMucSach
+app.use("/api/donHang", (await import("./routes/DonHangRoutes.js")).default); // Sử dụng routes donHang
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
