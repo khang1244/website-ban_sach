@@ -4,6 +4,8 @@ import cors from "cors";
 import sequelize from "./config/mysql_config.js";
 import SachRoutes from "./routes/SachRoutes.js";
 import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
+import DonHangRoutes from "./routes/DonHangRoutes.js";
+import NguoiDungRoutes from "./routes/NguoiDungRoutes.js";
 
 //Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
 await sequelize.sync({ alter: true });
@@ -31,9 +33,12 @@ app.get("/", (req, res) => {
 });
 // Sử dụng routes sach
 app.use("/api/sach", SachRoutes); // Sử dụng routes sach
-// Sử dụng routes danhMucSach
+
 app.use("/api/danhMucSach", DanhMucSachRoutes); // Sử dụng routes danhMucSach
-app.use("/api/donHang", (await import("./routes/DonHangRoutes.js")).default); // Sử dụng routes donHang
+
+app.use("/api/donHang", DonHangRoutes); // Sử dụng routes donHang
+
+app.use("/api/nguoiDung", NguoiDungRoutes); // Sử dụng routes nguoiDung1
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
