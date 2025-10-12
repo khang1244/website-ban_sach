@@ -7,10 +7,11 @@ import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
 import DonHangRoutes from "./routes/DonHangRoutes.js";
 import NguoiDungRoutes from "./routes/NguoiDungRoutes.js";
 import binhLuanRoutes from "./routes/BinhLuanRoutes.js";
+import khuyenMaiRoutes from "./routes/KhuyenMaiRoutes.js";
 
 //Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
-await sequelize.sync({ alter: true });
-console.log("Đã cập nhật cấu trúc bảng!");
+// await sequelize.sync({ alter: true });
+// console.log("Đã cập nhật cấu trúc bảng!");
 
 // Đọc biến môi trường từ file .env
 dotenv.config();
@@ -41,7 +42,9 @@ app.use("/api/donHang", DonHangRoutes); // Sử dụng routes donHang
 
 app.use("/api/nguoiDung", NguoiDungRoutes); // Sử dụng routes nguoiDung1
 
-app.use("/api/binhLuan", binhLuanRoutes);
+app.use("/api/binhLuan", binhLuanRoutes); // Sử dụng routes binhLuan
+
+app.use("/api/khuyenMai", khuyenMaiRoutes); // Sử dụng routes khuyenMai
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
@@ -50,11 +53,11 @@ app.listen(PORT, () => {
 });
 
 // //Đồng bộ hóa các mô hình với cơ sở dữ liệu
-// sequelize
-//   .sync()
-//   .then(() => {
-//     console.log("Tất cả các mô hình đã được đồng bộ hóa với cơ sở dữ liệu.");
-//   })
-//   .catch((err) => {
-//     console.error("Lỗi đồng bộ hóa mô hình với cơ sở dữ liệu:", err);
-//   });
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Tất cả các mô hình đã được đồng bộ hóa với cơ sở dữ liệu.");
+  })
+  .catch((err) => {
+    console.error("Lỗi đồng bộ hóa mô hình với cơ sở dữ liệu:", err);
+  });
