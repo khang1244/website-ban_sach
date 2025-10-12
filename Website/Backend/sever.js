@@ -6,6 +6,7 @@ import SachRoutes from "./routes/SachRoutes.js";
 import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
 import DonHangRoutes from "./routes/DonHangRoutes.js";
 import NguoiDungRoutes from "./routes/NguoiDungRoutes.js";
+import binhLuanRoutes from "./routes/BinhLuanRoutes.js";
 
 //Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
 await sequelize.sync({ alter: true });
@@ -39,6 +40,8 @@ app.use("/api/danhMucSach", DanhMucSachRoutes); // Sử dụng routes danhMucSac
 app.use("/api/donHang", DonHangRoutes); // Sử dụng routes donHang
 
 app.use("/api/nguoiDung", NguoiDungRoutes); // Sử dụng routes nguoiDung1
+
+app.use("/api/binhLuan", binhLuanRoutes);
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
