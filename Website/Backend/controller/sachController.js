@@ -24,7 +24,8 @@ export const taoSachMoi = async (req, res) => {
       dinhDang,
       soLuongConLai,
       ISBN13,
-      gia,
+      giaNhap,
+      giaBan,
       giaGiam,
       images,
     } = req.body;
@@ -40,7 +41,8 @@ export const taoSachMoi = async (req, res) => {
       dinhDang,
       soLuongConLai,
       ISBN13,
-      gia,
+      giaNhap,
+      giaBan,
       giaGiam,
       images,
     });
@@ -66,7 +68,8 @@ export const capNhatSach = async (req, res) => {
       dinhDang,
       soLuongConLai,
       ISBN13,
-      gia,
+      giaNhap,
+      giaBan,
       giaGiam,
       images,
     } = req.body;
@@ -87,7 +90,8 @@ export const capNhatSach = async (req, res) => {
     sach.dinhDang = dinhDang;
     sach.soLuongConLai = soLuongConLai;
     sach.ISBN13 = ISBN13;
-    sach.gia = gia;
+    sach.giaNhap = giaNhap;
+    sach.giaBan = giaBan;
     sach.giaGiam = giaGiam;
     sach.images = images;
 

@@ -49,7 +49,11 @@ const Sach = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    gia: {
+    giaNhap: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    giaBan: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
