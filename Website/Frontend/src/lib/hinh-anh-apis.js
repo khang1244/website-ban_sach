@@ -1,0 +1,20 @@
+// Các API này liên quan đến hình ảnh, ví dụ như tải lên, lấy danh sách hình ảnh, xóa hình ảnh, v.v.
+
+import { BASE_URL } from "./baseUrl";
+
+// Hàm để tải lên hình ảnh
+export const uploadHinhAnh = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  try {
+    const response = await fetch(`${BASE_URL}/hinhAnh/taianhlen`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    return data; // Trả về dữ liệu phản hồi từ server
+  } catch (error) {
+    console.error("Lỗi khi tải lên hình ảnh:", error);
+    throw error;
+  }
+};

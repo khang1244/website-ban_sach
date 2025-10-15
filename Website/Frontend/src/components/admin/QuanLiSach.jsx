@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import img1 from "../../lib/../assets/sach1.webp";
+import { themSach } from "../../lib/sach-apis";
+import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
 
 const initialBooks = [
   {
@@ -13,10 +15,11 @@ const initialBooks = [
     loaiSach: "Truyện tranh",
     soTrang: 200,
     dinhDang: "Bìa mềm",
-    soLuong: 50,
-    giaGoc: 120000,
-    giaGiam: 90000,
-    isbn13: "9786042091234",
+    soLuongConLai: 50,
+    giaNhap: 120000,
+    giaBan: 90000,
+    giaGiam: 80000,
+    ISBN13: "9786042091234",
   },
 ];
 
@@ -45,10 +48,11 @@ function QuanLiSach() {
     loaiSach: "Truyện tranh",
     soTrang: 0,
     dinhDang: "Bìa mềm",
-    soLuong: 0,
-    giaGoc: 0,
+    soLuongConLai: 0,
+    giaNhap: 0,
+    giaBan: 0,
     giaGiam: 0,
-    isbn13: "",
+    ISBN13: "",
   });
   const [editId, setEditId] = useState(null);
 
@@ -62,26 +66,49 @@ function QuanLiSach() {
     }
   };
   // Xử lý submit form thêm / sửa sách
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // (Tuỳ chọn) kiểm tra dữ liệu
-    if (form.giaGiam > form.giaGoc) {
-      alert("Giá giảm không được lớn hơn giá gốc!");
-      return;
-    }
-    if (!/^\d{13}$/.test(form.isbn13)) {
-      alert("ISBN13 phải gồm đúng 13 chữ số!");
-      return;
-    }
+    // // (Tuỳ chọn) kiểm tra dữ liệu
+    // if (form.giaGiam > form.giaGoc) {
+    //   alert("Giá giảm không được lớn hơn giá gốc!");
+    //   return;
+    // }
+    // if (!/^\d{13}$/.test(form.ISBN13)) {
+    //   alert("ISBN13 phải gồm đúng 13 chữ số!");
+    //   return;
+    // }
     // Cập nhật sách nếu đang sửa, hoặc thêm mới
+
+    //Kiểm tra dữ liệu form
+    console.log("Dữ liệu form ", form);
+
     if (editId) {
       setBooks(
-        books.map((b) => (b.id === editId ? { ...form, id: editId } : b))
+        books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) //Tìm và cập nhật sách có id trùng với editId để cập nhật
       );
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
+
+      // Gọi API để upload hình ảnh lên server và lấy về URL của hình ảnh đó
+      const publicIDvaUrl = []; // [{ public_id, url }, ... ]
+      if (form.images.length > 0) {
+        for (const img of form.images) {
+          // Lặp qua từng hình (file) trong mảng images
+          const result = await uploadHinhAnh(img); // Gọi API upload hình ảnh để upload hình ảnh lên Cloudinary
+          console.log("Đang upload hình ảnh lên Cloud");
+          publicIDvaUrl.push(result); // Lưu thông tin hình ảnh (public_id và url) vào mảng
+        }
+      }
+      // Thay đổi giá trị images của form.images
+      form.images = JSON.stringify(publicIDvaUrl); // Chuyển mảng thành chuỗi JSON để lưu vào database
+
+      // Gọi API để thêm sách vào database
+      await themSach(form);
+
+      // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
+      alert("Thêm sách thành công!");
     }
 
     setForm({
@@ -95,10 +122,11 @@ function QuanLiSach() {
       loaiSach: "Truyện tranh",
       soTrang: 0,
       dinhDang: "Bìa mềm",
-      soLuong: 0,
-      giaGoc: 0,
+      soLuongConLai: 0,
+      giaNhap: 0,
+      giaBan: 0,
       giaGiam: 0,
-      isbn13: "",
+      ISBN13: "",
     });
   };
 
@@ -124,10 +152,11 @@ function QuanLiSach() {
         loaiSach: "Truyện tranh",
         soTrang: 0,
         dinhDang: "Bìa mềm",
-        soLuong: 0,
-        giaGoc: 0,
+        soLuongConLai: 0,
+        giaNhap: 0,
+        giaBan: 0,
         giaGiam: 0,
-        isbn13: "",
+        ISBN13: "",
       });
     }
   };
@@ -145,7 +174,7 @@ function QuanLiSach() {
       </h1>
 
       {/* Form thêm / sửa sách */}
-      <div className="bg-black shadow-lg rounded-xl p-6 mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="bg-amber-900 shadow-lg rounded-xl p-6 mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <label className="block font-semibold mb-2 text-white">
             Hình ảnh sản phẩm
@@ -235,12 +264,12 @@ function QuanLiSach() {
             </select>
           </div>
           <div>
-            <label className="block font.medium mb-1">Loại sách</label>
+            <label className=" block font.medium mb-1">Loại sách</label>
             <select
               name="loaiSach"
               value={form.loaiSach}
               onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
+              className="text-white bg-amber-900 w-full border rounded p-2 mb-3"
             >
               {LOAI_SACH.map((loai) => (
                 <option key={loai} value={loai}>
@@ -279,19 +308,30 @@ function QuanLiSach() {
             <label className="block font-medium mb-1">Số lượng</label>
             <input
               type="number"
-              name="soLuong"
-              value={form.soLuong}
+              name="soLuongConLai"
+              value={form.soLuongConLai}
               onChange={handleChange}
               className="w-full border rounded p-2 mb-3"
               min="0"
             />
           </div>
           <div>
-            <label className="block font.medium mb-1">Giá gốc</label>
+            <label className="block font.medium mb-1">Giá Nhập</label>
             <input
               type="number"
-              name="giaGoc"
-              value={form.giaGoc}
+              name="giaNhap"
+              value={form.giaNhap}
+              onChange={handleChange}
+              className="w-full border rounded p-2 mb-3"
+              min="0"
+            />
+          </div>
+          <div>
+            <label className="block font.medium mb-1">Giá Bán</label>
+            <input
+              type="number"
+              name="giaBan"
+              value={form.giaBan}
               onChange={handleChange}
               className="w-full border rounded p-2 mb-3"
               min="0"
@@ -312,8 +352,8 @@ function QuanLiSach() {
             <label className="block font-medium mb-1">ISBN13</label>
             <input
               type="text"
-              name="isbn13"
-              value={form.isbn13}
+              name="ISBN13"
+              value={form.ISBN13}
               onChange={handleChange}
               className="w-full border rounded p-2 mb-3"
               required
@@ -350,7 +390,8 @@ function QuanLiSach() {
                 <th className="p-2">Trang</th>
                 <th className="p-2">Định dạng</th>
                 <th className="p-2">SL</th>
-                <th className="p-2">Giá gốc</th>
+                <th className="p-2">Giá nhập</th>
+                <th className="p-2">Giá bán</th>
                 <th className="p-2">Giá giảm</th>
                 <th className="p-2">ISBN13</th>
                 <th className="p-2">Hành động</th>
@@ -388,10 +429,11 @@ function QuanLiSach() {
                   <td className="p-2">{book.loaiSach}</td>
                   <td className="p-2">{book.soTrang}</td>
                   <td className="p-2">{book.dinhDang}</td>
-                  <td className="p-2">{book.soLuong}</td>
-                  <td className="p-2">{book.giaGoc.toLocaleString()} VNĐ</td>
+                  <td className="p-2">{book.soLuongConLai}</td>
+                  <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
+                  <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
                   <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
-                  <td className="p-2">{book.isbn13}</td>
+                  <td className="p-2">{book.ISBN13}</td>
                   <td className="p-2">
                     <button
                       onClick={() => handleEdit(book)}
