@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import img1 from "../../lib/../assets/sach1.webp";
-import { themSach } from "../../lib/sach-apis";
+import { capNhatSach, themSach } from "../../lib/sach-apis";
 import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
+import { useEffect } from "react";
+import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
+import { MdOutlineDelete } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 const initialBooks = [
   {
-    id: 1,
-    images: [img1],
+    sachID: null,
+    images: [],
     tenSach: "Thần Đồng Đất Phương Nam",
     tacGia: "Nguyễn Nhật Ánh",
     nhaXuatBan: "NXB Kim Đồng",
@@ -38,7 +41,7 @@ const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 function QuanLiSach() {
   const [books, setBooks] = useState(initialBooks);
   const [form, setForm] = useState({
-    id: null,
+    sachID: null,
     images: [],
     tenSach: "",
     tacGia: "",
@@ -69,17 +72,6 @@ function QuanLiSach() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // // (Tuỳ chọn) kiểm tra dữ liệu
-    // if (form.giaGiam > form.giaGoc) {
-    //   alert("Giá giảm không được lớn hơn giá gốc!");
-    //   return;
-    // }
-    // if (!/^\d{13}$/.test(form.ISBN13)) {
-    //   alert("ISBN13 phải gồm đúng 13 chữ số!");
-    //   return;
-    // }
-    // Cập nhật sách nếu đang sửa, hoặc thêm mới
-
     //Kiểm tra dữ liệu form
     console.log("Dữ liệu form ", form);
 
@@ -87,6 +79,42 @@ function QuanLiSach() {
       setBooks(
         books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) //Tìm và cập nhật sách có id trùng với editId để cập nhật
       );
+      // Nếu form.images có chứa các file (nghĩa là người dùng đã chọn hình ảnh mới để cập nhật) thì chúng ta sẽ upload hình ảnh mới lên Cloudinary
+      // Kiểm tra xem người dùng có upload ảnh mới không
+      const hasNewImages = form.images.some((img) => img instanceof File);
+
+      if (hasNewImages) {
+        // Nếu có ảnh mới, upload lên cloud
+        const publicIDvaUrl = [];
+        for (const img of form.images) {
+          if (img instanceof File) {
+            const result = await uploadHinhAnh(img);
+            publicIDvaUrl.push(result);
+          }
+        }
+        // Kết hợp ảnh mới với ảnh cũ (nếu có)
+        const oldImages = form.images.filter((img) => !(img instanceof File));
+        form.images = [...oldImages, ...publicIDvaUrl];
+      }
+      // Cập nhật sách trong database
+      await capNhatSach(editId, form);
+
+      // Cập nhật state books để hiển thị ngay lập tức
+      setBooks((prevBooks) =>
+        prevBooks.map((book) =>
+          book.sachID === editId ? { ...form, sachID: editId } : book
+        )
+      );
+
+      // Refresh lại danh sách sách từ server để đảm bảo dữ liệu đồng bộ
+      const updatedBooks = await nhanTatCaCacQuyenSach();
+      const processedBooks = updatedBooks.map((book) => ({
+        ...book,
+        images: book.images ? JSON.parse(book.images) : [],
+      }));
+      setBooks(processedBooks);
+
+      alert("Cập nhật sách thành công!");
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
@@ -102,11 +130,23 @@ function QuanLiSach() {
         }
       }
       // Thay đổi giá trị images của form.images
-      form.images = JSON.stringify(publicIDvaUrl); // Chuyển mảng thành chuỗi JSON để lưu vào database
-
-      // Gọi API để thêm sách vào database
+      form.images = publicIDvaUrl; // Mảng này sẽ được gửi lên server khi thêm sách
       await themSach(form);
+      // Cập nhật state books để hiển thị ngay lập tức
+      setBooks((prevBooks) =>
+        prevBooks.map((book) =>
+          book.sachID === editId ? { ...form, sachID: editId } : book
+        )
+      );
 
+      // Refresh lại danh sách sách từ server để đảm bảo dữ liệu đồng bộ
+      const updatedBooks = await nhanTatCaCacQuyenSach();
+      const processedBooks = updatedBooks.map((book) => ({
+        ...book,
+        images: book.images ? JSON.parse(book.images) : [],
+      }));
+      setBooks(processedBooks);
+      // Gọi API để thêm sách vào database
       // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
       alert("Thêm sách thành công!");
     }
@@ -131,9 +171,16 @@ function QuanLiSach() {
   };
 
   const handleEdit = (book) => {
-    // giữ ảnh cũ hoặc loại bỏ, tuỳ bạn
-    setForm({ ...book });
-    setEditId(book.id);
+    const ngayXuatBan = new Date(book.ngayXuatBan);
+    const formatDate = ngayXuatBan.toISOString().split("T")[0];
+    // Đảm bảo giữ lại hình ảnh cũ
+    const oldImages = book.images || [];
+    setForm({
+      ...book,
+      ngayXuatBan: formatDate,
+      images: oldImages, // Giữ lại mảng hình ảnh cũ
+    });
+    setEditId(book.sachID);
   };
 
   const handleDelete = (id) => {
@@ -142,7 +189,7 @@ function QuanLiSach() {
     if (editId === id) {
       setEditId(null);
       setForm({
-        id: null,
+        sachID: null,
         images: [],
         tenSach: "",
         tacGia: "",
@@ -161,10 +208,43 @@ function QuanLiSach() {
     }
   };
 
-  const formatDate = (iso) => {
-    if (!iso) return "";
-    const [y, m, d] = iso.split("-");
-    return `${d}/${m}/${y}`;
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "";
+
+    // 1. Tách chuỗi tại ký tự 'T' để loại bỏ phần giờ và múi giờ
+    // Ví dụ: "2025-10-03T00:00:00.000Z" sẽ thành ["2025-10-03", "00:00:00.000Z"]
+    const datePart = isoDate.split("T")[0];
+
+    // 2. Tách phần ngày-tháng-năm (đã được làm sạch)
+    const [year, month, day] = datePart.split("-");
+
+    // 3. Trả về định dạng mong muốn
+    return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
+  };
+
+  // useEffect để gọi API lấy tất cả các quyển sách từ database khi component được mount (kết nối, hiển thị) lần đầu tiên
+  useEffect(() => {
+    const napDuLieuSach = async () => {
+      const booksData = await nhanTatCaCacQuyenSach();
+
+      // Lặp qua mảng kết quản để chúng ta chuyển trường images từ chuỗi JSON thành mảng
+      booksData.forEach((book) => {
+        if (book.images) {
+          book.images = JSON.parse(book.images); // Chuyển chuỗi JSON thành mảng
+        } else {
+          book.images = []; // Nếu không có trường images thì gán mảng rỗng
+        }
+      });
+
+      console.log("Dữ liệu sách nhận từ API:", booksData);
+
+      setBooks(booksData);
+    };
+    napDuLieuSach();
+  }, []);
+  // Kiểm tra 1 biến có phải là 1 file hay không
+  const isFile = (obj) => {
+    return obj instanceof File;
   };
 
   return (
@@ -189,13 +269,15 @@ function QuanLiSach() {
           />
           <div className="flex flex-wrap gap-2 mt-2">
             {form.images &&
-              form.images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={typeof img === "string" ? img : URL.createObjectURL(img)}
-                  alt="preview"
-                  className="w-20 h-20 object-cover rounded-lg border"
-                />
+              Array.from(form.images).map((img, idx) => (
+                <div>
+                  <img
+                    key={idx}
+                    src={isFile(img) ? URL.createObjectURL(img) : img.url}
+                    alt="preview"
+                    className="w-20 h-20 object-cover rounded-lg border"
+                  />
+                </div>
               ))}
           </div>
         </div>
@@ -398,58 +480,51 @@ function QuanLiSach() {
               </tr>
             </thead>
             <tbody>
-              {books.map((book, idx) => (
-                <tr key={book.id} className="even:bg-gray-100 text-black">
-                  <td className="p-2 font-bold">{idx + 1}</td>
-                  <td className="p-2">
-                    <div className="flex flex-wrap gap-1">
-                      {book.images && book.images.length > 0 ? (
-                        book.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={
-                              typeof img === "string"
-                                ? img
-                                : URL.createObjectURL(img)
-                            }
-                            alt="book"
-                            className="w-10 h-10 object-cover rounded border"
-                          />
-                        ))
-                      ) : (
-                        <span className="text-gray-400">Không có ảnh</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2">{book.tenSach}</td>
-                  <td className="p-2">{book.tacGia}</td>
-                  <td className="p-2">{book.nhaXuatBan}</td>
-                  <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
-                  <td className="p-2">{book.ngonNgu}</td>
-                  <td className="p-2">{book.loaiSach}</td>
-                  <td className="p-2">{book.soTrang}</td>
-                  <td className="p-2">{book.dinhDang}</td>
-                  <td className="p-2">{book.soLuongConLai}</td>
-                  <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
-                  <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
-                  <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
-                  <td className="p-2">{book.ISBN13}</td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => handleEdit(book)}
-                      className="text-blue-600 hover:underline mr-2"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(book.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {books &&
+                books.length > 0 &&
+                books.map((book, idx) => (
+                  <tr key={book.sachID} className="even:bg-gray-100 text-black">
+                    <td className="p-2 font-bold">{idx + 1}</td>
+                    <td className="p-2">
+                      <div className="flex flex-wrap gap-1">
+                        {book.images && book.images.length > 0 ? (
+                          book.images.map((img, i) => (
+                            <img
+                              key={i}
+                              src={img.url}
+                              alt="book"
+                              className="w-10 h-10 object-cover rounded border"
+                            />
+                          ))
+                        ) : (
+                          <span className="text-gray-400">Không có ảnh</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-2">{book.tenSach}</td>
+                    <td className="p-2">{book.tacGia}</td>
+                    <td className="p-2">{book.nhaXuatBan}</td>
+                    <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
+                    <td className="p-2">{book.ngonNgu}</td>
+                    <td className="p-2">{book.loaiSach}</td>
+                    <td className="p-2">{book.soTrang}</td>
+                    <td className="p-2">{book.dinhDang}</td>
+                    <td className="p-2">{book.soLuongConLai}</td>
+                    <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
+                    <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
+                    <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
+                    <td className="p-2">{book.ISBN13}</td>
+                    <td className="p-2 flex gap-2">
+                      <button onClick={() => handleEdit(book)}>
+                        <FaEdit className="text-blue-600 text-2xl hover:text-red-500 mt-2" />
+                      </button>
+
+                      <button onClick={() => handleDelete(book.id)}>
+                        <MdOutlineDelete className="text-red-600 text-3xl hover:text-blue-500 mt-2" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

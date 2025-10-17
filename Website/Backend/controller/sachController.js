@@ -93,7 +93,7 @@ export const capNhatSach = async (req, res) => {
     sach.giaNhap = giaNhap;
     sach.giaBan = giaBan;
     sach.giaGiam = giaGiam;
-    sach.images = images;
+    sach.images = JSON.stringify(images); // Lưu mảng dưới dạng chuỗi JSON
 
     await sach.save();
     res.json(sach);
