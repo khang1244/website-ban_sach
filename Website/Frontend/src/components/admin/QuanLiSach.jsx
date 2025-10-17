@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { capNhatSach, themSach } from "../../lib/sach-apis";
-import { uploadHinhAnh } from "../../lib/hinh-anh-apis";
+import { capNhatSach, themSach, xoaSach } from "../../lib/sach-apis";
+import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
 import { useEffect } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { MdOutlineDelete } from "react-icons/md";
@@ -183,29 +183,24 @@ function QuanLiSach() {
     setEditId(book.sachID);
   };
 
-  const handleDelete = (id) => {
-    setBooks(books.filter((b) => b.id !== id));
-    // Nếu đang sửa chính sách này, reset form
-    if (editId === id) {
-      setEditId(null);
-      setForm({
-        sachID: null,
-        images: [],
-        tenSach: "",
-        tacGia: "",
-        nhaXuatBan: "",
-        ngayXuatBan: "",
-        ngonNgu: "Tiếng Việt",
-        loaiSach: "Truyện tranh",
-        soTrang: 0,
-        dinhDang: "Bìa mềm",
-        soLuongConLai: 0,
-        giaNhap: 0,
-        giaBan: 0,
-        giaGiam: 0,
-        ISBN13: "",
+  const handleDelete = async (sachID) => {
+    setBooks(books.filter((b) => b.sachID !== sachID)); // Lọc bỏ quyển sách có id trùng với id được truyền vào hàm
+
+    // Xóa hình ảnh của quyển sách khỏi Cloudinary
+    const bookToDelete = books.find((b) => b.sachID === sachID);
+
+    console.log("Quyển sách cần xóa:", bookToDelete);
+
+    if (bookToDelete) {
+      // Nếu tìm thấy quyển sách cần xóa
+      bookToDelete.images.forEach(async (img) => {
+        console.log("Đang xóa hình ảnh khỏi Cloudinary:", img);
+        await xoaHinhAnhCloudinary(img.public_id);
       });
     }
+    // Xóa dữ liệu quyển sách khỏi database
+    await xoaSach(sachID); // Gọi API xóa quyển sách khỏi database
+    alert("Xóa sách thành công!");
   };
 
   const formatDate = (isoDate) => {
@@ -519,7 +514,7 @@ function QuanLiSach() {
                         <FaEdit className="text-blue-600 text-2xl hover:text-red-500 mt-2" />
                       </button>
 
-                      <button onClick={() => handleDelete(book.id)}>
+                      <button onClick={() => handleDelete(book.sachID)}>
                         <MdOutlineDelete className="text-red-600 text-3xl hover:text-blue-500 mt-2" />
                       </button>
                     </td>

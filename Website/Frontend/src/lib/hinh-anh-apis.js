@@ -18,3 +18,20 @@ export const uploadHinhAnh = async (file) => {
     throw error;
   }
 };
+// Hàm để xóa hình ảnh khỏi Cloudinary
+export const xoaHinhAnhCloudinary = async (publicId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/hinh-anh/xoa-anh-khoi`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ public_id: publicId }),
+    });
+    const data = await response.json();
+    return data; // Trả về dữ liệu phản hồi từ server
+  } catch (error) {
+    console.error("Lỗi khi xóa hình ảnh:", error);
+    throw error;
+  }
+};
