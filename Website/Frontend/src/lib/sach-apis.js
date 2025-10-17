@@ -58,7 +58,7 @@ export const nhanTatCaCacQuyenSach = async () => {
 // 4. Hàm để xóa một quyển sách dựa trên ID
 export const xoaSach = async (sachId) => {
   try {
-    const response = await fetch(`${BASE_URL}/api/sach/${sachId}`, {
+    const response = await fetch(`${BASE_URL}/sach/${sachId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

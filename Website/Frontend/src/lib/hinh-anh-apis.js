@@ -21,7 +21,7 @@ export const uploadHinhAnh = async (file) => {
 // Hàm để xóa hình ảnh khỏi Cloudinary
 export const xoaHinhAnhCloudinary = async (publicId) => {
   try {
-    const response = await fetch(`${BASE_URL}/api/hinh-anh/xoa-anh-khoi`, {
+    const response = await fetch(`${BASE_URL}hinhAnh/xoaanh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
