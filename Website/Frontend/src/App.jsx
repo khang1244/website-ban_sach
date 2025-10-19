@@ -16,6 +16,7 @@ import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
 import AdminLayout from "./components/admin/AdminLayout";
 import QuanLiChung from "./components/admin/QuanLiChung";
 import QuanLiSach from "./components/admin/QuanLiSach";
+import DanhMucSach from "./components/admin/DanhMucSach";
 
 function App() {
   return (
@@ -41,13 +42,13 @@ function App() {
         <Route path="/admin/*" element={<AdminLayout />}>
           <Route index element={<QuanLiChung />} />
           <Route path="sach" element={<QuanLiSach />} />
-          {/* <Route path="danhmucsach" element={<div>Danh mục sách</div>} />
-          <Route path="donhang" element={<div>Quản lý đơn hàng</div>} />
-          <Route path="nguoidung" element={<div>Người dùng</div>} />
-          <Route path="binhluan" element={<div>Bình luận</div>} />
-          <Route path="khuyenmai" element={<div>Khuyến mãi</div>} />
-          <Route path="giaodichkho" element={<div>Giao dịch kho</div>} />
-          <Route path="tintuc" element={<div>Quản lý tin tức</div>} /> */}
+          <Route path="danhmucsach" element={<DanhMucSach />} />
+          {/* // <Route path="donhang" element={<div>Quản lý đơn hàng</div>} />
+          // <Route path="nguoidung" element={<div>Người dùng</div>} />
+          // <Route path="binhluan" element={<div>Bình luận</div>} />
+          // <Route path="khuyenmai" element={<div>Khuyến mãi</div>} />
+          // <Route path="giaodichkho" element={<div>Giao dịch kho</div>} />
+          // <Route path="tintuc" element={<div>Quản lý tin tức</div>} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
