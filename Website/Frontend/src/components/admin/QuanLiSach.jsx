@@ -6,26 +6,6 @@ import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { MdOutlineDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 
-const initialBooks = [
-  {
-    sachID: null,
-    images: [],
-    tenSach: "Thần Đồng Đất Phương Nam",
-    tacGia: "Nguyễn Nhật Ánh",
-    nhaXuatBan: "NXB Kim Đồng",
-    ngayXuatBan: "2022-01-01",
-    ngonNgu: "Tiếng Việt",
-    loaiSach: "Truyện tranh",
-    soTrang: 200,
-    dinhDang: "Bìa mềm",
-    soLuongConLai: 50,
-    giaNhap: 120000,
-    giaBan: 90000,
-    giaGiam: 80000,
-    ISBN13: "9786042091234",
-  },
-];
-
 const LOAI_SACH = [
   "Truyện tranh",
   "Ngôn tình",
@@ -39,7 +19,9 @@ const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 
 function QuanLiSach() {
-  const [books, setBooks] = useState(initialBooks);
+  // State quản lý danh sách sách
+  const [books, setBooks] = useState([]);
+  // State quản lý form thêm / sửa sách
   const [form, setForm] = useState({
     sachID: null,
     images: [],
@@ -57,6 +39,7 @@ function QuanLiSach() {
     giaGiam: 0,
     ISBN13: "",
   });
+  // State quản lý id sách đang được sửa
   const [editId, setEditId] = useState(null);
 
   // Xử lý thay đổi form
@@ -230,14 +213,13 @@ function QuanLiSach() {
           book.images = []; // Nếu không có trường images thì gán mảng rỗng
         }
       });
-
       console.log("Dữ liệu sách nhận từ API:", booksData);
-
       setBooks(booksData);
     };
     napDuLieuSach();
   }, []);
-  // Kiểm tra 1 biến có phải là 1 file hay không
+
+  // Kiểm tra 1 biến có phải là 1 file hay không để hiển thị hình ảnh khi cập nhật
   const isFile = (obj) => {
     return obj instanceof File;
   };
