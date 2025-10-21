@@ -1,14 +1,47 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { dangNhapTaiKhoan } from "../lib/nguoi-dung-apis";
+import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 
 function DangNhap() {
+  // State để quản lý thông báo
+  const [toast, setToast] = useState({
+    show: false,
+    type: "",
+    title: "",
+    message: "",
+  });
+  // Hàm hiển thị thông báo
+  const showToast = (type, title, message) => {
+    setToast({ show: true, type, title, message });
+    setTimeout(
+      () => setToast({ show: false, type: "", title: "", message: "" }),
+      3000
+    );
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const xuLyDangNhap = () => {
-    console.log("Đăng nhập với email:", email);
-  };
+  const router = useNavigate();
 
+  // Xử lý sự kiện đăng nhập
+  const xuLyDangNhap = async (e) => {
+    e.preventDefault();
+
+    // Gọi API để đăng nhập
+    const { status, message } = await dangNhapTaiKhoan(email, password); //
+
+    if (status) {
+      // Đăng nhập thành công
+      showToast("info", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
+      // Delay chuyển hướng sau 3s (3000ms)
+      setTimeout(() => {
+        router("/"); // Chuyển hướng về trang chủ
+      }, 3000);
+    } else {
+      showToast("error", "Đăng nhập thất bại", message);
+    }
+  };
   const xuLyDangNhapGoogle = () => {
     console.log("Đăng nhập bằng Google được nhấn.");
   };
@@ -16,6 +49,16 @@ function DangNhap() {
   return (
     // Toàn bộ khung nền
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+      {/* // Toast thông báo */}
+      <ThongBaoChay
+        show={toast.show}
+        type={toast.type}
+        title={toast.title}
+        message={toast.message}
+        onClose={() =>
+          setToast({ show: false, type: "", title: "", message: "" })
+        }
+      />
       {/* Khối chính (Card): Dùng flex để chia 2 cột */}
       <div className="flex w-full max-w-5xl mx-auto shadow-2xl rounded-2xl overflow-hidden transform transition-all duration-500">
         {/* Left Section - Banner Chào mừng (Chỉ hiển thị trên Desktop/Tablet) */}
@@ -48,13 +91,7 @@ function DangNhap() {
             Đăng Nhập
           </h2>
 
-          <form
-            className="w-full"
-            onSubmit={(e) => {
-              e.preventDefault();
-              xuLyDangNhap();
-            }}
-          >
+          <form className="w-full" onSubmit={xuLyDangNhap}>
             {/* Email */}
             <div className="mb-6">
               <label className="block text-gray-600 font-medium mb-2 text-sm">
@@ -66,7 +103,7 @@ function DangNhap() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 placeholder-gray-400 transition-all duration-200 shadow-sm text-base"
+                className="w-full px-4 py-3 border text-black border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 placeholder-gray-400 transition-all duration-200 shadow-sm text-base"
                 placeholder="tenban@email.com"
               />
             </div>
@@ -82,7 +119,7 @@ function DangNhap() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 placeholder-gray-400 transition-all duration-200 shadow-sm text-base"
+                className="w-full px-4 py-3 border text-black border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 placeholder-gray-400 transition-all duration-200 shadow-sm text-base"
                 placeholder="Nhập mật khẩu"
               />
             </div>

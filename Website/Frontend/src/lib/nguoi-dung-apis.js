@@ -18,7 +18,30 @@ export const dangKyTaiKhoan = async (nguoiDung) => {
     throw error;
   }
 };
-// 2. Tạo hàm kiểm tra email tồn tại
+// 2. Tạo hàm đăng nhập
+export const dangNhapTaiKhoan = async (email, matKhau) => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung/dang-nhap`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, matKhau }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { status: response.ok, message: data.message };
+    } else {
+      return { status: response.ok, message: data.message };
+    }
+  } catch (error) {
+    console.error("Lỗi khi đăng nhập:", error);
+    throw error;
+  }
+};
+
+// 3. Tạo hàm kiểm tra email tồn tại
 export const kiemTraEmailTonTai = async (email) => {
   try {
     const response = await fetch(`${BASE_URL}/nguoiDung/kiemTraEmail`, {
