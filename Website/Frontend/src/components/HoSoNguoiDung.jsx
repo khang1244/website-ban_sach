@@ -1,34 +1,91 @@
-import React, { useState } from "react";
-
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 
 import { Link } from "react-router-dom";
-
-// Dữ liệu người dùng mẫu
-const userData = {
-  avatar:
-    "https://images.unsplash.com/photo-1678286742832-26543bb49959?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fHVzZXJ8ZW58MHx8MHx8fDA%3D", // Ảnh đại diện mặc định
-  tenNguoiDung: "Nguyễn Văn A 123",
-  email: "nguyenvana@gmail.com",
-  soDienThoai: "0912345678",
-  diaChi: "123 Đường ABC, Quận 1, TP.HCM",
-  ngayTao: "2024-05-10",
-};
+import { useEffect, useState } from "react";
+import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
+import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
 
 function HoSoNguoiDung() {
   // State cho phép chỉnh sửa thông tin
   const [edit, setEdit] = useState(false);
-  const [user, setUser] = useState(userData);
+  // State lưu thông tin người dùng
+  const [user, setUser] = useState({});
 
-  // Hàm xử lý lưu thông tin
-  function handleSave(e) {
-    e.preventDefault();
-    setEdit(false);
-    // Gửi dữ liệu lên server ở đây nếu cần
-    alert("Cập nhật thông tin thành công!");
+  //hình ảnh mã hóa để hiển thị ảnh cho người dùng xem trước
+  const [hinhAnhMaHoa, setHinhAnhMaHoa] = useState(null);
+
+  //Hàm kiểm ta có phải là 1 file ảnh hay không
+  function isFile(variable) {
+    return variable instanceof File;
   }
 
+  // Hàm xử lý lưu thông tin
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setEdit(false);
+
+    // Nếu người dùng có thay đổi avatar thì mình phải upload avatar lên Cloudinary
+    let hinhAnhDaTa = user.avatar;
+    if (isFile(user.avatar)) {
+      hinhAnhDaTa = await uploadHinhAnh(user.avatar);
+    }
+
+    // Lưu thông tin người dùng mới sửa vào trong database
+    const duLieuNguoiDungMoi = {
+      tenNguoiDung: user.tenNguoiDung,
+      email: user.email,
+      soDienThoai: user.soDienThoai,
+      diaChi: user.diaChi,
+      avatar: hinhAnhDaTa
+        ? JSON.stringify({
+            public_id: hinhAnhDaTa.public_id,
+            url: hinhAnhDaTa.url,
+          })
+        : JSON.stringify(user.avatar), // Nếu có hình ảnh mới thì lấy hình ảnh mới, không thì lấy hình ảnh cũ
+    };
+
+    const { status, message } = await capNhatThongTinNguoiDung(
+      user.nguoiDungID,
+      duLieuNguoiDungMoi
+    );
+    if (status) {
+      alert("Cập nhật thông tin thành công!");
+    } else {
+      alert("Cập nhật thông tin thất bại! " + message);
+    }
+
+    // Cập nhật thông tin người dùng trong localStorage để có thể hiển thị thông tin mới nhất (thực tế phải thay đổi giá trị biến trong context hoặc redux)
+    const duLieuNguoiDungMoiDeLuuVaoLocalStorage = {
+      ...user,
+      ...duLieuNguoiDungMoi,
+    };
+    localStorage.setItem(
+      "user",
+      JSON.stringify(duLieuNguoiDungMoiDeLuuVaoLocalStorage)
+    );
+  };
+
+  // Nạp dữ liệu người dùng từ sever sử dung useEffect
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      // Kiểm tra xem có dữ liệu user trong localStorage không
+
+      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+
+      // Vì avatar vẫn đang là một chuỗi JSON nên mình phỉa chuyển nó thành dạng Object để sử dụng để hiển thị avatar của người dùng
+      const avatarDuocBienDoiThanhObject = duLieuNguoiDung.avatar
+        ? JSON.parse(duLieuNguoiDung.avatar)
+        : null;
+
+      setUser({
+        // Thay đổi biến trạng thái user để hiển thị dữ liệu người dùng ra form
+        ...duLieuNguoiDung,
+        avatar: avatarDuocBienDoiThanhObject, // Chuyển chuỗi JSON thành object
+      });
+    }
+  }, []);
   return (
     <div className="bg-gradient-to-br  min-h-screen w-full">
       <Navigation />
@@ -41,7 +98,7 @@ function HoSoNguoiDung() {
             <div className="flex flex-col items-center mb-4">
               <div className="relative">
                 <img
-                  src={user.avatar}
+                  src={hinhAnhMaHoa ? hinhAnhMaHoa : user.avatar?.url}
                   alt="avatar"
                   className="w-28 h-28 rounded-full object-cover border-4 border-[#00809D] shadow mb-2"
                 />
@@ -57,9 +114,10 @@ function HoSoNguoiDung() {
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
+                          setUser({ ...user, avatar: file }); // Cập nhật avatar trong state user
                           const reader = new FileReader();
                           reader.onload = (ev) =>
-                            setUser({ ...user, avatar: ev.target.result });
+                            setHinhAnhMaHoa(ev.target.result); // Hiển thị ảnh xem trước
                           reader.readAsDataURL(file);
                         }
                       }}
@@ -96,7 +154,7 @@ function HoSoNguoiDung() {
               <input
                 className="border rounded px-4 py-2"
                 value={user.email}
-                disabled={!edit}
+                disabled={true}
                 onChange={(e) => setUser({ ...user, email: e.target.value })}
               />
             </div>
@@ -118,14 +176,6 @@ function HoSoNguoiDung() {
                 value={user.diaChi}
                 disabled={!edit}
                 onChange={(e) => setUser({ ...user, diaChi: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col gap-2 text-black">
-              <label className="font-semibold">Ngày tạo tài khoản</label>
-              <input
-                className="border rounded px-4 py-2 bg-gray-100"
-                value={user.ngayTao}
-                disabled
               />
             </div>
             <div className="flex gap-4 mt-4">

@@ -29,11 +29,13 @@ function DangNhap() {
     e.preventDefault();
 
     // Gọi API để đăng nhập
-    const { status, message } = await dangNhapTaiKhoan(email, password); //
+    const { status, message, user } = await dangNhapTaiKhoan(email, password); //
 
     if (status) {
       // Đăng nhập thành công
       showToast("info", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem("user", JSON.stringify(user));
       // Delay chuyển hướng sau 3s (3000ms)
       setTimeout(() => {
         router("/"); // Chuyển hướng về trang chủ
