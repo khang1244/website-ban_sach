@@ -19,9 +19,7 @@ const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 
 function QuanLiSach() {
-  // State quản lý danh sách sách
   const [books, setBooks] = useState([]);
-  // State quản lý form thêm / sửa sách
   const [form, setForm] = useState({
     sachID: null,
     images: [],
@@ -39,7 +37,6 @@ function QuanLiSach() {
     giaGiam: 0,
     ISBN13: "",
   });
-  // State quản lý id sách đang được sửa
   const [editId, setEditId] = useState(null);
 
   // Xử lý thay đổi form
