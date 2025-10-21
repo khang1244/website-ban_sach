@@ -3,8 +3,7 @@ import bcrypt from "bcryptjs"; // Thư viện để mã hóa mật khẩu
 
 // Hàm để đăng ký người dùng mới
 export const dangKy = async (req, res) => {
-  const { tenNguoiDung, email, matKhau, soDienThoai, avatar, diaChi } =
-    req.body; // Lấy thông tin từ body của request
+  const { tenNguoiDung, email, matKhau, soDienThoai } = req.body; // Lấy thông tin từ body của request
   try {
     // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
     const existingUser = await NguoiDung.findOne({ where: { email } });
@@ -20,8 +19,6 @@ export const dangKy = async (req, res) => {
       email,
       matKhau: hashedPassword, // Lưu mật khẩu đã mã hóa
       soDienThoai,
-      avatar,
-      diaChi,
     });
     res.status(201).json({ message: "Đăng ký thành công", user: newUser });
   } catch (error) {
@@ -168,5 +165,22 @@ export const xoaTaiKhoanNguoiDung = async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi xóa tài khoản người dùng:", error);
     res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
+
+// Kiểm tra email đã tồn tại trong cơ sở dữ liệu
+export const kiemTraEmailTonTai = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await NguoiDung.findOne({ where: { email } });
+    if (user) {
+      console.log("Email đã tồn tại:", email); // Debugging line
+      return res.status(400).json({ message: "Email này đã được đăng ký!" });
+    }
+    console.log("Email hợp lệ:", email); // Debugging line
+    return res.status(200).json({ message: "Email hợp lệ" });
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra email:", error);
+    return res.status(500).json({ message: "Lỗi máy chủ khi kiểm tra email." });
   }
 };

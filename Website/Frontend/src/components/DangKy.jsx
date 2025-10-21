@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { dangKyTaiKhoan, kiemTraEmailTonTai } from "../lib/nguoi-dung-apis.js";
+import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 
 function DangKy() {
   const [tenNguoiDung, setTenNguoiDung] = useState("");
@@ -7,13 +9,87 @@ function DangKy() {
   const [matKhau, setMatKhau] = useState("");
   const [xacNhanMatKhau, setXacNhanMatKhau] = useState("");
   const [soDienThoai, setSoDienThoai] = useState("");
+  const [toast, setToast] = useState({
+    show: false,
+    type: "",
+    title: "",
+    message: "",
+  });
 
-  const xuLyDangKy = () => {
-    console.log("Đăng ký với tên người dùng:", tenNguoiDung);
+  const showToast = (type, title, message) => {
+    setToast({ show: true, type, title, message });
+    setTimeout(
+      () => setToast({ show: false, type: "", title: "", message: "" }),
+      4000
+    ); // Ẩn sau 4 giây
+  };
+  // Sử dụng useNavigate để chuyển hướng
+  const navigate = useNavigate();
+
+  // Kiểm tra sự khớp mật khẩu
+  const kiemTraMatKhau = () => {
+    if (matKhau !== xacNhanMatKhau) {
+      showToast("error", "Lỗi", "Mật khẩu không khớp!");
+      return false;
+    }
+    return true;
+  };
+
+  // Kiểm tra email đã tồn tại trong cơ sở dữ liệu
+  const kiemTraEmailTonTaiCheck = async () => {
+    try {
+      const result = await kiemTraEmailTonTai(email);
+
+      if (result.message === "Email này đã được đăng ký!") {
+        showToast("error", "Lỗi", "Email này đã được đăng ký!");
+        return false; // Email is already registered
+      } else if (result.message === "Email hợp lệ") {
+        return true; // Email is valid
+      } else {
+        showToast("error", "Lỗi", "Có lỗi xảy ra khi kiểm tra email!");
+        return false; // Some error occurred
+      }
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra email:", error);
+      showToast("error", "Lỗi", "Lỗi máy chủ khi kiểm tra email.");
+      return false;
+    }
+  };
+
+  const xuLyDangKy = async () => {
+    // Kiểm tra xem mật khẩu có khớp không
+    if (!kiemTraMatKhau()) return;
+    // Kiểm tra xem email có trùng không
+    const isEmailValid = await kiemTraEmailTonTaiCheck();
+    if (!isEmailValid) return;
+
+    // Gửi yêu cầu đăng ký
+    await dangKyTaiKhoan({
+      tenNguoiDung,
+      email,
+      matKhau,
+      soDienThoai,
+    });
+    showToast("success", "Thành công", "Đăng ký thành công!");
+
+    // Sau khi thông báo 4 giây, chuyển hướng đến trang đăng nhập
+    setTimeout(() => {
+      navigate("/dangnhap");
+    }, 3000); // Đợi 3 giây trước khi chuyển hướng
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-amber-100 to-pink-100">
+      {/* Toast */}
+      <ThongBaoChay
+        show={toast.show}
+        type={toast.type}
+        title={toast.title}
+        message={toast.message}
+        onClose={() =>
+          setToast({ show: false, type: "", title: "", message: "" })
+        }
+      />
       <div className="bg-white shadow-xl rounded-2xl px-6 py-8 w-full max-w-4xl flex">
         {/* Phần bên trái */}
         <div className="w-1/2 p-8 flex items-center justify-center bg-gradient-to-br from-blue-500 to-amber-400 rounded-l-2xl">
@@ -39,7 +115,7 @@ function DangKy() {
                 value={tenNguoiDung}
                 onChange={(e) => setTenNguoiDung(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
+                className="w-full px-3 py-2 border text-black border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
                 placeholder="Tên người dùng"
               />
             </div>
@@ -54,7 +130,7 @@ function DangKy() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
+                className="w-full px-3 py-2 border text-black border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
                 placeholder="Email"
               />
             </div>
@@ -69,7 +145,7 @@ function DangKy() {
                 value={matKhau}
                 onChange={(e) => setMatKhau(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
+                className="w-full px-3 py-2 border text-black border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
                 placeholder="Mật khẩu"
               />
             </div>
@@ -84,7 +160,7 @@ function DangKy() {
                 value={xacNhanMatKhau}
                 onChange={(e) => setXacNhanMatKhau(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
+                className="w-full px-3 py-2 border text-black border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
                 placeholder="Xác nhận mật khẩu"
               />
             </div>
@@ -99,7 +175,7 @@ function DangKy() {
                 value={soDienThoai}
                 onChange={(e) => setSoDienThoai(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
+                className="w-full px-3 py-2 border text-black border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder-gray-400 transition"
                 placeholder="Số điện thoại"
               />
             </div>

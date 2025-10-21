@@ -7,6 +7,7 @@ import {
   layThongTinNguoiDung,
   thayDoiTrangThaiTaiKhoan,
   xoaTaiKhoanNguoiDung,
+  kiemTraEmailTonTai,
 } from "../controller/nguoiDungController.js";
 const router = express.Router();
 
@@ -24,5 +25,7 @@ router.put("/:id", capNhatThongTinNguoiDung); // Cập nhật thông tin ngườ
 router.put("/cap-nhat-mat-khau/:id", capNhatMatKhau); // Cập nhật mật khẩu người dùng theo ID
 
 router.delete("/:id", xoaTaiKhoanNguoiDung); // Xóa tài khoản người dùng theo ID
+
+router.post("/kiemTraEmail", kiemTraEmailTonTai); // Kiểm tra email tồn tại
 
 export default router;
