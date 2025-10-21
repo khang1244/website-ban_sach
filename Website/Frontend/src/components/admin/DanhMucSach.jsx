@@ -13,8 +13,23 @@ import {
   capNhatDanhMucSach,
   nhanTatCaDanhMucSach,
 } from "../../lib/danh-muc-sach-apis";
+import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
 function DanhMucSach() {
+  // thông báo chạy khi thêm, sửa, xóa
+  const [toast, setToast] = useState({
+    show: false,
+    type: "",
+    title: "",
+    message: "",
+  });
+  const showToast = (type, title, message) => {
+    setToast({ show: true, type, title, message });
+    setTimeout(
+      () => setToast({ show: false, type: "", title: "", message: "" }),
+      3000
+    );
+  };
   const [categories, setCategories] = useState([]);
   const [input, setInput] = useState("");
   const [editIndex, setEditIndex] = useState(null);
@@ -27,12 +42,16 @@ function DanhMucSach() {
   // ====== Logic thêm danh mục (có thông báo thành công) ======
   const handleAdd = async (e) => {
     e.preventDefault();
-    alert("Thêm danh mục: " + input);
     const danhMucDaDuocThem = categories.includes(input.trim());
     if (input.trim() && !danhMucDaDuocThem) {
       setCategories([...categories, input.trim()]);
       setInput("");
       await taoDanhMucSachMoi(input.trim());
+      showToast(
+        "success",
+        "Thành công",
+        "Thêm danh mục " + input + " thành công!"
+      );
     }
   };
 
@@ -50,7 +69,11 @@ function DanhMucSach() {
 
     try {
       await xoaDanhMucSach(categories[idx]?.danhMucSachID);
-      alert('Đã xóa danh mục "' + tenDanhMuc + '" thành công!');
+      showToast(
+        "success",
+        "Thành công",
+        "Xóa danh mục " + tenDanhMuc + " thành công!"
+      );
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
       alert("Xóa danh mục thất bại. Vui lòng thử lại!");
@@ -61,6 +84,11 @@ function DanhMucSach() {
   const handleEdit = async (idx) => {
     setEditIndex(idx);
     setEditValue(getCatName(categories[idx]));
+  };
+  // hàm xử lý khi lưu
+  const handleLuu = async (e) => {
+    e.preventDefault();
+    showToast("success", "Thành công", "Cập nhật danh mục thành công!");
   };
 
   // hàm xử lý khi lưu cập nhật danh mục
@@ -79,7 +107,7 @@ function DanhMucSach() {
       await capNhatDanhMucSach(categories[editIndex]?.danhMucSachID, {
         tenDanhMuc: value,
       });
-      alert("Cập nhật danh mục thành công!");
+      showToast("success", "Thành công", "Cập nhật danh mục thành công!");
     } catch (err) {
       console.error("Lỗi khi cập nhật danh mục:", err);
       alert("Cập nhật danh mục thất bại, vui lòng thử lại!");
@@ -103,10 +131,21 @@ function DanhMucSach() {
   const handleCancel = () => {
     setEditIndex(null);
     setEditValue("");
+    showToast("success", "Thành công", "Hủy sửa thành công!");
   };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
+      {/* Toast */}
+      <ThongBaoChay
+        show={toast.show}
+        type={toast.type}
+        title={toast.title}
+        message={toast.message}
+        onClose={() =>
+          setToast({ show: false, type: "", title: "", message: "" })
+        }
+      />
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
@@ -191,6 +230,7 @@ function DanhMucSach() {
                     </div>
                     <div className="col-span-4 flex items-center justify-end gap-2">
                       <button
+                        onClick={() => handleLuu(idx)}
                         type="submit"
                         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700"
                       >
