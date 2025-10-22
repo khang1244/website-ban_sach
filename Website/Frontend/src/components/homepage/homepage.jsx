@@ -1,13 +1,14 @@
 import Navigation from "../Navigation";
 import Banner from "../Banner";
 import Footer from "../Footer";
-import { sanphammoi, sanphambanchay } from "../../lib/data";
+import { sanphambanchay } from "../../lib/data";
 import sach4 from "../../assets/sach4.webp";
 import { CiHeart } from "react-icons/ci";
 import { FaFire } from "react-icons/fa";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 
 const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
 
@@ -27,8 +28,10 @@ function Homepage() {
   const [selectedCategoryBC, setSelectedCategoryBC] = useState("Tất cả"); // Hook của React danh mục được chọn bộ lọc sách bán chạy
   const [selectedPriceBC, setSelectedPriceBC] = useState("all"); // Hook của React giá được chọn của bộ lọc sách bán chạy
 
+  // // Biến trạng thái để lưu trữ danh sách sản phẩm lấy từ backend
+  const [danhSachSanPham, setDanhSachSanPham] = useState([]);
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách mới
-  const bolocsachmoi = sanphammoi.filter((product) => {
+  const bolocsachmoi = danhSachSanPham.filter((product) => {
     let matchCategory =
       selectedCategory === "Tất cả" ||
       (product.category &&
@@ -66,6 +69,21 @@ function Homepage() {
     }
     return matchCategory && matchPrice;
   });
+  // Thêm useEffect để nạp dữ liệu thật từ sever
+  useEffect(() => {
+    const napTatCaSanPham = async () => {
+      const data = await nhanTatCaCacQuyenSach();
+      if (data) {
+        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng
+        data.forEach((sach) => {
+          sach.images = JSON.parse(sach.images);
+        });
+
+        setDanhSachSanPham(data);
+      }
+    };
+    napTatCaSanPham();
+  }, []);
 
   return (
     <div className=" min-h-screen">
@@ -137,17 +155,17 @@ function Homepage() {
                 >
                   <div className="w-full h-60 flex items-center justify-center px-1 py-1">
                     <img
-                      src={product.hinhAnh}
+                      src={product.images[0]?.url}
                       alt={product.tenSP}
                       className="w-full h-full object-cover px-2 py-2"
                     />
                   </div>
                   <div className="p-3 bg-[#3d3fa6] text-white h-full ">
-                    <h4 className="font-semibold text-sm">{product.tenSP}</h4>
+                    <h4 className="font-semibold text-sm">{product.tenSach}</h4>
                     <p>Giảm giá: {product.giaGiam.toLocaleString()} VNĐ</p>
                     <p className="flex justify-between translate-x-[-2px] px-1">
                       <div className="text-red-400 line-through">
-                        Giá gốc: {product.gia.toLocaleString()} VNĐ
+                        Giá gốc: {product.giaBan.toLocaleString()} VNĐ
                       </div>
                       <CiHeart className="hover:text-red-400 text-2xl " />
                     </p>
@@ -156,7 +174,9 @@ function Homepage() {
                         <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 ">
                           <div className="flex justify-center items-center w-full gap-2 ">
                             <FaFire className=" text-amber-400 " />
-                            <Link to="/chitietsanpham">Xem chi tiết</Link>
+                            <Link to={`/chitietsanpham/${product.sachID}`}>
+                              Xem chi tiết
+                            </Link>
                           </div>
                         </button>
                         <div>

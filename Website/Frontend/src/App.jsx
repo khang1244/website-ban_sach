@@ -30,7 +30,7 @@ function App() {
         <Route path="/quenmatkhau" element={<QuenMatKhau />} />
         <Route path="/nhapmaotp" element={<NhapMaOTP />} />
         <Route path="/nhapmatkhaumoi" element={<NhapMatKhauMoi />} />
-        <Route path="/chitietsanpham" element={<ChiTietSanPham />} />
+        <Route path="/chitietsanpham/:sachID" element={<ChiTietSanPham />} />
         <Route path="/thanhtoan" element={<ThanhToan />} />
         <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
         <Route path="/giohang" element={<GioHang />} />
