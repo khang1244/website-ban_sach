@@ -71,3 +71,19 @@ export const xoaSach = async (sachId) => {
     console.error("Error deleting book:", error);
   }
 };
+// 5. Lấy chi tiết một quyển sách dựa trên ID của quyển sách
+export const layChiTietSach = async (sachID) => {
+  try {
+    const response = await fetch(`${BASE_URL}/sach/${sachID}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("Dữ liệu trả về từ sever:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching book details:", error);
+  }
+};

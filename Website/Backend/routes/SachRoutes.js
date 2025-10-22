@@ -4,6 +4,7 @@ import {
   nhanTatCaCacQuyenSach,
   taoSachMoi,
   xoaSach,
+  layChiTietSach,
 } from "../controller/sachController.js";
 
 const router = express.Router();
@@ -15,5 +16,7 @@ router.post("/", taoSachMoi); // POST /
 router.put("/:id", capNhatSach); // PUT /:id
 
 router.delete("/:id", xoaSach); // DELETE /:id
+
+router.get("/:sachID", layChiTietSach); // GET /:sachID
 
 export default router;

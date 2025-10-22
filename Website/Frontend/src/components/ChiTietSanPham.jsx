@@ -1,50 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import { sanphammoi } from "../lib/data";
 import Footer from "./Footer";
-const product = {
-  hinhAnh: [
-    "https://cungdocsach.vn/wp-content/uploads/2019/10/Harry-potter-v%C3%A0-h%C3%B2n-%C4%91%C3%A1-ph%C3%B9-th%E1%BB%A7y.gif",
-    "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/9Mi8yPrkA0EefbVyE0CHs8tajsg.jpg",
-    "https://www.essential-guide-to-autism.com/storage/images/harry-potter-va-hon-da-phu-thuy/harry-potter-va-hon-da-phu-thuy-thumb.jpg",
-  ],
-  tenSP: "Harry Potter và Hòn Đá Phù Thủy",
-  tacGia: "J.K. Rowling",
-  nhaXuatBan: "NXB Trẻ",
-  ngayXuatBan: "2023-09-15",
-  ngonNgu: "Tiếng Việt",
-  loaiSach: "Tiểu thuyết giả tưởng",
-  soTrang: 432,
-  dinhDang: "Bìa cứng",
-  kichThuoc: "15 x 23 cm",
-  soLuongConLai: 1000,
-  gia: 180000,
-  giaGiam: 145000,
-  ISBN10: "6041234567",
-  ISBN13: "978-604-123456-7",
-  danhGia: 4.7,
-  chiTiet: `Harry Potter và Hòn Đá Phù Thủy là tập đầu tiên trong bộ truyện huyền thoại Harry Potter. 
-  Câu chuyện xoay quanh cậu bé mồ côi Harry, người phát hiện ra mình là một phù thủy và bắt đầu hành trình tại trường Hogwarts. 
-  Với tình tiết hấp dẫn, phép thuật kỳ ảo và thông điệp về tình bạn, lòng dũng cảm, cuốn sách đã chinh phục hàng triệu độc giả.`,
-  binhLuan: [
-    {
-      user: "Nguyễn Văn A",
-      comment: "Sách hay, dịch dễ hiểu. Bìa đẹp nữa!",
-      rating: 5,
-    },
-    {
-      user: "Trần Thị B",
-      comment: "Giao hàng nhanh, sách mới nguyên. Nội dung hấp dẫn.",
-      rating: 4,
-    },
-    { user: "Lê Minh C", comment: "Giá hơi cao nhưng đáng tiền.", rating: 4.5 },
-  ],
-};
+import { layChiTietSach } from "../lib/sach-apis";
+import { useParams } from "react-router-dom";
 
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
   const [soLuong, setSoLuong] = useState(1);
+
+  // Biến trạng thái để lưu trữ thông tin sản phẩm
+  const [chiTietSanPham, setChiTietSanPham] = useState(null);
+
+  // Sử dụng useParam để lấy sachID
+  const { sachID } = useParams();
 
   const giamSoLuong = () => {
     // variable scope
@@ -55,12 +25,47 @@ function ChiTietSanPham() {
   };
 
   const tangSoLuong = () => {
-    if (soLuong < product.soLuongConLai) {
+    if (soLuong < chiTietSanPham.soLuongConLai) {
       let soLuongMoi = soLuong + 1;
       setSoLuong(soLuongMoi);
     }
   };
 
+  // Sử dụng useEffect để nạp dữ liệu sản phẩm từ server dựa vào sachID
+  useEffect(() => {
+    const napChiTietSanPham = async () => {
+      const chiTietSanPham = await layChiTietSach(sachID);
+
+      if (chiTietSanPham) {
+        // Chuyển dữ liệu hình ảnh (images) về dạng mảng
+        chiTietSanPham.images = JSON.parse(chiTietSanPham.images);
+
+        console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
+
+        setChiTietSanPham(chiTietSanPham);
+      }
+    };
+
+    napChiTietSanPham();
+  }, [sachID]);
+
+  if (!chiTietSanPham) {
+    return <div>Đang tải chi tiết sản phẩm...</div>;
+  }
+  // Hàm định dạng ngày tháng từ ISO sang dd/mm/yyyy
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "";
+
+    // 1. Tách chuỗi tại ký tự 'T' để loại bỏ phần giờ và múi giờ
+    // Ví dụ: "2025-10-03T00:00:00.000Z" sẽ thành ["2025-10-03", "00:00:00.000Z"]
+    const datePart = isoDate.split("T")[0];
+
+    // 2. Tách phần ngày-tháng-năm (đã được làm sạch)
+    const [year, month, day] = datePart.split("-");
+
+    // 3. Trả về định dạng mong muốn
+    return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
+  };
   return (
     <div className=" min-h-screen w-full">
       <Navigation />
@@ -74,16 +79,16 @@ function ChiTietSanPham() {
         <div className="flex flex-col items-center border p-4 rounded-xl shadow-lg   ">
           <div className="w-[350px] h-[500px] rounded-xl overflow-hidden shadow-lg mb-4 bg-white flex items-center justify-center">
             <img
-              src={product.hinhAnh[anhIndex]}
-              alt={product.tenSP}
+              src={chiTietSanPham.images[anhIndex].url}
+              alt={chiTietSanPham.tenSP}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex gap-2">
-            {product.hinhAnh.map((img, idx) => (
+            {chiTietSanPham.images.map((img, idx) => (
               <img
                 key={idx}
-                src={img}
+                src={img.url}
                 alt={"Ảnh phụ " + (idx + 1)}
                 className={`w-16 h-24 object-cover rounded cursor-pointer border-2 ${
                   anhIndex === idx ? "border-blue-500" : "border-transparent"
@@ -99,63 +104,73 @@ function ChiTietSanPham() {
         {/* Thông tin sản phẩm */}
         <div className=" bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-4">
           <h2 className="text-3xl font-bold text-[#00809D] mb-2">
-            {product.tenSP}
+            {chiTietSanPham.tenSach}
           </h2>
           {/* //đánh giá sản phẩm */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-yellow-400 flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={
-                    i < Math.round(product.danhGia) ? "" : "text-gray-300"
-                  }
-                />
-              ))}
-            </span>
-            <span className="text-gray-600 ml-2">{product.danhGia}/5</span>
-          </div>
+          {chiTietSanPham.danhGia && (
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-yellow-400 flex">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < Math.round(chiTietSanPham.danhGia)
+                        ? ""
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </span>
+              <span className="text-gray-600 ml-2">
+                {chiTietSanPham.danhGia}/5
+              </span>
+            </div>
+          )}
           {/* // Thông số chi tiết 1 quyển sách */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-base">
             <div>
-              <span className="font-semibold">Tác giả:</span> {product.tacGia}
+              <span className="font-semibold">Tác giả:</span>{" "}
+              {chiTietSanPham.tacGia}
             </div>
             <div>
               <span className="font-semibold">Nhà xuất bản:</span>{" "}
-              {product.nhaXuatBan}
+              {chiTietSanPham.nhaXuatBan}
             </div>
             <div>
               <span className="font-semibold">Ngày xuất bản:</span>{" "}
-              {product.ngayXuatBan}
+              {formatDate(chiTietSanPham.ngayXuatBan)}
             </div>
             <div>
-              <span className="font-semibold">Ngôn ngữ:</span> {product.ngonNgu}
+              <span className="font-semibold">Ngôn ngữ:</span>{" "}
+              {chiTietSanPham.ngonNgu}
             </div>
             <div>
               <span className="font-semibold">Loại sách:</span>{" "}
-              {product.loaiSach}
+              {chiTietSanPham.loaiSach}
             </div>
             <div>
-              <span className="font-semibold">Số trang:</span> {product.soTrang}
+              <span className="font-semibold">Số trang:</span>{" "}
+              {chiTietSanPham.soTrang}
             </div>
             <div>
               <span className="font-semibold">Định dạng:</span>{" "}
-              {product.dinhDang}
+              {chiTietSanPham.dinhDang}
             </div>
             <div>
               <span className="font-semibold">Số lượng còn lại:</span>{" "}
-              {product.soLuongConLai}
+              {chiTietSanPham.soLuongConLai}
             </div>
             <div>
-              <span className="font-semibold">ISBN13:</span> {product.ISBN13}
+              <span className="font-semibold">ISBN13:</span>{" "}
+              {chiTietSanPham.ISBN13}
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4 mr-auto">
             <span className="text-2xl text-[#00f821] font-bold">
-              {product.giaGiam.toLocaleString()} VNĐ
+              {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
             </span>
             <span className="text-red-500 line-through text-2xl">
-              {product.gia.toLocaleString()} VNĐ
+              {chiTietSanPham.giaBan.toLocaleString()} VNĐ
             </span>
           </div>
           <div className="flex items-center gap-4 mt-4 ">
@@ -187,7 +202,7 @@ function ChiTietSanPham() {
           Chi tiết sản phẩm
         </h3>
         <p className="text-gray-700 text-base leading-relaxed">
-          {product.chiTiet}
+          {chiTietSanPham.chiTiet}
         </p>
       </div>
 
@@ -195,11 +210,9 @@ function ChiTietSanPham() {
       <div className="max-w-6xl mx-auto mt-1 bg-amber-200  rounded-xl shadow-lg p-8">
         <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
         <div className="space-y-4">
-          {product.binhLuan.map(
-            (
-              c,
-              idx // comment, c = {user: ..., rating: ..., comment: ...}
-            ) => (
+          {Array.isArray(chiTietSanPham.binhLuan) &&
+          chiTietSanPham.binhLuan.length > 0 ? (
+            chiTietSanPham.binhLuan.map((c, idx) => (
               <div key={idx} className="border-b pb-2 border-black">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[#00809D]">{c.user}</span>
@@ -214,7 +227,9 @@ function ChiTietSanPham() {
                 </div>
                 <p className="text-gray-700 ml-2">{c.comment}</p>
               </div>
-            )
+            ))
+          ) : (
+            <div className="text-gray-600">Chưa có bình luận</div>
           )}
         </div>
       </div>
