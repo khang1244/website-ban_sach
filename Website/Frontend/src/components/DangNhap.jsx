@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { dangNhapTaiKhoan } from "../lib/nguoi-dung-apis";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import { UserContext } from "../contexts/user-context";
 
 function DangNhap() {
   // State để quản lý thông báo
@@ -22,6 +23,10 @@ function DangNhap() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Sử dụng user context
+  const { setUser } = useContext(UserContext);
+
+  // Khai báo useNavigate để chuyển hướng
   const router = useNavigate();
 
   // Xử lý sự kiện đăng nhập
@@ -36,6 +41,14 @@ function DangNhap() {
       showToast("info", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
       // Lưu thông tin người dùng vào localStorage
       localStorage.setItem("user", JSON.stringify(user));
+
+      // Chuyển avatar thành đối tượng trước khi lưu vào biến trạng thái user
+      const newAvatar = user.avatar ? JSON.parse(user.avatar) : null;
+      setUser({
+        ...user,
+        avatar: newAvatar,
+      });
+
       // Delay chuyển hướng sau 3s (3000ms)
       setTimeout(() => {
         router("/"); // Chuyển hướng về trang chủ

@@ -1,13 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { bannerBooks } from "../lib/data";
 import { CiSearch } from "react-icons/ci";
 import avatar from "../assets/avatar.jpg";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/user-context";
 
 function Banner() {
   const [currentIndex, setCurrentIndex] = useState(0); // Hook của React
   const [giaTriTimkiem, setGiaTriTimKiem] = useState(""); //Lưu trữ giá trị tìm kiếm
 
+  // Sử dụng giá trị user từ context
+  const { user } = useContext(UserContext);
+  // Hàm chuyển đến trang hồ sơ người dùng
+  const handleChuyenDenTrangHoSoNguoiDung = () => {
+    navigate("/hosonguoidung");
+  };
+  // Khai báo useNavigate để chuyển hướng
   const navigate = useNavigate();
 
   // Tự động chạy carousel
@@ -49,14 +57,21 @@ function Banner() {
       {/* tìm kiếm */}
       <div className="flex justify-between items-center px-10 py-5.5 text-white">
         <div className="flex items-center gap-3">
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 border-white">
+          <div
+            onClick={handleChuyenDenTrangHoSoNguoiDung}
+            className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 border-white"
+          >
             {/* Avatar */}
-            <img src={avatar} alt="avatar" />
+            <img src={user?.avatar.url || avatar} alt="avatar" />
           </div>
           <div className="">
             {/* Tên người dùng */}
-            <p className="text-white font-semibold ">Lê Hoàng Khang</p>
-            <p className="text-sm text-gray-50">Xin chào!</p>
+            <p className="text-white font-semibold ">
+              {user?.tenNguoiDung || "Chưa đăng nhập"}
+            </p>
+            <p className="text-sm text-gray-50">
+              {user?.email || "Chưa có email"}
+            </p>
           </div>
         </div>
         <div className="w-1/2 relative">
