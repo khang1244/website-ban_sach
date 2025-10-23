@@ -3,17 +3,9 @@ import { capNhatSach, themSach, xoaSach } from "../../lib/sach-apis";
 import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
 import { useEffect } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
+import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import { MdOutlineDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
-
-const LOAI_SACH = [
-  "Truyện tranh",
-  "Ngôn tình",
-  "Phiêu lưu",
-  "Kinh dị",
-  "Sách giáo khoa",
-  "Sách kỹ năng",
-];
 
 const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
@@ -28,14 +20,13 @@ function QuanLiSach() {
     nhaXuatBan: "",
     ngayXuatBan: "",
     ngonNgu: "Tiếng Việt",
-    loaiSach: "Truyện tranh",
+    danhMucSachID: 0,
     soTrang: 0,
     dinhDang: "Bìa mềm",
     soLuongConLai: 0,
     giaNhap: 0,
     giaBan: 0,
     giaGiam: 0,
-    ISBN13: "",
   });
   const [editId, setEditId] = useState(null);
 
@@ -139,14 +130,13 @@ function QuanLiSach() {
       nhaXuatBan: "",
       ngayXuatBan: "",
       ngonNgu: "Tiếng Việt",
-      loaiSach: "Truyện tranh",
+      danhMucSachID: 0,
       soTrang: 0,
       dinhDang: "Bìa mềm",
       soLuongConLai: 0,
       giaNhap: 0,
       giaBan: 0,
       giaGiam: 0,
-      ISBN13: "",
     });
   };
 
@@ -220,6 +210,21 @@ function QuanLiSach() {
   const isFile = (obj) => {
     return obj instanceof File;
   };
+
+  // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách
+  const [danhMucSach, setDanhMucSach] = useState([]);
+
+  // Nạp dữ liệu danh mục sách
+  useEffect(() => {
+    const napDanhMucSach = async () => {
+      const duLieuDM = await nhanTatCaDanhMucSach();
+      if (duLieuDM) {
+        console.log("Dữ liệu danh mục sách:", duLieuDM);
+        setDanhMucSach(duLieuDM);
+      }
+    };
+    napDanhMucSach();
+  }, []);
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 py-6">
@@ -320,16 +325,16 @@ function QuanLiSach() {
             </select>
           </div>
           <div>
-            <label className=" block font.medium mb-1">Loại sách</label>
+            <label className=" block font-medium mb-1">Danh mục sách</label>
             <select
-              name="loaiSach"
-              value={form.loaiSach}
+              name="danhMucSachID"
+              value={form.danhMucSachID}
               onChange={handleChange}
               className="text-white bg-amber-900 w-full border rounded p-2 mb-3"
             >
-              {LOAI_SACH.map((loai) => (
-                <option key={loai} value={loai}>
-                  {loai}
+              {danhMucSach.map((loai) => (
+                <option key={loai.danhMucSachID} value={loai.danhMucSachID}>
+                  {loai.tenDanhMuc}
                 </option>
               ))}
             </select>
@@ -404,17 +409,6 @@ function QuanLiSach() {
               min="0"
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block font-medium mb-1">ISBN13</label>
-            <input
-              type="text"
-              name="ISBN13"
-              value={form.ISBN13}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              required
-            />
-          </div>
           <div className="md:col-span-2 text-right">
             <button
               type="submit"
@@ -442,14 +436,13 @@ function QuanLiSach() {
                 <th className="p-2">NXB</th>
                 <th className="p-2">Ngày XB</th>
                 <th className="p-2">Ngôn ngữ</th>
-                <th className="p-2">Loại</th>
+                <th className="p-2">Danh mục sách</th>
                 <th className="p-2">Trang</th>
                 <th className="p-2">Định dạng</th>
                 <th className="p-2">SL</th>
                 <th className="p-2">Giá nhập</th>
                 <th className="p-2">Giá bán</th>
                 <th className="p-2">Giá giảm</th>
-                <th className="p-2">ISBN13</th>
                 <th className="p-2">Hành động</th>
               </tr>
             </thead>
@@ -480,14 +473,13 @@ function QuanLiSach() {
                     <td className="p-2">{book.nhaXuatBan}</td>
                     <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
                     <td className="p-2">{book.ngonNgu}</td>
-                    <td className="p-2">{book.loaiSach}</td>
+                    <td className="p-2">{book.danhMucSachID}</td>
                     <td className="p-2">{book.soTrang}</td>
                     <td className="p-2">{book.dinhDang}</td>
                     <td className="p-2">{book.soLuongConLai}</td>
                     <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
                     <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
                     <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
-                    <td className="p-2">{book.ISBN13}</td>
                     <td className="p-2 flex gap-2">
                       <button onClick={() => handleEdit(book)}>
                         <FaEdit className="text-blue-600 text-2xl hover:text-red-500 mt-2" />

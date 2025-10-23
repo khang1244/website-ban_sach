@@ -145,8 +145,8 @@ function ChiTietSanPham() {
               {chiTietSanPham.ngonNgu}
             </div>
             <div>
-              <span className="font-semibold">Loại sách:</span>{" "}
-              {chiTietSanPham.loaiSach}
+              <span className="font-semibold">Danh mục sách:</span>{" "}
+              {chiTietSanPham.danhMucSachID}
             </div>
             <div>
               <span className="font-semibold">Số trang:</span>{" "}
@@ -159,10 +159,6 @@ function ChiTietSanPham() {
             <div>
               <span className="font-semibold">Số lượng còn lại:</span>{" "}
               {chiTietSanPham.soLuongConLai}
-            </div>
-            <div>
-              <span className="font-semibold">ISBN13:</span>{" "}
-              {chiTietSanPham.ISBN13}
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4 mr-auto">

@@ -19,11 +19,10 @@ export const taoSachMoi = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
-      loaiSach,
+      danhMucSachID,
       soTrang,
       dinhDang,
       soLuongConLai,
-      ISBN13,
       giaNhap,
       giaBan,
       giaGiam,
@@ -36,11 +35,10 @@ export const taoSachMoi = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
-      loaiSach,
+      danhMucSachID,
       soTrang,
       dinhDang,
       soLuongConLai,
-      ISBN13,
       giaNhap,
       giaBan,
       giaGiam,
@@ -63,11 +61,10 @@ export const capNhatSach = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
-      loaiSach,
+      danhMucSachID,
       soTrang,
       dinhDang,
       soLuongConLai,
-      ISBN13,
       giaNhap,
       giaBan,
       giaGiam,
@@ -85,11 +82,10 @@ export const capNhatSach = async (req, res) => {
     sach.nhaXuatBan = nhaXuatBan;
     sach.ngayXuatBan = ngayXuatBan;
     sach.ngonNgu = ngonNgu;
-    sach.loaiSach = loaiSach;
+    sach.danhMucSachID = danhMucSachID;
     sach.soTrang = soTrang;
     sach.dinhDang = dinhDang;
     sach.soLuongConLai = soLuongConLai;
-    sach.ISBN13 = ISBN13;
     sach.giaNhap = giaNhap;
     sach.giaBan = giaBan;
     sach.giaGiam = giaGiam;

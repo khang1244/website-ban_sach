@@ -42,16 +42,26 @@ function DanhMucSach() {
   // ====== Logic thêm danh mục (có thông báo thành công) ======
   const handleAdd = async (e) => {
     e.preventDefault();
-    const danhMucDaDuocThem = categories.includes(input.trim());
-    if (input.trim() && !danhMucDaDuocThem) {
-      setCategories([...categories, input.trim()]);
-      setInput("");
-      await taoDanhMucSachMoi(input.trim());
-      showToast(
-        "success",
-        "Thành công",
-        "Thêm danh mục " + input + " thành công!"
-      );
+    const name = input.trim();
+    if (!name) return;
+
+    // categories là mảng object: {danhMucSachID, tenDanhMuc}
+    const isDup = categories.some(
+      (c) => (c.tenDanhMuc || c)?.toLowerCase() === name.toLowerCase()
+    );
+    if (isDup) {
+      showToast("warning", "Chú ý", `Danh mục "${name}" đã tồn tại!`);
+      return;
+    }
+
+    try {
+      setInput(""); // clear input ngay cho mượt
+      const created = await taoDanhMucSachMoi(name); // <- lấy object có ID
+      setCategories((prev) => [...prev, created]); // <- append object => hiện ID liền
+      showToast("success", "Thành công", `Thêm danh mục "${name}" thành công!`);
+    } catch (err) {
+      console.error("Lỗi khi thêm danh mục:", err);
+      showToast("error", "Lỗi", "Không thể thêm danh mục, thử lại nhé!");
     }
   };
 
@@ -217,7 +227,7 @@ function DanhMucSach() {
                     className="grid grid-cols-12 gap-3 items-center"
                   >
                     <div className="col-span-1 text-slate-500 font-medium">
-                      {idx + 1}
+                      {cat.danhMucSachID}
                     </div>
                     <div className="col-span-7">
                       <input
@@ -248,7 +258,7 @@ function DanhMucSach() {
                 ) : (
                   <div className="grid grid-cols-12 gap-3 items-center">
                     <div className="col-span-1 text-slate-500 font-medium">
-                      {idx + 1}
+                      {cat.danhMucSachID}
                     </div>
                     <div className="col-span-8">
                       <span className="inline-flex items-center gap-2 text-slate-800 font-medium">

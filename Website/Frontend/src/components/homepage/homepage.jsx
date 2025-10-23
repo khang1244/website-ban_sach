@@ -1,7 +1,6 @@
 import Navigation from "../Navigation";
 import Banner from "../Banner";
 import Footer from "../Footer";
-import { sanphambanchay } from "../../lib/data";
 import sach4 from "../../assets/sach4.webp";
 import { CiHeart } from "react-icons/ci";
 import { FaFire } from "react-icons/fa";
@@ -9,8 +8,9 @@ import { RiShoppingCartLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
+import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 
-const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
+// const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
 
 const giasach = [
   // Vùng giá
@@ -22,10 +22,10 @@ const giasach = [
 ];
 
 function Homepage() {
-  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [selectedCategory, setSelectedCategory] = useState(0);
   const [selectedPrice, setSelectedPrice] = useState("all");
   // bộ lộc sách bán chạy
-  const [selectedCategoryBC, setSelectedCategoryBC] = useState("Tất cả"); // Hook của React danh mục được chọn bộ lọc sách bán chạy
+  const [selectedCategoryBC, setSelectedCategoryBC] = useState(0); // Hook của React danh mục được chọn bộ lọc sách bán chạy
   const [selectedPriceBC, setSelectedPriceBC] = useState("all"); // Hook của React giá được chọn của bộ lọc sách bán chạy
 
   // // Biến trạng thái để lưu trữ danh sách sản phẩm lấy từ backend
@@ -33,11 +33,9 @@ function Homepage() {
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách mới
   const bolocsachmoi = danhSachSanPham.filter((product) => {
     let matchCategory =
-      selectedCategory === "Tất cả" ||
-      (product.category &&
-        product.category.toLowerCase() === selectedCategory.toLowerCase());
+      selectedCategory == 0 ||
+      (product.danhMucSachID && product.danhMucSachID === selectedCategory);
     let matchPrice = true;
-
     if (selectedPrice === "<50000") {
       matchPrice = product.giaGiam < 50000;
     } else if (selectedPrice === "50000-100000") {
@@ -50,11 +48,10 @@ function Homepage() {
     return matchCategory && matchPrice;
   });
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách bán chạy
-  const bolocsachbanchay = sanphambanchay.filter((product) => {
+  const bolocsachbanchay = danhSachSanPham.filter((product) => {
     let matchCategory =
-      selectedCategoryBC === "Tất cả" ||
-      (product.category &&
-        product.category.toLowerCase() === selectedCategoryBC.toLowerCase());
+      selectedCategoryBC == 0 ||
+      (product.danhMucSachID && product.danhMucSachID === selectedCategoryBC);
     let matchPrice = true;
 
     if (selectedPriceBC === "<50000") {
@@ -84,7 +81,25 @@ function Homepage() {
     };
     napTatCaSanPham();
   }, []);
+  // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách
+  const [danhMucSach, setDanhMucSach] = useState([]);
 
+  // Nạp dữ liệu danh mục sách
+  useEffect(() => {
+    const napDanhMucSach = async () => {
+      const duLieuDM = await nhanTatCaDanhMucSach();
+      if (duLieuDM) {
+        console.log("Dữ liệu danh mục sách:", duLieuDM);
+        //Bổ sung thêm vào danh mục sách có "Tất cả"ở cột đầu tiên ở trang chủ
+        duLieuDM.unshift({
+          danhMucSachID: 0,
+          tenDanhMuc: "Tất cả",
+        });
+        setDanhMucSach(duLieuDM);
+      }
+    };
+    napDanhMucSach();
+  }, []);
   return (
     <div className=" min-h-screen">
       {/* Navigation */}
@@ -102,17 +117,17 @@ function Homepage() {
             <div>
               <h4 className="text-gray-800  font-semibold mb-3">Danh mục:</h4>
               <div className="flex flex-wrap gap-2">
-                {danhmuc.map((cat) => (
+                {danhMucSach.map((cat) => (
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    key={cat.danhMucSachID}
+                    onClick={() => setSelectedCategory(cat.danhMucSachID)}
                     className={`px-3 py-1 rounded-full border ${
-                      selectedCategory === cat
+                      selectedCategory === cat.danhMucSachID
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-gray-100 text-gray-800 hover:bg-blue-100"
                     } transition`}
                   >
-                    {cat}
+                    {cat.tenDanhMuc}
                   </button>
                 ))}
               </div>
@@ -203,11 +218,11 @@ function Homepage() {
             <select
               className="rounded px-2 py-1 text-black border-1"
               value={selectedCategoryBC}
-              onChange={(e) => setSelectedCategoryBC(e.target.value)}
+              onChange={(e) => setSelectedCategoryBC(Number(e.target.value))}
             >
-              {danhmuc.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              {danhMucSach.map((cat) => (
+                <option key={cat.danhMucSachID} value={cat.danhMucSachID}>
+                  {cat.tenDanhMuc}
                 </option>
               ))}
             </select>
@@ -237,14 +252,14 @@ function Homepage() {
               <div className="rounded-2xl overflow-hidden shadow-lg  ">
                 <div className="w-full h-full overflow-hidden ">
                   <img
-                    src={product.hinhAnh}
+                    src={product.images[0]?.url}
                     alt={product.tenSP}
                     className=" w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-2 px-5 bg-[#3d3fa6] ">
                   <h4 className="font-semibold text-white text-xl cursor-pointer ">
-                    {product.tenSP}
+                    {product.tenSach}
                   </h4>
                   <p className=" text-white ">
                     Giảm giá: {product.giaGiam.toLocaleString()} VNĐ
@@ -252,7 +267,7 @@ function Homepage() {
                   <p className="flex justify-between">
                     <div>
                       <p className="line-through text-red-400">
-                        Giá gốc: {product.gia.toLocaleString()} VNĐ
+                        Giá gốc: {product.giaBan.toLocaleString()} VNĐ
                       </p>
                     </div>
                     <CiHeart className="text-white hover:text-red-400 text-2xl cursor-pointer mr-4" />
