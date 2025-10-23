@@ -168,7 +168,7 @@ function Homepage() {
                   key={product.maSP}
                   className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer "
                 >
-                  <div className="w-full h-60 flex items-center justify-center px-1 py-1">
+                  <div className="w-full h-80 flex items-center justify-center px-1 py-1">
                     <img
                       src={product.images[0]?.url}
                       alt={product.tenSP}
