@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { bannerBooks } from "../lib/data";
 import { CiSearch } from "react-icons/ci";
-import avatar from "../assets/avatar.jpg";
+// import avatar from "../assets/avatar.jpg";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/user-context";
 
@@ -9,12 +9,6 @@ function Banner() {
   const [currentIndex, setCurrentIndex] = useState(0); // Hook của React
   const [giaTriTimkiem, setGiaTriTimKiem] = useState(""); //Lưu trữ giá trị tìm kiếm
 
-  // Sử dụng giá trị user từ context
-  const { user } = useContext(UserContext);
-  // Hàm chuyển đến trang hồ sơ người dùng
-  const handleChuyenDenTrangHoSoNguoiDung = () => {
-    navigate("/hosonguoidung");
-  };
   // Khai báo useNavigate để chuyển hướng
   const navigate = useNavigate();
 
@@ -57,21 +51,36 @@ function Banner() {
       {/* tìm kiếm */}
       <div className="flex justify-between items-center px-10 py-5.5 text-white">
         <div className="flex items-center gap-3">
-          <div
-            onClick={handleChuyenDenTrangHoSoNguoiDung}
-            className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 border-white"
-          >
-            {/* Avatar */}
-            <img src={user?.avatar.url || avatar} alt="avatar" />
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-100 border-white text-black flex items-center justify-center font-bold text-xl">
+            H
           </div>
-          <div className="">
-            {/* Tên người dùng */}
-            <p className="text-white font-semibold ">
-              {user?.tenNguoiDung || "Chưa đăng nhập"}
-            </p>
-            <p className="text-sm text-gray-50">
-              {user?.email || "Chưa có email"}
-            </p>
+
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-200 border-white text-black flex items-center justify-center font-bold text-xl">
+            O
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-300 border-white text-black flex items-center justify-center font-bold text-xl">
+            À
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-400 border-white text-black flex items-center justify-center font-bold text-xl">
+            N
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-500 border-white text-black flex items-center justify-center font-bold text-xl">
+            G
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-600 border-white text-black flex items-center justify-center font-bold text-xl">
+            K
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-700 border-white text-black flex items-center justify-center font-bold text-xl">
+            H
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
+            A
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
+            N
+          </div>
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
+            G
           </div>
         </div>
         <div className="w-1/2 relative">

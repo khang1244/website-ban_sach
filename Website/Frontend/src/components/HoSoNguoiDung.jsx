@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
 import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
+import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 
 function HoSoNguoiDung() {
   // State cho phép chỉnh sửa thông tin
@@ -14,7 +15,20 @@ function HoSoNguoiDung() {
 
   //hình ảnh mã hóa để hiển thị ảnh cho người dùng xem trước
   const [hinhAnhMaHoa, setHinhAnhMaHoa] = useState(null);
-
+  // thông báo chạy khi thêm, sửa, xóa
+  const [toast, setToast] = useState({
+    show: false,
+    type: "",
+    title: "",
+    message: "",
+  });
+  const showToast = (type, title, message) => {
+    setToast({ show: true, type, title, message });
+    setTimeout(
+      () => setToast({ show: false, type: "", title: "", message: "" }),
+      3000
+    );
+  };
   //Hàm kiểm ta có phải là 1 file ảnh hay không
   function isFile(variable) {
     return variable instanceof File;
@@ -45,14 +59,14 @@ function HoSoNguoiDung() {
         : JSON.stringify(user.avatar), // Nếu có hình ảnh mới thì lấy hình ảnh mới, không thì lấy hình ảnh cũ
     };
 
-    const { status, message } = await capNhatThongTinNguoiDung(
+    const { status } = await capNhatThongTinNguoiDung(
       user.nguoiDungID,
       duLieuNguoiDungMoi
     );
     if (status) {
-      alert("Cập nhật thông tin thành công!");
+      showToast("info", "Thành công", "Cập nhật hồ sơ thành công!");
     } else {
-      alert("Cập nhật thông tin thất bại! " + message);
+      showToast("info", "Thất bại", "Cập nhật hồ sơ thất bại!");
     }
 
     // Cập nhật thông tin người dùng trong localStorage để có thể hiển thị thông tin mới nhất (thực tế phải thay đổi giá trị biến trong context hoặc redux)
@@ -93,6 +107,16 @@ function HoSoNguoiDung() {
         <h1 className="text-3xl font-bold text-white mb-8 text-center">
           Hồ Sơ Người Dùng
         </h1>
+        {/* Toast */}
+        <ThongBaoChay
+          show={toast.show}
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          onClose={() =>
+            setToast({ show: false, type: "", title: "", message: "" })
+          }
+        />
         <div className="bg-white rounded-xl shadow-xl p-8">
           <form onSubmit={handleSave} className="flex flex-col gap-6">
             <div className="flex flex-col items-center mb-4">

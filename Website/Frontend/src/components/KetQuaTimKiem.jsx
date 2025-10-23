@@ -3,10 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-
-import { sanphammoi } from "../lib/data";
+import { useEffect, useState } from "react";
 
 import { FaShoppingCart } from "react-icons/fa";
+import { nhanTatCaCacQuyenSach } from "../lib/sach-apis";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -17,15 +17,30 @@ const KetQuaTimKiemSach = () => {
 
   const searchTerm = query.get("q") || ""; // truyện tranh, searchTerm là thuật ngữ tìm kiếm
 
+  const [danhSachSanPham, setDanhSachSanPham] = useState([]);
   // Lọc sản phẩm theo tên hoặc mô tả chứa từ khóa tìm kiếm
-  const filteredProducts = sanphammoi.filter((product) => {
+  const filteredProducts = danhSachSanPham.filter((product) => {
     const lowerSearch = searchTerm.toLowerCase(); // chuyển về chữ thường để so sánh không phân biệt hoa thường
     return (
-      product.tenSP.toLowerCase().includes(lowerSearch) ||
+      product.tenSach.toLowerCase().includes(lowerSearch) ||
       (product.moTa && product.moTa.toLowerCase().includes(lowerSearch))
     );
   });
+  // Thêm useEffect để nạp dữ liệu thật từ database
+  useEffect(() => {
+    const napTatCaSanPham = async () => {
+      const data = await nhanTatCaCacQuyenSach();
+      if (data) {
+        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng
+        data.forEach((sach) => {
+          sach.images = JSON.parse(sach.images);
+        });
 
+        setDanhSachSanPham(data);
+      }
+    };
+    napTatCaSanPham();
+  }, []);
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       <Navigation />
@@ -56,20 +71,20 @@ const KetQuaTimKiemSach = () => {
                 <Link to="/chitietsanpham">
                   <div className="h-56 w-full rounded-lg overflow-hidden mb-4">
                     <img
-                      src={product.hinhAnh}
+                      src={product.images[0]?.url}
                       alt={product.tenSP}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 </Link>
                 <h3 className="font-bold text-[#00809D] text-lg mb-2">
-                  {product.tenSP}
+                  {product.tenSach}
                 </h3>
                 <p className="text-[#00f821] font-bold">
                   {product.giaGiam.toLocaleString()} VNĐ
                 </p>
                 <p className="text-gray-400 line-through text-sm mb-2">
-                  Giá gốc: {product.gia.toLocaleString()} VNĐ
+                  Giá gốc: {product.giaBan.toLocaleString()} VNĐ
                 </p>
                 <Link
                   to="/giohang"
