@@ -112,7 +112,7 @@ function Homepage() {
         <h3 className="py-2 px-5 text-white  text-xl font-bold">SÁCH MỚI</h3>
         <div className="flex gap-4 mt-4 mx-4">
           {/* Bộ lọc đẹp với danh mục và giá hiển thị hết ra */}
-          <div className="w-full md:w-1/4 bg-amber-300 rounded-xl shadow-md p-5 space-y-6">
+          <div className="w-full md:w-1/4 bg-gray-500 rounded-xl shadow-md p-5 space-y-6">
             {/* Danh mục */}
             <div>
               <h4 className="text-gray-800  font-semibold mb-3">Danh mục:</h4>
@@ -168,11 +168,11 @@ function Homepage() {
                   key={product.maSP}
                   className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer "
                 >
-                  <div className="w-full h-80 flex items-center justify-center px-1 py-1">
+                  <div className="w-full h-70 flex items-center justify-center px-1 py-1">
                     <img
                       src={product.images[0]?.url}
                       alt={product.tenSP}
-                      className="w-full h-full object-cover px-2 py-2"
+                      className="w-full h-full object-cover px-1 py-1"
                     />
                   </div>
                   <div className="p-3 bg-[#3d3fa6] text-white h-full ">
@@ -243,46 +243,55 @@ function Homepage() {
           </div>
         </div>
         {/* // Hiển thị danh sách sản phẩm bán chạy đã lọc */}
-        <ul className="grid grid-cols-4 gap-4 px-5 py-1 mt-3">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5">
           {bolocsachbanchay.map((product) => (
             <li
               key={product.maSP}
-              className="w-auto h-fit hover:scale-105 overflow-hidden cursor-pointer "
+              className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 flex flex-col "
             >
-              <div className="rounded-2xl overflow-hidden shadow-lg  ">
-                <div className="w-full h-full overflow-hidden ">
-                  <img
-                    src={product.images[0]?.url}
-                    alt={product.tenSP}
-                    className=" w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-2 px-5 bg-[#3d3fa6] ">
-                  <h4 className="font-semibold text-white text-xl cursor-pointer ">
+              {/* Ảnh: giảm chiều cao cho gọn */}
+              <div className="w-full h-76 bg-gray-50 flex items-center justify-center overflow-hidden">
+                <img
+                  src={product.images[0]?.url}
+                  alt={product.tenSP}
+                  className="object-cover w-full h-full px-2 py-2"
+                />
+              </div>
+
+              {/* Thông tin: chiếm hết phần còn lại & chia 2 khối trên/dưới */}
+              <div className="flex flex-col justify-between flex-grow p-4 bg-gradient-to-b from-[#3d3fa6] to-[#26288f] text-white">
+                {/* Khối trên: tiêu đề + giá */}
+                <div>
+                  {/* Tiêu đề 2 dòng cố định -> các card cao bằng nhau */}
+                  <h4 className="font-semibold text-base leading-tight line-clamp-2 h-12">
                     {product.tenSach}
                   </h4>
-                  <p className=" text-white ">
+
+                  <p className="mt-2 text-sm text-amber-300 font-semibold">
                     Giảm giá: {product.giaGiam.toLocaleString()} VNĐ
                   </p>
-                  <p className="flex justify-between">
-                    <div>
-                      <p className="line-through text-red-400">
-                        Giá gốc: {product.giaBan.toLocaleString()} VNĐ
-                      </p>
-                    </div>
-                    <CiHeart className="text-white hover:text-red-400 text-2xl cursor-pointer mr-4" />
-                  </p>
-                  <div className="py-1 flex gap-6">
-                    <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 ">
-                      <div className="flex justify-center items-center w-full gap-2 ">
-                        <FaFire className=" text-amber-400 " />
-                        <Link to="/chitietsanpham">Xem chi tiết</Link>
-                      </div>
-                    </button>
-                    <div>
-                      <RiShoppingCartLine className="w-9 h-6 mt-3 text-white hover:text-red-500 transition-all translate-x-[43px]" />
-                    </div>
+
+                  <div className="flex justify-between items-center mt-1 text-xs">
+                    <span className="text-red-300 line-through">
+                      Giá gốc: {product.giaBan.toLocaleString()} VNĐ
+                    </span>
+                    <CiHeart className="text-xl hover:text-red-400 transition-colors cursor-pointer" />
                   </div>
+                </div>
+
+                {/* Khối dưới: nút */}
+                <div className="flex items-center gap-3 pt-4">
+                  <Link
+                    to={`/chitietsanpham/${product.sachID}`}
+                    className="flex justify-center items-center gap-2 bg-white text-[#3d3fa6] font-semibold py-2 px-5 rounded-lg w-full hover:bg-amber-800 hover:text-white transition-all"
+                  >
+                    <FaFire className="text-amber-400" />
+                    Xem chi tiết
+                  </Link>
+
+                  <button className="p-3 rounded-lg border border-white/40 hover:bg-white hover:text-[#3d3fa6] transition-all shrink-0">
+                    <RiShoppingCartLine className="text-xl" />
+                  </button>
                 </div>
               </div>
             </li>
