@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
+import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
 
 // const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
 
@@ -100,6 +101,32 @@ function Homepage() {
     };
     napDanhMucSach();
   }, []);
+
+  // Hàm để xử lý thêm sản phẩm vào giỏ hàng
+  const handleThemSanPhamVaoGioHang = async (sachID, soLuong, giaLucThem) => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+    const user = JSON.parse(storedUser);
+    const nguoiDungID = user.nguoiDungID;
+
+    const phanHoiTuSever = await themSanPhamVaoGioHang(
+      nguoiDungID,
+      sachID,
+      soLuong,
+      giaLucThem
+    );
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } else {
+      alert(
+        "Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || "")
+      );
+    }
+  };
   return (
     <div className=" min-h-screen">
       {/* Navigation */}
@@ -194,9 +221,19 @@ function Homepage() {
                             </Link>
                           </div>
                         </button>
-                        <div>
-                          <RiShoppingCartLine className="w-9 h-6 mt-3 text-white hover:text-red-500 transition-all" />
-                        </div>
+                        {/* Thêm giỏ hàng: button riêng, không lồng Link */}
+                        <button
+                          onClick={() =>
+                            handleThemSanPhamVaoGioHang(
+                              product.sachID,
+                              1,
+                              product.giaGiam || product.giaBan
+                            )
+                          }
+                          className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                        >
+                          <RiShoppingCartLine className="text-lg" />
+                        </button>
                       </div>
                     </div>
                   </div>
