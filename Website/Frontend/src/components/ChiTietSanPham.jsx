@@ -5,7 +5,7 @@ import { sanphammoi } from "../lib/data";
 import Footer from "./Footer";
 import { layChiTietSach } from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
-
+import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
   const [soLuong, setSoLuong] = useState(1);
@@ -30,7 +30,31 @@ function ChiTietSanPham() {
       setSoLuong(soLuongMoi);
     }
   };
+  // Hàm để xử lý thêm sản phẩm vào giỏ hàng
+  const handleThemSanPhamVaoGioHang = async (sachID, soLuong, giaLucThem) => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+    const user = JSON.parse(storedUser);
+    const nguoiDungID = user.nguoiDungID;
 
+    const phanHoiTuSever = await themSanPhamVaoGioHang(
+      nguoiDungID,
+      sachID,
+      soLuong,
+      giaLucThem
+    );
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } else {
+      alert(
+        "Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || "")
+      );
+    }
+  };
   // Sử dụng useEffect để nạp dữ liệu sản phẩm từ server dựa vào sachID
   useEffect(() => {
     const napChiTietSanPham = async () => {
@@ -184,7 +208,26 @@ function ChiTietSanPham() {
               <FaPlus />
             </button>
             <div className="ml-3">
-              <button className="flex items-center gap-2 bg-[#00809D] text-white px-6 py-2 rounded-full font-bold hover:bg-[#006b85] ml-6 transition-all">
+              <button
+                onClick={() =>
+                  handleThemSanPhamVaoGioHang(
+                    chiTietSanPham.sachID,
+                    soLuong,
+                    chiTietSanPham.giaGiam || chiTietSanPham.giaBan
+                  )
+                }
+                disabled={soLuong < 1 || soLuong > chiTietSanPham.soLuongConLai}
+                className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold ml-6 transition-all ${
+                  soLuong < 1 || soLuong > chiTietSanPham.soLuongConLai
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-[#00809D] text-white hover:bg-[#006b85]"
+                }`}
+                title={
+                  soLuong > chiTietSanPham.soLuongConLai
+                    ? `Chỉ còn ${chiTietSanPham.soLuongConLai} sản phẩm`
+                    : "Thêm vào giỏ hàng"
+                }
+              >
                 <FaShoppingCart /> Thêm vào giỏ hàng
               </button>
             </div>
