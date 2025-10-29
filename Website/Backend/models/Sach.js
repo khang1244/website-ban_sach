@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
 import DanhMucSach from "./DanhMucSach.js";
+import HinhAnh from "./HinhAnh.js";
 
 const Sach = sequelize.define(
   "Sach",
@@ -61,10 +62,6 @@ const Sach = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: true,
     },
-    images: {
-      type: DataTypes.TEXT, // ["url1", "url2", ...]
-      allowNull: false,
-    },
   },
   {
     tableName: "sach",
@@ -75,5 +72,8 @@ const Sach = sequelize.define(
 //quan hệ 1-n giữa DanhMucSach và Sach
 Sach.belongsTo(DanhMucSach, { foreignKey: "danhMucSachID" });
 DanhMucSach.hasMany(Sach, { foreignKey: "danhMucSachID" });
+//quan hệ 1-n giữa Sach và HinhAnh
+Sach.hasMany(HinhAnh, { foreignKey: "sachID", as: "hinhAnhs" });
+HinhAnh.belongsTo(Sach, { foreignKey: "sachID", as: "sach" });
 
 export default Sach;

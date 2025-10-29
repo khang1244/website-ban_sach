@@ -34,7 +34,14 @@ function QuanLiSach() {
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
-      setForm({ ...form, images: Array.from(files) });
+      // Append newly selected files so existing images are preserved
+      setForm((prev) => ({
+        ...prev,
+        images: [
+          ...(Array.isArray(prev.images) ? prev.images : []),
+          ...Array.from(files),
+        ],
+      }));
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -153,24 +160,54 @@ function QuanLiSach() {
     setEditId(book.sachID);
   };
 
+  // Xóa 1 ảnh tại vị trí index trong form.images
+  const removeImageAt = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      images: Array.isArray(prev.images) ? prev.images.filter((_, i) => i !== index) : [],
+    }));
+  };
+
   const handleDelete = async (sachID) => {
-    setBooks(books.filter((b) => b.sachID !== sachID)); // Lọc bỏ quyển sách có id trùng với id được truyền vào hàm
-
-    // Xóa hình ảnh của quyển sách khỏi Cloudinary
+    // Tìm sách cần xóa trong state
     const bookToDelete = books.find((b) => b.sachID === sachID);
-
-    console.log("Quyển sách cần xóa:", bookToDelete);
-
-    if (bookToDelete) {
-      // Nếu tìm thấy quyển sách cần xóa
-      bookToDelete.images.forEach(async (img) => {
-        console.log("Đang xóa hình ảnh khỏi Cloudinary:", img);
-        await xoaHinhAnhCloudinary(img.public_id);
-      });
+    if (!bookToDelete) {
+      alert("Không tìm thấy sách để xóa.");
+      return;
     }
-    // Xóa dữ liệu quyển sách khỏi database
-    await xoaSach(sachID); // Gọi API xóa quyển sách khỏi database
-    alert("Xóa sách thành công!");
+
+    // Xác nhận hành động
+    const ok = window.confirm("Bạn có chắc muốn xóa sách này không?");
+    if (!ok) return;
+
+    // Gọi API xóa sách trước. Backend sẽ xóa các HinhAnh liên quan rồi xóa Sach.
+    const resp = await xoaSach(sachID);
+    if (resp && resp.success) {
+      // Sau khi xóa thành công ở server, xóa file trên Cloudinary (nếu muốn)
+      if (Array.isArray(bookToDelete.images)) {
+        for (const img of bookToDelete.images) {
+          try {
+            await xoaHinhAnhCloudinary(img.public_id);
+          } catch (e) {
+            console.warn("Không xóa được file cloudinary:", img, e);
+          }
+        }
+      }
+
+      // Cập nhật state UI
+      setBooks((prev) => prev.filter((b) => b.sachID !== sachID));
+
+      // Phát sự kiện toàn cục để các component khác load lại dữ liệu
+      try {
+        window.dispatchEvent(new Event("booksUpdated"));
+      } catch (e) {
+        console.warn("Không thể dispatch event booksUpdated:", e);
+      }
+
+      alert("Xóa sách thành công!");
+    } else {
+      alert("Xóa sách thất bại: " + (resp?.message || "Lỗi server"));
+    }
   };
 
   const formatDate = (isoDate) => {
@@ -249,13 +286,20 @@ function QuanLiSach() {
           <div className="flex flex-wrap gap-2 mt-2">
             {form.images &&
               Array.from(form.images).map((img, idx) => (
-                <div>
+                <div key={idx} className="relative">
                   <img
-                    key={idx}
                     src={isFile(img) ? URL.createObjectURL(img) : img.url}
-                    alt="preview"
+                    alt={`preview-${idx}`}
                     className="w-20 h-20 object-cover rounded-lg border"
                   />
+                  <button
+                    type="button"
+                    onClick={() => removeImageAt(idx)}
+                    className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700"
+                    title="Xóa ảnh"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
           </div>

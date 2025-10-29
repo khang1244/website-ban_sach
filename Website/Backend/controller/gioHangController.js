@@ -1,5 +1,6 @@
 import { GioHang, ChiTietGioHang } from "../models/GioHang.js";
 import Sach from "../models/Sach.js";
+import HinhAnh from "../models/HinhAnh.js";
 
 // Lấy thông tin giỏ hàng của người dùng theo nguoiDungID
 export const layGioHangTheoNguoiDung = async (req, res) => {
@@ -15,7 +16,7 @@ export const layGioHangTheoNguoiDung = async (req, res) => {
           include: [
             {
               model: Sach,
-              attributes: ["sachID", "tenSach", "images"], // Lấy thông tin sách cần thiết
+              attributes: ["sachID", "tenSach"], // Lấy thông tin sách cần thiết (images moved to HinhAnh)
             },
           ],
         },
@@ -27,6 +28,18 @@ export const layGioHangTheoNguoiDung = async (req, res) => {
         success: false,
         message: "Không tìm thấy giỏ hàng của người dùng này",
       });
+    }
+
+    // Đính kèm ảnh sản phẩm cho từng ChiTietGioHang -> Sach
+    for (const ct of gioHang.ChiTietGioHangs) {
+      const sach = ct.Sach;
+      if (sach) {
+        const imgs = await HinhAnh.findAll({ where: { sachID: sach.sachID } });
+        // định dạng tương thích: sach.images là chuỗi JSON của mảng {url, public_id}
+        sach.dataValues.images = JSON.stringify(
+          imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
+        );
+      }
     }
 
     // Tính tổng tiền giỏ hàng
