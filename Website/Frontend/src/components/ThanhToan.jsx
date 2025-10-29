@@ -10,37 +10,24 @@ import {
 } from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { sanphammoi } from "../lib/data";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import {
+  capNhatSoLuongSanPham,
+  layGioHangTheoNguoiDung,
+  xoaSanPhamKhoiGioHang,
+} from "../lib/gio-hang-apis";
 import { ImCreditCard } from "react-icons/im";
 
-// Danh sách các sản phẩm trong giỏ hàng (demo)
-const cartItems = [
-  {
-    id: 1,
-    image: sanphammoi[0]?.hinhAnh,
-    title: sanphammoi[0]?.tenSP,
-    author: sanphammoi[0]?.tacGia || "Tác giả A",
-    price: sanphammoi[0]?.giaGiam,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    image: sanphammoi[1]?.hinhAnh,
-    title: sanphammoi[1]?.tenSP,
-    author: sanphammoi[1]?.tacGia || "Tác giả B",
-    price: sanphammoi[1]?.giaGiam,
-    quantity: 1,
-  },
-];
-
 const SHIPPING_METHODS = [
+  // Phương thức vận chuyển
   { label: "Giao hàng tiêu chuẩn (3–5 ngày)", value: "standard", fee: 20000 },
   { label: "Giao hàng nhanh (1–2 ngày)", value: "express", fee: 40000 },
   { label: "Nhận tại cửa hàng", value: "pickup", fee: 0 },
 ];
 
 const PAYMENT_METHODS = [
+  // Phương thức thanh toán
   {
     label: "PayPal",
     value: "paypal",
@@ -54,8 +41,11 @@ const PAYMENT_METHODS = [
 ];
 
 function ThanhToan() {
+  // Ref để lưu timeout ID cho debouncing
+  const timeoutRef = useRef(null);
+
   // Giữ nguyên logic/state
-  const [cart, setCart] = useState(cartItems);
+  const [cart, setCart] = useState([]);
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
   const [shipping, setShipping] = useState({
     tinhThanhPho: "",
@@ -76,18 +66,57 @@ function ThanhToan() {
   const [agreed, setAgreed] = useState(false);
   const router = useNavigate();
 
-  const updateQuantity = (idx, delta) => {
-    const gioHangMoi = (prev) =>
-      prev.map((item, i) =>
-        i === idx
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      );
-    setCart(gioHangMoi);
-  };
+  // Hàm tăng/giảm số lượng sản phẩm với debouncing
+  function updateQuantity(index, delta) {
+    // Cập nhật số lượng trên UI trước (immediate update)
+    const newCart = [...cart];
+    newCart[index].soLuong = Math.max(1, newCart[index].soLuong + delta);
+    setCart(newCart);
 
-  const removeItem = (idx) =>
-    setCart((prev) => prev.filter((_, i) => i !== idx));
+    // Cập nhật tổng tiền
+    const newTotal = newCart.reduce(
+      (total, item) => total + item.giaLucThem * item.soLuong,
+      0
+    );
+    setTongTien(newTotal);
+
+    // Clear timeout trước đó nếu có (debouncing)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Tạo timeout mới để gọi API sau 500ms khi người dùng ngừng thay đổi
+    timeoutRef.current = setTimeout(async () => {
+      const chiTietGioHangID = newCart[index].chiTietGioHangID;
+      const soLuong = newCart[index].soLuong;
+
+      try {
+        await capNhatSoLuongSanPham(chiTietGioHangID, soLuong);
+        console.log("Đã cập nhật số lượng trên server:", soLuong);
+      } catch (error) {
+        console.error("Lỗi khi cập nhật số lượng:", error);
+        // Có thể hiển thị thông báo lỗi cho user
+      }
+    }, 500); // Đợi 500ms sau khi user ngừng thay đổi
+  }
+
+  // Hàm xóa sản phẩm khỏi giỏ hàng
+  async function removeItem(index) {
+    // Cập nhật trên UI trước
+    const newCart = cart.filter((_, i) => i !== index);
+    setCart(newCart);
+
+    // Cập nhật tổng tiền
+    const newTotal = newCart.reduce(
+      (total, item) => total + item.giaLucThem * item.soLuong,
+      0
+    );
+    setTongTien(newTotal);
+
+    // Gọi API để xóa sản phẩm khỏi giỏ hàng trên server
+    const chiTietGioHangID = cart[index].chiTietGioHangID;
+    await xoaSanPhamKhoiGioHang(chiTietGioHangID);
+  }
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -96,9 +125,6 @@ function ThanhToan() {
   const shippingFee =
     SHIPPING_METHODS.find((m) => m.value === shipping.phuongThucGiaoHang)
       ?.fee || 0;
-  const tax = Math.round(subtotal * 0.05);
-  const total = subtotal - discount + shippingFee + tax;
-
   const applyCoupon = () => {
     if (coupon.trim().toUpperCase() === "SALE10") {
       setDiscount(Math.round(subtotal * 0.1));
@@ -107,7 +133,10 @@ function ThanhToan() {
       alert("Mã giảm giá không hợp lệ!");
     }
   };
-
+  // Hàm định dạng tiền tệ
+  const formatCurrency = (amount) => {
+    return amount.toLocaleString("vi-VN") + "đ";
+  };
   const estimatedDate = () => {
     const now = new Date();
     let days = 5;
@@ -127,7 +156,24 @@ function ThanhToan() {
     alert("Đặt hàng thành công! Cảm ơn bạn đã mua sách tại BookStore.");
     router("/xacnhandonhang");
   };
+  // Biến trạng thái để lưu giá trị tổng tiền
+  const [tongTien, setTongTien] = useState(0);
 
+  // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
+  useEffect(() => {
+    const napDuLieuGioHang = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return;
+
+      const data = await layGioHangTheoNguoiDung(user.nguoiDungID);
+      if (data && data.success) {
+        setCart(data.gioHang.ChiTietGioHangs || []);
+        setTongTien(data.gioHang.tongTien || 0);
+        console.log("Dữ liệu giỏ hàng từ server:", data);
+      }
+    };
+    napDuLieuGioHang();
+  }, []);
   return (
     <div className="min-h-screen w-full bg-[#f7f9fc]">
       <Navigation />
@@ -393,59 +439,64 @@ function ThanhToan() {
             </div>
             <div className="p-6">
               <ul className="divide-y divide-[#eef5fb]">
-                {cart.map((item, idx) => (
-                  <li key={idx} className="flex gap-4 py-4 items-center">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-16 h-24 object-cover rounded-lg border border-[#e9f1f8] shadow-sm"
-                    />
-                    <div className="flex-1">
-                      <div className="font-semibold text-[#0b3b4c]">
-                        {item.title}
+                {cart &&
+                  cart.length > 0 &&
+                  cart.map((item, idx) => (
+                    <li key={idx} className="flex gap-4 py-4 items-center">
+                      <img
+                        src={
+                          item.Sach?.images
+                            ? JSON.parse(item.Sach.images)[0].url
+                            : ""
+                        }
+                        alt={item.Sach?.tenSach}
+                        className="w-16 h-24 object-cover rounded-lg border border-[#e9f1f8] shadow-sm"
+                      />
+                      <div className="flex-1">
+                        <div className="font-semibold text-[#0b3b4c]">
+                          {item.Sach?.tenSach || "Tên sách"}
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            type="button"
+                            className="p-1 bg-white rounded-full border border-[#cfdef3] hover:bg-[#f3f9fd] transition text-black"
+                            onClick={() => updateQuantity(idx, -1)}
+                            aria-label="Giảm số lượng"
+                          >
+                            <FaMinus />
+                          </button>
+                          <span className="px-3 font-bold text-[#0b3b4c]">
+                            {item.soLuong}
+                          </span>
+                          <button
+                            type="button"
+                            className="p-1 bg-white rounded-full border border-[#cfdef3] hover:bg-[#f3f9fd] transition text-black"
+                            onClick={() => updateQuantity(idx, 1)}
+                            aria-label="Tăng số lượng"
+                          >
+                            <FaPlus />
+                          </button>
+                          <button
+                            type="button"
+                            className="ml-3 text-red-500 hover:text-red-600 transition"
+                            onClick={() => removeItem(idx)}
+                            aria-label="Xóa sản phẩm"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-gray-600 text-sm">{item.author}</div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <button
-                          type="button"
-                          className="p-1 bg-white rounded-full border border-[#cfdef3] hover:bg-[#f3f9fd] transition text-black"
-                          onClick={() => updateQuantity(idx, -1)}
-                          aria-label="Giảm số lượng"
-                        >
-                          <FaMinus />
-                        </button>
-                        <span className="px-3 font-bold text-[#0b3b4c]">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          className="p-1 bg-white rounded-full border border-[#cfdef3] hover:bg-[#f3f9fd] transition text-black"
-                          onClick={() => updateQuantity(idx, 1)}
-                          aria-label="Tăng số lượng"
-                        >
-                          <FaPlus />
-                        </button>
-                        <button
-                          type="button"
-                          className="ml-3 text-red-500 hover:text-red-600 transition"
-                          onClick={() => removeItem(idx)}
-                          aria-label="Xóa sản phẩm"
-                        >
-                          <FaTrash />
-                        </button>
+                      <div className="text-right">
+                        <div className="font-bold text-[#00809D]">
+                          {item.giaLucThem.toLocaleString()}đ
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          Tổng giá:{" "}
+                          {formatCurrency(item.giaLucThem * item.soLuong)}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-[#00809D]">
-                        {item.price.toLocaleString()}đ
-                      </div>
-                      <div className="text-gray-500 text-xs">
-                        Tạm tính:{" "}
-                        {(item.price * item.quantity).toLocaleString()}đ
-                      </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
 
               <Link
@@ -464,7 +515,7 @@ function ThanhToan() {
               <div className="space-y-2 text-sm text-black">
                 <div className="flex justify-between">
                   <span>Tạm tính</span>
-                  <span>{subtotal.toLocaleString()}đ</span>
+                  <span>{tongTien.toLocaleString()}đ</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Giảm giá</span>
@@ -480,15 +531,11 @@ function ThanhToan() {
                       : `+${shippingFee.toLocaleString()}đ`}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Thuế (5% VAT)</span>
-                  <span>+{tax.toLocaleString()}đ</span>
-                </div>
               </div>
               <div className="flex justify-between items-center mt-4 pt-3 border-t">
                 <span className="font-bold text-[#0b3b4c]">Tổng cộng</span>
                 <span className="text-xl font-extrabold text-[#00809D]">
-                  {total.toLocaleString()}đ
+                  {tongTien.toLocaleString()}đ
                 </span>
               </div>
             </div>
