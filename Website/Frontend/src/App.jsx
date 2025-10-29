@@ -10,6 +10,7 @@ import ThanhToan from "./components/ThanhToan";
 import XacNhanDonHang from "./components/XacNhanDonHang";
 import GioHang from "./components/GioHang";
 import HoSoNguoiDung from "./components/HoSoNguoiDung";
+import DoiMatKhau from "./components/DoiMatKhau";
 import LichSuMuaHang from "./components/LichSuMuaHang";
 import ChiTietDonHang from "./components/ChiTietDonHang";
 import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
@@ -35,6 +36,7 @@ function App() {
         <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
         <Route path="/giohang" element={<GioHang />} />
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
+        <Route path="/doimatkhau" element={<DoiMatKhau />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
         <Route path="/chitietdonhang" element={<ChiTietDonHang />} />
         <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />

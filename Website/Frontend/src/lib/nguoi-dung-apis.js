@@ -81,3 +81,24 @@ export const capNhatThongTinNguoiDung = async (nguoiDungID, thongTinMoi) => {
     throw error;
   }
 };
+
+// 5. Cập nhật mật khẩu người dùng
+export const capNhatMatKhau = async (nguoiDungID, matKhauMoi) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/nguoiDung/cap-nhat-mat-khau/${nguoiDungID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ matKhauMoi }),
+      }
+    );
+    const data = await response.json();
+    return { status: response.ok, message: data.message };
+  } catch (error) {
+    console.error("Lỗi khi cập nhật mật khẩu:", error);
+    throw error;
+  }
+};
