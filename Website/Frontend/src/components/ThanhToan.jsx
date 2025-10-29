@@ -46,7 +46,9 @@ function ThanhToan() {
 
   // Giữ nguyên logic/state
   const [cart, setCart] = useState([]);
+  // Thông tin khách hàng
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
+  // Thông tin giao hàng
   const [shipping, setShipping] = useState({
     tinhThanhPho: "",
     quanHuyen: "",
@@ -174,6 +176,20 @@ function ThanhToan() {
     };
     napDuLieuGioHang();
   }, []);
+
+  // Khởi tạo giá trị ban đầu cho thông tin người dùng
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      // Kiểm tra xem có dữ liệu user trong localStorage không
+      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+      setCustomer({
+        name: duLieuNguoiDung.tenNguoiDung || "",
+        email: duLieuNguoiDung.email || "",
+        phone: duLieuNguoiDung.soDienThoai || "",
+      });
+    }
+  }, []);
   return (
     <div className="min-h-screen w-full bg-[#f7f9fc]">
       <Navigation />
@@ -235,6 +251,7 @@ function ThanhToan() {
                 className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
                 placeholder="Email"
                 value={customer.email}
+                disabled // vô hiệu hóa không cho người dùng chỉnh email
                 onChange={(e) =>
                   setCustomer({ ...customer, email: e.target.value })
                 }
