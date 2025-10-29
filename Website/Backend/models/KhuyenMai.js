@@ -10,7 +10,7 @@ const KhuyenMai = sequelize.define(
       autoIncrement: false,
     },
     giaTriGiam: {
-      type: DataTypes.INTEGER, // Phần trăm giảm giá
+      type: DataTypes.FLOAT, // Phần trăm giảm giá
       allowNull: false,
     },
     moTa: {
@@ -26,7 +26,7 @@ const KhuyenMai = sequelize.define(
       allowNull: false,
     },
     giaCoBan: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     trangThai: {

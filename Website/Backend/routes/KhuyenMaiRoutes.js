@@ -4,7 +4,8 @@ import {
   nhanTatCaMaKhuyenMai,
   taoMaKhuyenMai,
   xoaMaKhuyenMai,
-} from "../controller/KhuyenMaiController.js";
+  nhanMaKhuyenMaiTheoID,
+} from "../controller/khuyenMaiController.js";
 
 const router = express.Router();
 
@@ -19,5 +20,8 @@ router.put("/:khuyenMaiID", capNhatMaKhuyenMai);
 
 // Xóa khuyến mãi
 router.delete("/:khuyenMaiID", xoaMaKhuyenMai);
+
+// Nhận khuyến mãi theo ID
+router.get("/:khuyenMaiID", nhanMaKhuyenMaiTheoID);
 
 export default router;

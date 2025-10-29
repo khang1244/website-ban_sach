@@ -18,6 +18,7 @@ import {
   xoaSanPhamKhoiGioHang,
 } from "../lib/gio-hang-apis";
 import { ImCreditCard } from "react-icons/im";
+import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
 
 const SHIPPING_METHODS = [
   // Phương thức vận chuyển
@@ -48,6 +49,18 @@ function ThanhToan() {
   const [cart, setCart] = useState([]);
   // Thông tin khách hàng
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
+  // Mã giảm giá
+  const [coupon, setCoupon] = useState(""); //Lưu mã giảm giá
+  // Giảm giá
+  const [discount, setDiscount] = useState(0); //Lưu giá trị giảm giá
+  // Đồng ý với điều khoản
+  const [agreed, setAgreed] = useState(false); //Lưu trạng thái đồng ý với điều khoản
+  // Biến trạng thái để lưu giá trị tổng tiền
+  const [tongTien, setTongTien] = useState(0);
+
+  // Điều hướng
+  const router = useNavigate();
+
   // Thông tin giao hàng
   const [shipping, setShipping] = useState({
     tinhThanhPho: "",
@@ -63,10 +76,6 @@ function ThanhToan() {
     cardExpiry: "",
     cardCvc: "",
   });
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [agreed, setAgreed] = useState(false);
-  const router = useNavigate();
 
   // Hàm tăng/giảm số lượng sản phẩm với debouncing
   function updateQuantity(index, delta) {
@@ -120,21 +129,11 @@ function ThanhToan() {
     await xoaSanPhamKhoiGioHang(chiTietGioHangID);
   }
 
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
   const shippingFee =
     SHIPPING_METHODS.find((m) => m.value === shipping.phuongThucGiaoHang)
       ?.fee || 0;
-  const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === "SALE10") {
-      setDiscount(Math.round(subtotal * 0.1));
-    } else {
-      setDiscount(0);
-      alert("Mã giảm giá không hợp lệ!");
-    }
-  };
+  const total = tongTien - discount + shippingFee; // Tổng cộng cuối cùng
+  const total1 = tongTien - discount; // dùng để kiểm tra điều kiện áp dụng mã giảm giá không cộng phí vận chuyển
   // Hàm định dạng tiền tệ
   const formatCurrency = (amount) => {
     return amount.toLocaleString("vi-VN") + "đ";
@@ -158,9 +157,6 @@ function ThanhToan() {
     alert("Đặt hàng thành công! Cảm ơn bạn đã mua sách tại BookStore.");
     router("/xacnhandonhang");
   };
-  // Biến trạng thái để lưu giá trị tổng tiền
-  const [tongTien, setTongTien] = useState(0);
-
   // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
   useEffect(() => {
     const napDuLieuGioHang = async () => {
@@ -190,6 +186,37 @@ function ThanhToan() {
       });
     }
   }, []);
+
+  // Hàm kiểm tra và áp dụng mã giảm giá
+  const hamKiemTraMaGiamGia = async () => {
+    const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
+    console.log("Phản hồi từ server về mã giảm giá:", response);
+    if (response && response.success) {
+      // Kiểm tra mã khuyến mãi còn hạn không
+      if (!response.khuyenMai.ngayHetHan) {
+        alert("Mã giảm giá đã hết hạn sử dụng!");
+        return;
+      }
+      // Kiểm tra xem với giá trị đơn hiện tại có thể sử dụng được không
+      if (total1 < response.khuyenMai.giaCoBan) {
+        alert("Đơn hàng của bạn chưa đủ điều kiện để sử dụng mã giảm giá này!");
+        return;
+      }
+
+      // Kiểm tra xem số lượng còn lại của mã khuyến mãi có đủ sử dụng không
+      if (response.khuyenMai.soLuong <= 0) {
+        alert("Mã giảm giá đã hết số lượng sử dụng!");
+        return;
+      }
+      // Nếu tất cả điều kiện đều thỏa mãn, áp dụng mã giảm giá
+      const phanTramGiamGia = response.khuyenMai.giaTriGiam || 0;
+      const soTienDuocGiam = Math.round(tongTien * (phanTramGiamGia / 100));
+      setDiscount(soTienDuocGiam);
+      alert("Áp dụng mã giảm giá thành công!");
+    } else {
+      alert("Mã giảm giá không hợp lệ!");
+    }
+  };
   return (
     <div className="min-h-screen w-full bg-[#f7f9fc]">
       <Navigation />
@@ -431,7 +458,7 @@ function ThanhToan() {
               />
               <button
                 type="button"
-                onClick={applyCoupon}
+                onClick={hamKiemTraMaGiamGia}
                 className="whitespace-nowrap px-6 py-3 rounded-lg font-semibold bg-gradient-to-r from-[#00809D] to-[#00b4d8] text-white shadow hover:from-[#006f86] hover:to-[#0096c7] transition"
               >
                 Áp dụng
@@ -552,7 +579,7 @@ function ThanhToan() {
               <div className="flex justify-between items-center mt-4 pt-3 border-t">
                 <span className="font-bold text-[#0b3b4c]">Tổng cộng</span>
                 <span className="text-xl font-extrabold text-[#00809D]">
-                  {tongTien.toLocaleString()}đ
+                  {total.toLocaleString()}đ
                 </span>
               </div>
             </div>

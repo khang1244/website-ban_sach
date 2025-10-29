@@ -87,3 +87,26 @@ export const xoaMaKhuyenMai = async (req, res) => {
       .json({ message: "Lỗi khi xóa khuyến mãi", error: error.message });
   }
 };
+// Nhận khuyến mãi theo ID
+export const nhanMaKhuyenMaiTheoID = async (req, res) => {
+  try {
+    const { khuyenMaiID } = req.params;
+    const khuyenMai = await KhuyenMai.findByPk(khuyenMaiID);
+    if (!khuyenMai) {
+      return res
+        .status(404)
+        .json({ message: "Khuyến mãi không tồn tại", success: false });
+    }
+    res.status(200).json({
+      message: "Lấy khuyến mãi thành công",
+      success: true,
+      khuyenMai: khuyenMai,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi lấy khuyến mãi",
+      error: error.message,
+    });
+  }
+};

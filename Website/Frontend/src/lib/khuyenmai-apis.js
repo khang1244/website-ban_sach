@@ -68,3 +68,19 @@ export const xoaKhuyenMai = async (khuyenMaiID) => {
     throw error;
   }
 };
+// 5. Lấy khuyến mãi theo ID
+export const nhanMaKhuyenMaiTheoID = async (khuyenMaiID) => {
+  try {
+    const response = await fetch(`${BASE_URL}/khuyenMai/${khuyenMaiID}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi nhận khuyến mãi theo ID:", error);
+    throw error;
+  }
+};
