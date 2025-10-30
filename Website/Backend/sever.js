@@ -11,6 +11,7 @@ import KhuyenMaiRoutes from "./routes/KhuyenMaiRoutes.js";
 import GiaoDichKhoRoutes from "./routes/GiaoDichKhoRoutes.js";
 import HinhAnhRoutes from "./routes/HinhAnhRoutes.js";
 import GioHangRoutes from "./routes/GioHangRoutes.js";
+import PhuongThucGiaoHangRoutes from "./routes/PhuongThucGiaoHangRoutes.js";
 
 //Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
 // await sequelize.sync({ alter: true });
@@ -54,6 +55,8 @@ app.use("/api/giaoDichKho", GiaoDichKhoRoutes); // Sử dụng routes giaoDichKh
 app.use("/api/hinhAnh", HinhAnhRoutes); // Sử dụng routes hinhAnh
 
 app.use("/api/gioHang", GioHangRoutes); // sử dụng route giỏ hàng
+
+app.use("/api/phuongThucGiaoHang", PhuongThucGiaoHangRoutes);
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;
