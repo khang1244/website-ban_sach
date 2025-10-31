@@ -19,6 +19,7 @@ import QuanLiChung from "./components/admin/QuanLiChung";
 import QuanLiSach from "./components/admin/QuanLiSach";
 import DanhMucSach from "./components/admin/DanhMucSach";
 import QuanLiKhuyenMai from "./components/admin/QuanLiKhuyenMai";
+import QuanLiPhuongThucGiaoHang from "./components/admin/QuanLiPhuongThucGiaoHang";
 
 function App() {
   return (
@@ -47,6 +48,10 @@ function App() {
           <Route path="sach" element={<QuanLiSach />} />
           <Route path="danhmucsach" element={<DanhMucSach />} />
           <Route path="khuyenmai" element={<QuanLiKhuyenMai />} />
+          <Route
+            path="phuongthucgiaohang"
+            element={<QuanLiPhuongThucGiaoHang />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>

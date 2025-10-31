@@ -35,7 +35,7 @@ const PhuongThucGiaoHang = sequelize.define(
     },
   },
   {
-    tableName: "phuong-thuc-giao-hang",
+    tableName: "phuong_thuc_giao_hang",
     timestamps: true, // createdAt, updatedAt
   }
 );
