@@ -11,6 +11,7 @@ import {
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { Link, useNavigate } from "react-router-dom";
+import { TbTruckDelivery } from "react-icons/tb";
 import { useEffect, useRef } from "react";
 import {
   capNhatSoLuongSanPham,
@@ -57,8 +58,6 @@ function ThanhToan() {
   const [shippingMethods, setShippingMethods] = useState([]);
   // Biến trạng thái để lưu trữ danh sách xã phường theo tỉnh/thành phố
   const [wards, setWards] = useState([]);
-  // Biến trạng thái để lưu trữ phí vận chuyển
-  const [phiVanChuyen] = useState(0);
   // Điều hướng
   const router = useNavigate();
 
@@ -373,7 +372,8 @@ function ThanhToan() {
 
             {/* Radio chip: phương thức giao hàng */}
             <div className="px-6 pb-6">
-              <div className="text-sm font-medium text-[#0b3b4c] mb-3">
+              <div className="flex items-center gap-2 text-lg font-medium text-[#0b3b4c] mb-3">
+                <TbTruckDelivery />
                 Phương thức giao hàng
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -423,11 +423,6 @@ function ThanhToan() {
                     );
                   })}
               </div>
-              {phiVanChuyen === 0 && (
-                <div className="mt-2 text-xs text-green-700 font-medium">
-                  Miễn phí vận chuyển cho lựa chọn hiện tại.
-                </div>
-              )}
             </div>
           </section>
 
