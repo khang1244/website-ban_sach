@@ -20,7 +20,7 @@ const PhuongThucGiaoHang = sequelize.define(
       defaultValue: 0, // Phí giao hàng
     },
     thoiGianGiaoHang: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true, // Thời gian giao hàng dự kiến (VD: "2-3 ngày", "24 giờ", ...)
     },
     trangThai: {

@@ -395,7 +395,7 @@ function ThanhToan() {
                             onChange={() =>
                               setShipping({
                                 ...shipping,
-                                phuongThucGiaoHang: m.value,
+                                phuongThucGiaoHang: m.phuongThucGiaoHangID,
                               })
                             }
                           />
