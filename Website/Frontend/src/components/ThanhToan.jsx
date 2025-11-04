@@ -17,6 +17,7 @@ import {
   capNhatSoLuongSanPham,
   layGioHangTheoNguoiDung,
   xoaSanPhamKhoiGioHang,
+  xoaToanBoGioHang,
 } from "../lib/gio-hang-apis";
 import { ImCreditCard } from "react-icons/im";
 import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
@@ -200,6 +201,20 @@ function ThanhToan() {
     // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
     const response = await taoDonHangMoi(duLieuDonHang);
     if (response && response.success) {
+      // Sau khi tạo đơn hàng thành công -> xóa toàn bộ giỏ hàng của người dùng
+      try {
+        const khachHang = JSON.parse(localStorage.getItem("user"));
+        if (khachHang && khachHang.nguoiDungID) {
+          await xoaToanBoGioHang(khachHang.nguoiDungID);
+        }
+      } catch (err) {
+        console.error("Lỗi khi xóa giỏ hàng sau khi đặt hàng:", err);
+        // Không chặn flow đặt hàng nếu xóa giỏ hàng thất bại
+      }
+      // Cập nhật UI local
+      setCart([]);
+      setTongTien(0);
+
       alert("Đặt hàng thành công!");
       router("/xacnhandonhang");
     } else {
