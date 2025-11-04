@@ -357,7 +357,7 @@ function ThanhToan() {
               </select>
               <input
                 required
-                className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
+                className="border w-191 border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
                 placeholder="Địa chỉ cụ thể"
                 value={shipping.diaChiCuThe}
                 onChange={(e) =>
