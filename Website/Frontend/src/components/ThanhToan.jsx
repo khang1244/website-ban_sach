@@ -23,6 +23,7 @@ import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
 import tinhTP from "../lib/du-Lieu-TinhTP";
 import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
+import { taoDonHangMoi } from "../lib/don-hang-apis";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -154,16 +155,58 @@ function ThanhToan() {
     return now.toLocaleDateString();
   };
 
-  const placeOrder = (e) => {
-    e.preventDefault();
-    if (!agreed) {
-      alert("Bạn cần đồng ý với Điều khoản & Chính sách đổi trả!");
+  const datHang = async (e) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+
+    // Kiểm tra người dùng chọn phương thức giao hàng chưa
+    if (!shipping.phuongThucGiaoHang) {
+      alert("Vui lòng chọn phương thức giao hàng!");
       return;
     }
-    alert("Đặt hàng thành công! Cảm ơn bạn đã mua sách tại BookStore.");
-    router("/xacnhandonhang");
+    // Kiểm tra giỏ hàng có trống không
+    if (cart.length === 0) {
+      alert("Giỏ hàng của bạn đang trống!");
+      return;
+    }
+    // Lấy dữ liệu người dùng từ localStorage để chuẩn bị dữ liệu đẩy lên sever
+    const khachHang = JSON.parse(localStorage.getItem("user"));
+
+    // Chuẩn bị dữ liệu để tạo đơn hàng gửi lên sever
+    const duLieuDonHang = {
+      nguoiDungID: khachHang.nguoiDungID,
+      tenKhachHang: khachHang.tenNguoiDung,
+      soDienThoaiKH: customer.phone,
+      ngayDat: new Date(),
+      tongTien: total,
+      trangThai: "Chờ xác nhận",
+      diaChiGiaoHang: `${shipping.diaChiCuThe}, ${
+        wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || ""
+      }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`,
+      ghiChu: `Phương thức giao hàng: ${
+        shippingMethods.find(
+          (m) =>
+            m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+        )?.tenPhuongThuc || ""
+      }`,
+      items: cart.map((item) => ({
+        sachID: item.sachID,
+        soLuong: item.soLuong,
+        donGia: item.giaLucThem,
+      })),
+    };
+
+    console.log(duLieuDonHang);
+
+    // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
+    const response = await taoDonHangMoi(duLieuDonHang);
+    if (response && response.success) {
+      alert("Đặt hàng thành công!");
+      router("/xacnhandonhang");
+    } else {
+      alert("Đặt hàng thất bại!");
+    }
   };
-  // Nạp dữ liệu giỏ hàng từ sever sử dụng useEffect
+  // Chuyển đến trang xác nhận đơn hàng
   useEffect(() => {
     const napDuLieuGioHang = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -276,7 +319,7 @@ function ThanhToan() {
 
       <form
         className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12"
-        onSubmit={placeOrder}
+        onSubmit={datHang}
       >
         {/* Cột trái */}
         <div className="lg:col-span-2 flex flex-col gap-6">
