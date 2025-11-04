@@ -128,11 +128,6 @@ function QuanLiPhuongThucGiaoHang() {
       return;
     }
 
-    if (!formData.thoiGianGiaoHang.trim()) {
-      setError("Vui lòng nhập thời gian giao hàng");
-      return;
-    }
-
     try {
       setLoading(true); // Bật loading khi gửi dữ liệu
       setError(""); // Xóa lỗi cũ
@@ -581,7 +576,7 @@ function QuanLiPhuongThucGiaoHang() {
                   </span>
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="thoiGianGiaoHang"
                   value={formData.thoiGianGiaoHang}
                   onChange={handleInputChange}
