@@ -128,8 +128,13 @@ function ThanhToan() {
     const chiTietGioHangID = cart[index].chiTietGioHangID;
     await xoaSanPhamKhoiGioHang(chiTietGioHangID);
   }
+  // Tính phí vận chuyển dựa trên phương thức giao hàng đã chọn
+  const phiPhuongThucGiaoHang =
+    shippingMethods.find(
+      (m) => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+    )?.phiGiaoHang || 0;
 
-  const total = tongTien - discount + phiVanChuyen; // Tổng cộng cuối cùng
+  const total = tongTien - discount + phiPhuongThucGiaoHang; // Tổng cộng cuối cùng
   const total1 = tongTien - discount; // dùng để kiểm tra điều kiện áp dụng mã giảm giá không cộng phí vận chuyển
   // Hàm định dạng tiền tệ
   const formatCurrency = (amount) => {
@@ -598,9 +603,9 @@ function ThanhToan() {
                 <div className="flex justify-between">
                   <span>Phí vận chuyển</span>
                   <span>
-                    {phiVanChuyen === 0
+                    {phiPhuongThucGiaoHang === 0
                       ? "Miễn phí"
-                      : `+${phiVanChuyen.toLocaleString()}đ`}
+                      : `+${phiPhuongThucGiaoHang.toLocaleString()}đ`}
                   </span>
                 </div>
               </div>
