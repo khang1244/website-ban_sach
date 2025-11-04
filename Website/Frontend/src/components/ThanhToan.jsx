@@ -19,13 +19,7 @@ import {
 } from "../lib/gio-hang-apis";
 import { ImCreditCard } from "react-icons/im";
 import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
-
-const SHIPPING_METHODS = [
-  // Phương thức vận chuyển
-  { label: "Giao hàng tiêu chuẩn (3–5 ngày)", value: "standard", fee: 20000 },
-  { label: "Giao hàng nhanh (1–2 ngày)", value: "express", fee: 40000 },
-  { label: "Nhận tại cửa hàng", value: "pickup", fee: 0 },
-];
+import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -57,7 +51,11 @@ function ThanhToan() {
   const [agreed, setAgreed] = useState(false); //Lưu trạng thái đồng ý với điều khoản
   // Biến trạng thái để lưu giá trị tổng tiền
   const [tongTien, setTongTien] = useState(0);
+  // Biến trạng thái để lưu trữ danh sách phương thức giao hàng từ server
+  const [shippingMethods, setShippingMethods] = useState([]);
 
+  // Biến trạng thái để lưu trữ phí vận chuyển
+  const [phiVanChuyen] = useState(0);
   // Điều hướng
   const router = useNavigate();
 
@@ -67,7 +65,7 @@ function ThanhToan() {
     quanHuyen: "",
     xaPhuong: "",
     diaChiCuThe: "",
-    phuongThucGiaoHang: SHIPPING_METHODS[0].value, // standard
+    phuongThucGiaoHang: "", // standard
   });
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
@@ -129,10 +127,7 @@ function ThanhToan() {
     await xoaSanPhamKhoiGioHang(chiTietGioHangID);
   }
 
-  const shippingFee =
-    SHIPPING_METHODS.find((m) => m.value === shipping.phuongThucGiaoHang)
-      ?.fee || 0;
-  const total = tongTien - discount + shippingFee; // Tổng cộng cuối cùng
+  const total = tongTien - discount + phiVanChuyen; // Tổng cộng cuối cùng
   const total1 = tongTien - discount; // dùng để kiểm tra điều kiện áp dụng mã giảm giá không cộng phí vận chuyển
   // Hàm định dạng tiền tệ
   const formatCurrency = (amount) => {
@@ -140,12 +135,17 @@ function ThanhToan() {
   };
   const estimatedDate = () => {
     const now = new Date();
-    let days = 5;
-    if (shipping.phuongThucGiaoHang === "express") days = 2;
-    if (shipping.phuongThucGiaoHang === "pickup")
-      return "Nhận ngay tại cửa hàng";
-    now.setDate(now.getDate() + days);
-    return now.toLocaleDateString();
+    // Tìm phương thức giao hàng đã chọn
+    const method = shippingMethods.find(
+      (m) => m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
+    );
+
+    // Tính toán ngày giao hàng dự kiến
+    if (!method) return "Chưa chọn phương thức giao hàng";
+
+    now.setDate(now.getDate() + method.thoiGianGiaoHang);
+
+    return now.toLocaleDateString(); // 10/02/2025
   };
 
   const placeOrder = (e) => {
@@ -186,7 +186,19 @@ function ThanhToan() {
       });
     }
   }, []);
+  // Nạp danh sách phương thức giao hàng từ server
+  useEffect(() => {
+    const napPhuongThucGiaoHang = async () => {
+      // Giả sử gọi API để lấy danh sách phương thức giao hàng
+      const response = await layTatCaPhuongThucGiaoHang();
+      if (response && response.success) {
+        console.log("Danh sách phương thức giao hàng:", response.data);
 
+        setShippingMethods(response.data);
+      }
+    };
+    napPhuongThucGiaoHang();
+  }, []);
   // Hàm kiểm tra và áp dụng mã giảm giá
   const hamKiemTraMaGiamGia = async () => {
     const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
@@ -348,49 +360,53 @@ function ThanhToan() {
                 Phương thức giao hàng
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {SHIPPING_METHODS.map((m) => {
-                  const active = shipping.phuongThucGiaoHang === m.value;
-                  return (
-                    <label
-                      key={m.value}
-                      className={`cursor-pointer rounded-xl border px-4 py-3 text-sm flex flex-col gap-0.5 transition
+                {shippingMethods.length > 0 &&
+                  shippingMethods.map((m) => {
+                    const active =
+                      shipping.phuongThucGiaoHang === m.phuongThucGiaoHangID;
+                    return (
+                      <label
+                        key={m.phuongThucGiaoHangID}
+                        className={`cursor-pointer rounded-xl border px-4 py-3 text-sm flex flex-col gap-0.5 transition
                       ${
                         active
                           ? "border-[#00a2c7] bg-[#f0fbff] shadow-sm"
                           : "border-[#cfdef3] bg-white hover:bg-[#f7fbff]"
                       }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="shipping"
-                          className="accent-[#00809D]"
-                          checked={active}
-                          onChange={() =>
-                            setShipping({
-                              ...shipping,
-                              phuongThucGiaoHang: m.value,
-                            })
-                          }
-                        />
-                        <span className="font-semibold text-[#0b3b4c] leading-tight">
-                          {m.label}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-xs ${
-                          m.fee === 0 ? "text-green-700" : "text-gray-600"
-                        }`}
                       >
-                        {m.fee === 0
-                          ? "Miễn phí"
-                          : `Phí +${m.fee.toLocaleString()}đ`}
-                      </span>
-                    </label>
-                  );
-                })}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value={m.phuongThucGiaoHangID}
+                            className="accent-[#00809D]"
+                            onChange={() =>
+                              setShipping({
+                                ...shipping,
+                                phuongThucGiaoHang: m.value,
+                              })
+                            }
+                          />
+                          <span className="font-semibold text-[#0b3b4c] leading-tight">
+                            {m.tenPhuongThuc}
+                          </span>
+                        </div>
+                        <span
+                          className={`text-xs ${
+                            m.phiGiaoHang === 0
+                              ? "text-green-700"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {m.phiGiaoHang === 0
+                            ? "Miễn phí"
+                            : `Phí +${m.phiGiaoHang.toLocaleString()}đ`}
+                        </span>
+                      </label>
+                    );
+                  })}
               </div>
-              {shippingFee === 0 && (
+              {phiVanChuyen === 0 && (
                 <div className="mt-2 text-xs text-green-700 font-medium">
                   Miễn phí vận chuyển cho lựa chọn hiện tại.
                 </div>
@@ -570,9 +586,9 @@ function ThanhToan() {
                 <div className="flex justify-between">
                   <span>Phí vận chuyển</span>
                   <span>
-                    {shippingFee === 0
+                    {phiVanChuyen === 0
                       ? "Miễn phí"
-                      : `+${shippingFee.toLocaleString()}đ`}
+                      : `+${phiVanChuyen.toLocaleString()}đ`}
                   </span>
                 </div>
               </div>
