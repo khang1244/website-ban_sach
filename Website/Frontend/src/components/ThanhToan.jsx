@@ -20,6 +20,8 @@ import {
 import { ImCreditCard } from "react-icons/im";
 import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
+import tinhTP from "../lib/du-Lieu-TinhTP";
+import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
@@ -53,7 +55,8 @@ function ThanhToan() {
   const [tongTien, setTongTien] = useState(0);
   // Biến trạng thái để lưu trữ danh sách phương thức giao hàng từ server
   const [shippingMethods, setShippingMethods] = useState([]);
-
+  // Biến trạng thái để lưu trữ danh sách xã phường theo tỉnh/thành phố
+  const [wards, setWards] = useState([]);
   // Biến trạng thái để lưu trữ phí vận chuyển
   const [phiVanChuyen] = useState(0);
   // Điều hướng
@@ -62,10 +65,9 @@ function ThanhToan() {
   // Thông tin giao hàng
   const [shipping, setShipping] = useState({
     tinhThanhPho: "",
-    quanHuyen: "",
     xaPhuong: "",
     diaChiCuThe: "",
-    phuongThucGiaoHang: "", // standard
+    phuongThucGiaoHang: "",
   });
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
@@ -145,7 +147,7 @@ function ThanhToan() {
 
     now.setDate(now.getDate() + method.thoiGianGiaoHang);
 
-    return now.toLocaleDateString(); // 10/02/2025
+    return now.toLocaleDateString();
   };
 
   const placeOrder = (e) => {
@@ -199,6 +201,14 @@ function ThanhToan() {
     };
     napPhuongThucGiaoHang();
   }, []);
+
+  // Cập nhật lại danh sách xã phường khi thay đổi tỉnh/thành phố
+  useEffect(() => {
+    const duLieuXaPhuong = nhanDanhSachXaPhuong(shipping.tinhThanhPho);
+    setWards(duLieuXaPhuong);
+    console.log("Hàm tính toán lại xã phường đã chạy lại");
+  }, [shipping.tinhThanhPho]);
+
   // Hàm kiểm tra và áp dụng mã giảm giá
   const hamKiemTraMaGiamGia = async () => {
     const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
@@ -316,33 +326,35 @@ function ThanhToan() {
               </h2>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 text-black">
-              <input
+              <select
                 required
-                className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
-                placeholder="Tỉnh / Thành phố"
+                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 value={shipping.tinhThanhPho}
                 onChange={(e) =>
                   setShipping({ ...shipping, tinhThanhPho: e.target.value })
                 }
-              />
-              <input
+              >
+                {tinhTP.map((tp) => (
+                  <option key={tp.code} value={tp.code}>
+                    {tp.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
                 required
-                className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
-                placeholder="Quận / Huyện"
-                value={shipping.quanHuyen}
-                onChange={(e) =>
-                  setShipping({ ...shipping, quanHuyen: e.target.value })
-                }
-              />
-              <input
-                required
-                className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
-                placeholder="Xã / Phường"
+                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
                 value={shipping.xaPhuong}
                 onChange={(e) =>
                   setShipping({ ...shipping, xaPhuong: e.target.value })
                 }
-              />
+              >
+                {wards.map((ward) => (
+                  <option key={ward.code} value={ward.code}>
+                    {ward.name}
+                  </option>
+                ))}
+              </select>
               <input
                 required
                 className="border border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
