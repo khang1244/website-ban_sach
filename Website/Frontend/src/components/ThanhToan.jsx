@@ -183,6 +183,7 @@ function ThanhToan() {
       diaChiGiaoHang: `${shipping.diaChiCuThe}, ${
         wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || ""
       }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`,
+      phuongThucThanhToan: payment.method,
       ghiChu: `Phương thức giao hàng: ${
         shippingMethods.find(
           (m) =>
@@ -511,10 +512,11 @@ function ThanhToan() {
                       type="radio"
                       name="payment"
                       className="accent-[#00809D]"
-                      checked={active}
-                      onChange={() =>
-                        setPayment({ ...payment, method: m.value })
-                      }
+                        value={m.value}
+                        checked={active}
+                        onChange={(e) =>
+                          setPayment({ ...payment, method: e.target.value })
+                        }
                     />
                     <div className="flex items-center gap-3">
                       <div className="text-[#00809D]">{m.icon}</div>

@@ -43,6 +43,11 @@ const DonHang = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    phuongThucThanhToan: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "cod", // Mặc định là COD để tránh lỗi khi thêm cột vào bảng hiện có
+    },
     ghiChu: {
       type: DataTypes.TEXT,
       allowNull: true,

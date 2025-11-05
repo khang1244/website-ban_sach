@@ -29,6 +29,7 @@ export const taoDonHangMoi = async (req, res) => {
       tongTien,
       trangThai,
       diaChiGiaoHang,
+      phuongThucThanhToan,
       ghiChu,
       items, // { sachID, soLuong, donGia }
     } = req.body;
@@ -42,6 +43,7 @@ export const taoDonHangMoi = async (req, res) => {
       tongTien,
       trangThai,
       diaChiGiaoHang,
+      phuongThucThanhToan,
       ghiChu,
     });
 
@@ -51,7 +53,7 @@ export const taoDonHangMoi = async (req, res) => {
         donHangID: donHangMoi.donHangID,
         sachID: item.sachID,
         soLuong: item.soLuong,
-        donGia: item.donGia
+        donGia: item.donGia,
       });
     }
 
