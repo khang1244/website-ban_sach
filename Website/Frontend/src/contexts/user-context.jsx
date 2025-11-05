@@ -15,14 +15,35 @@ const UserProvider = ({ children }) => {
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
 
-      const avatarObject = parsedUser.avatar
-        ? JSON.parse(parsedUser.avatar)
-        : null;
-
-      setUser({
-        ...parsedUser,
-        avatar: avatarObject,
-      });
+      let avatarObject = null;
+      if (parsedUser.avatar) {
+        // Kiểm tra kiểu dữ liệu của avatar
+        if (typeof parsedUser.avatar === "string") {
+          const trimmed = parsedUser.avatar.trim();
+          // Kiểm tra nếu chuỗi là JSON
+          if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            try {
+              // Parse chuỗi JSON thành object
+              avatarObject = JSON.parse(parsedUser.avatar);
+            } catch (err) {
+              console.warn(
+                "UserContext: Không thể parse avatar JSON từ localStorage, giữ nguyên chuỗi:",
+                err
+              );
+              // Giữ nguyên chuỗi nếu không thể parse
+              avatarObject = parsedUser.avatar;
+            }
+          } else {
+            // Không phải JSON, giữ nguyên chuỗi
+            avatarObject = parsedUser.avatar;
+          }
+        } else {
+          // Đã là object, giữ nguyên
+          avatarObject = parsedUser.avatar;
+        }
+      }
+      // Cập nhật user state với avatar đã xử lý
+      setUser({ ...parsedUser, avatar: avatarObject });
     }
   }, []);
 
