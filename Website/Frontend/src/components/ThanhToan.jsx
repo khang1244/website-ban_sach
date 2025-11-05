@@ -512,11 +512,11 @@ function ThanhToan() {
                       type="radio"
                       name="payment"
                       className="accent-[#00809D]"
-                        value={m.value}
-                        checked={active}
-                        onChange={(e) =>
-                          setPayment({ ...payment, method: e.target.value })
-                        }
+                      value={m.value}
+                      checked={active}
+                      onChange={(e) =>
+                        setPayment({ ...payment, method: e.target.value })
+                      }
                     />
                     <div className="flex items-center gap-3">
                       <div className="text-[#00809D]">{m.icon}</div>
