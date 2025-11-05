@@ -236,8 +236,8 @@ function DangNhap() {
                     alert("Đăng nhập Google thất bại!");
                   }}
                   useOneTap
-                  text="continue_with"
-                  shape="pill"
+                  text="signin_with"
+                  shape="rectangular"
                   theme="outline"
                   size="large"
                   width="100%"
