@@ -31,6 +31,16 @@ const NguoiDung = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    vaiTro: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "user", // Mặc định là user, có thể là 'admin'
+    },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true, // Google ID phải là duy nhất
+    },
     trangThaiTaiKhoan: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

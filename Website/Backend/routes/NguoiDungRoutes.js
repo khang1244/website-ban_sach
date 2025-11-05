@@ -8,6 +8,7 @@ import {
   thayDoiTrangThaiTaiKhoan,
   xoaTaiKhoanNguoiDung,
   kiemTraEmailTonTai,
+  dangNhapGoogle,
 } from "../controller/nguoiDungController.js";
 const router = express.Router();
 
@@ -15,6 +16,8 @@ const router = express.Router();
 router.post("/dang-ky", dangKy);
 //tuyến xử lý đăng nhập
 router.post("/dang-nhap", dangNhap);
+//tuyến xử lý đăng nhập google
+router.post("/dang-nhap-google", dangNhapGoogle);
 //tuyến xử lý thay đổi trạng thái tài khoản
 router.post("/thay-doi-trang-thai/:nguoiDungID", thayDoiTrangThaiTaiKhoan);
 

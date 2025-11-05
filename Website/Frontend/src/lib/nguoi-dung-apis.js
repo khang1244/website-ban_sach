@@ -102,3 +102,25 @@ export const capNhatMatKhau = async (nguoiDungID, matKhauMoi) => {
     throw error;
   }
 };
+// Hàm đăng nhập bằng Google
+export const dangNhapGoogle = async (googleUser) => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung/dang-nhap-google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(googleUser),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { status: response.ok, message: data.message, user: null };
+    } else {
+      return { status: response.ok, message: data.message, user: data.user };
+    }
+  } catch (error) {
+    console.error("Lỗi khi đăng nhập Google:", error);
+    throw error;
+  }
+};

@@ -1,8 +1,11 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { dangNhapTaiKhoan } from "../lib/nguoi-dung-apis";
+import { dangNhapTaiKhoan, dangNhapGoogle } from "../lib/nguoi-dung-apis";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 import { UserContext } from "../contexts/user-context";
+
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 function DangNhap() {
   // State để quản lý thông báo
@@ -57,10 +60,63 @@ function DangNhap() {
       showToast("error", "Đăng nhập thất bại", message);
     }
   };
-  const xuLyDangNhapGoogle = () => {
-    console.log("Đăng nhập bằng Google được nhấn.");
-  };
+  // Xử lý đăng nhập bằng Google
+  const xuLyDangNhapGoogle = async (credentialResponse) => {
+    try {
+      // Giải mã JWT token từ Google
+      const decoded = jwtDecode(credentialResponse.credential);
+      console.log("Google user info:", decoded);
 
+      // Tạo đối tượng user từ thông tin Google
+      const googleUser = {
+        tenNguoiDung: decoded.name,
+        email: decoded.email,
+        avatar: decoded.picture,
+        googleId: decoded.sub,
+      };
+
+      // Gọi API backend để xử lý đăng nhập Google
+      const { status, message, user } = await dangNhapGoogle(googleUser);
+
+      if (status) {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Cập nhật user context: avatar có thể là chuỗi JSON hoặc object
+        let newAvatar = null;
+        if (user.avatar) {
+          try {
+            newAvatar =
+              typeof user.avatar === "string"
+                ? JSON.parse(user.avatar)
+                : user.avatar;
+          } catch (err) {
+            console.warn("Không thể parse avatar từ backend:", err);
+            newAvatar = { url: decoded.picture };
+          }
+        } else {
+          newAvatar = { url: decoded.picture };
+        }
+
+        setUser({
+          ...user,
+          avatar: newAvatar,
+        });
+
+        alert("Đăng nhập Google thành công!");
+        if (user && user.vaiTro === "admin") {
+          router("/admin");
+        } else {
+          router("/");
+        }
+      } else {
+        alert("Đăng nhập Google thất bại! " + message);
+      }
+    } catch (error) {
+      console.error("Lỗi đăng nhập Google:", error);
+      alert("Đăng nhập Google thất bại!");
+    }
+  };
   return (
     // Toàn bộ khung nền
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -167,37 +223,28 @@ function DangNhap() {
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
-          {/* Đăng nhập Google - Tối ưu hóa giao diện */}
-          <button
-            type="button"
-            onClick={xuLyDangNhapGoogle}
-            className="w-full flex items-center justify-center space-x-3 border-2 border-gray-200 bg-white text-gray-700 py-3 rounded-xl font-semibold shadow-inner hover:bg-indigo-50 hover:border-indigo-300 transition duration-300 transform hover:-translate-y-0.5"
-          >
-            {/* Biểu tượng Google (Inline SVG) */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 48 48"
-              className="w-6 h-6"
-            >
-              <path
-                fill="#FFC107"
-                d="M43.61 20.08l-4.22.42A19.95 19.95 0 0 1 24 44c-11.05 0-20-8.95-20-20S12.95 4 24 4c5.15 0 9.8 1.96 13.38 5.16l-3.08 3.08A15.93 15.93 0 0 0 24 8c-8.84 0-16 7.16-16 16s7.16 16 16 16c4.66 0 8.84-2.02 11.77-5.26z"
-              />
-              <path
-                fill="#FF3D00"
-                d="M6.3 14.6l-2.7 2.15C4.85 18.97 4 21.43 4 24c0 2.57.85 5.03 2.3 7.25l2.7-2.15C7.57 27.53 7 25.8 7 24s.57-3.53 1.3-5.05z"
-              />
-              <path
-                fill="#4CAF50"
-                d="M43.61 20.08l-4.22.42c.11.83.17 1.68.17 2.5s-.06 1.67-.17 2.5l4.22.42c.18-.9.27-1.83.27-2.78s-.09-1.88-.27-2.78z"
-              />
-              <path
-                fill="#1976D2"
-                d="M24 8c3.96 0 7.58 1.62 10.13 4.25l-4.22 4.22c-1.46-1.12-3.32-1.8-5.91-1.8-3.38 0-6.4 1.77-8.28 4.6l-4.22-4.22C14.1 9.62 18.72 8 24 8z"
-              />
-            </svg>
-            <span className="text-gray-700">Đăng nhập bằng Google</span>
-          </button>
+          {/* Đăng nhập Google - sử dụng GoogleLogin từ @react-oauth/google */}
+          <div className="w-full mt-4">
+            <div className="relative group">
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#00a2c7] to-[#005f73] opacity-20 group-hover:opacity-30 blur-lg transition"></div>
+
+              <div className="relative border rounded-xl bg-white hover:bg-[#f8feff] transition shadow-sm flex items-center justify-center px-4 py-2">
+                <GoogleLogin
+                  onSuccess={xuLyDangNhapGoogle}
+                  onError={() => {
+                    console.log("Đăng nhập Google thất bại");
+                    alert("Đăng nhập Google thất bại!");
+                  }}
+                  useOneTap
+                  text="continue_with"
+                  shape="pill"
+                  theme="outline"
+                  size="large"
+                  width="100%"
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 text-center text-sm">
             <span className="text-gray-500">Chưa có tài khoản? </span>

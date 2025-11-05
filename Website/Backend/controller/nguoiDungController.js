@@ -184,3 +184,49 @@ export const kiemTraEmailTonTai = async (req, res) => {
     return res.status(500).json({ message: "Lỗi máy chủ khi kiểm tra email." });
   }
 };
+// Hàm để xử lý đăng nhập bằng Google
+export const dangNhapGoogle = async (req, res) => {
+  const { tenNguoiDung, email, avatar, googleId } = req.body;
+  try {
+    // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
+    let user = await NguoiDung.findOne({ where: { email } });
+
+    if (user) {
+      // Nếu người dùng đã tồn tại, cập nhật thông tin Google ID (nếu chưa có)
+      if (!user.googleId && googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Nếu người dùng chưa tồn tại, tạo người dùng mới
+      // Mật khẩu cho người dùng Google sẽ là random vì họ không cần mật khẩu
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = await NguoiDung.create({
+        tenNguoiDung,
+        email,
+        matKhau: hashedPassword,
+        avatar: JSON.stringify({ url: avatar, public_id: null }),
+        googleId: googleId,
+        trangThaiTaiKhoan: true, // true = active, false = inactive
+      });
+    }
+
+    res.status(200).json({
+      message: "Đăng nhập Google thành công",
+      user: {
+        nguoiDungID: user.nguoiDungID,
+        tenNguoiDung: user.tenNguoiDung,
+        email: user.email,
+        avatar: user.avatar,
+        googleId: user.googleId,
+        vaiTro: user.vaiTro,
+        trangThaiTaiKhoan: user.trangThaiTaiKhoan,
+      },
+    });
+  } catch (error) {
+    console.error("Lỗi khi đăng nhập Google:", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
