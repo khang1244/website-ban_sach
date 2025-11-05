@@ -98,7 +98,11 @@ function Navigation() {
               className="flex items-center gap-2 focus:outline-none"
             >
               <img
-                src={user?.avatar?.url || avatar}
+                src={
+                  typeof user?.avatar === "string"
+                    ? user.avatar
+                    : user?.avatar?.url || avatar
+                }
                 alt="avatar"
                 className="w-10 h-10 rounded-full border-2 border-white hover:scale-110 transition-transform"
               />
