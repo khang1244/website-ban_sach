@@ -99,13 +99,20 @@ function Navigation() {
             >
               <img
                 src={
+                  // Avatar
                   typeof user?.avatar === "string"
                     ? user.avatar
                     : user?.avatar?.url || avatar
                 }
                 alt="avatar"
-                className="w-10 h-10 rounded-full border-2 border-white hover:scale-110 transition-transform"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  // Khi ảnh lỗi
+                  e.currentTarget.src = avatar;
+                }} // lỗi thì về ảnh mặc định
+                className="w-10 h-10 rounded-full border-2 border-white object-cover hover:scale-110 transition-transform"
               />
+
               <div className="text-left hidden md:block">
                 <p className="text-white font-semibold leading-tight">
                   {user?.tenNguoiDung || "Chưa đăng nhập"}
