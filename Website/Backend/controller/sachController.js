@@ -28,6 +28,7 @@ export const taoSachMoi = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
+      moTa,
       danhMucSachID,
       soTrang,
       dinhDang,
@@ -44,6 +45,7 @@ export const taoSachMoi = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
+      moTa,
       danhMucSachID,
       soTrang,
       dinhDang,
@@ -67,6 +69,7 @@ export const taoSachMoi = async (req, res) => {
     const imagesForReturn = Array.isArray(images) ? images : [];
     const result = {
       ...sachMoi.toJSON(),
+      moTa: sachMoi.moTa,
       images: JSON.stringify(imagesForReturn),
     };
     res.status(201).json(result);
@@ -86,6 +89,7 @@ export const capNhatSach = async (req, res) => {
       nhaXuatBan,
       ngayXuatBan,
       ngonNgu,
+      moTa,
       danhMucSachID,
       soTrang,
       dinhDang,
@@ -107,6 +111,7 @@ export const capNhatSach = async (req, res) => {
     sach.nhaXuatBan = nhaXuatBan;
     sach.ngayXuatBan = ngayXuatBan;
     sach.ngonNgu = ngonNgu;
+    sach.moTa = moTa;
     sach.danhMucSachID = danhMucSachID;
     sach.soTrang = soTrang;
     sach.dinhDang = dinhDang;
@@ -120,7 +125,9 @@ export const capNhatSach = async (req, res) => {
     // Nếu có images truyền lên, cập nhật bảng HinhAnh một cách thông minh
     if (Array.isArray(images)) {
       // Lấy ảnh hiện có trong DB
-      const existing = await HinhAnh.findAll({ where: { sachID: sach.sachID } });
+      const existing = await HinhAnh.findAll({
+        where: { sachID: sach.sachID },
+      });
 
       const existingByPublic = new Map();
       const existingByUrl = new Map();
@@ -135,12 +142,17 @@ export const capNhatSach = async (req, res) => {
         public_id: img.public_id || img.publicId || null,
       }));
 
-      const submittedPublicIds = new Set(submitted.map((i) => i.public_id).filter(Boolean));
-      const submittedUrls = new Set(submitted.map((i) => i.url).filter(Boolean));
+      const submittedPublicIds = new Set(
+        submitted.map((i) => i.public_id).filter(Boolean)
+      );
+      const submittedUrls = new Set(
+        submitted.map((i) => i.url).filter(Boolean)
+      );
 
       // 1) Xóa những ảnh trong DB không có trong submitted
       const toDelete = existing.filter(
-        (e) => !(submittedPublicIds.has(e.public_id) || submittedUrls.has(e.url))
+        (e) =>
+          !(submittedPublicIds.has(e.public_id) || submittedUrls.has(e.url))
       );
       for (const d of toDelete) {
         await HinhAnh.destroy({ where: { hinhAnhID: d.hinhAnhID } });
@@ -166,6 +178,7 @@ export const capNhatSach = async (req, res) => {
       : await HinhAnh.findAll({ where: { sachID: sach.sachID } });
     const result = {
       ...sach.toJSON(),
+      moTa: sach.moTa,
       images: JSON.stringify(
         Array.isArray(imagesForReturn)
           ? imagesForReturn.map((i) =>
@@ -194,14 +207,18 @@ export const xoaSach = async (req, res) => {
       await HinhAnh.destroy({ where: { sachID: sach.sachID } });
     } catch (e) {
       console.error("Lỗi khi xóa hinh_anh trước khi xóa sach:", e);
-      return res.status(500).json({ success: false, message: "Không thể xóa ảnh liên quan." });
+      return res
+        .status(500)
+        .json({ success: false, message: "Không thể xóa ảnh liên quan." });
     }
 
     await sach.destroy();
     res.json({ success: true, message: "Sách đã được xóa thành công." });
   } catch (error) {
     console.error("Lỗi khi xóa sách:", error);
-    res.status(500).json({ success: false, message: "Đã xảy ra lỗi khi xóa sách." });
+    res
+      .status(500)
+      .json({ success: false, message: "Đã xảy ra lỗi khi xóa sách." });
   }
 };
 // Hàm để lấy thông tin chi tiết của một quyển sách dựa trên ID của quyển sách

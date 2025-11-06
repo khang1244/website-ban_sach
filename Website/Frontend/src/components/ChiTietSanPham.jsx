@@ -241,7 +241,7 @@ function ChiTietSanPham() {
           Chi tiết sản phẩm
         </h3>
         <p className="text-gray-700 text-base leading-relaxed">
-          {chiTietSanPham.chiTiet}
+          {chiTietSanPham.moTa}
         </p>
       </div>
 

@@ -27,6 +27,7 @@ function QuanLiSach() {
     giaNhap: 0,
     giaBan: 0,
     giaGiam: 0,
+    moTa: "",
   });
   const [editId, setEditId] = useState(null);
 
@@ -164,7 +165,9 @@ function QuanLiSach() {
   const removeImageAt = (index) => {
     setForm((prev) => ({
       ...prev,
-      images: Array.isArray(prev.images) ? prev.images.filter((_, i) => i !== index) : [],
+      images: Array.isArray(prev.images)
+        ? prev.images.filter((_, i) => i !== index)
+        : [],
     }));
   };
 
@@ -451,6 +454,16 @@ function QuanLiSach() {
               onChange={handleChange}
               className="w-full border rounded p-2 mb-3"
               min="0"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block font-medium mb-1">Mô tả</label>
+            <textarea
+              name="moTa"
+              value={form.moTa}
+              onChange={handleChange}
+              className="w-full border rounded p-2 mb-2 h-32"
+              placeholder="Nhập mô tả sách..."
             />
           </div>
           <div className="md:col-span-2 text-right">

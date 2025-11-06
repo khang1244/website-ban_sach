@@ -62,6 +62,10 @@ const Sach = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: true,
     },
+    moTa: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     tableName: "sach",
