@@ -60,6 +60,9 @@ function ThanhToan() {
   const [shippingMethods, setShippingMethods] = useState([]);
   // Biến trạng thái để lưu trữ danh sách xã phường theo tỉnh/thành phố
   const [wards, setWards] = useState([]);
+  // Ghi chú đơn hàng
+  const [note, setNote] = useState("");
+
   // Điều hướng
   const router = useNavigate();
 
@@ -184,12 +187,8 @@ function ThanhToan() {
         wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || ""
       }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`,
       phuongThucThanhToan: payment.method,
-      ghiChu: `Phương thức giao hàng: ${
-        shippingMethods.find(
-          (m) =>
-            m.phuongThucGiaoHangID === parseInt(shipping.phuongThucGiaoHang)
-        )?.tenPhuongThuc || ""
-      }`,
+      phuongThucGiaoHangID: shipping.phuongThucGiaoHang,
+      ghiChu: note,
       items: cart.map((item) => ({
         sachID: item.sachID,
         soLuong: item.soLuong,
@@ -630,7 +629,19 @@ function ThanhToan() {
                     </li>
                   ))}
               </ul>
-
+              {/* Khung ghi chú đơn hàng */}
+              <div className="mt-4 p-3 bg-[#f7fbff] border border-[#cfdef3] rounded-xl">
+                <p className="text-sm font-semibold text-[#0b3b4c] mb-2">
+                  Ghi chú cho đơn hàng
+                </p>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={3}
+                  className="w-full text-sm px-3 py-2 border border-[#cfdef3] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#00a2c7] resize-none text-black"
+                  placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao, gói quà giúp mình..."
+                />
+              </div>
               <Link
                 to="/"
                 className="text-blue-600 hover:underline mt-4 inline-block font-medium"

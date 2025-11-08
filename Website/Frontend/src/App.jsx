@@ -39,7 +39,7 @@ function App() {
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/doimatkhau" element={<DoiMatKhau />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
-        <Route path="/chitietdonhang" element={<ChiTietDonHang />} />
+        <Route path="/chitietdonhang/:id" element={<ChiTietDonHang />} />
         <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />
 
         {/* Admin Routes */}

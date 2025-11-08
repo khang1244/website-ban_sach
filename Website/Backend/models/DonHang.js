@@ -48,6 +48,10 @@ const DonHang = sequelize.define(
       allowNull: false,
       defaultValue: "cod", // Mặc định là COD để tránh lỗi khi thêm cột vào bảng hiện có
     },
+    phuongThucGiaoHangID: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
     ghiChu: {
       type: DataTypes.TEXT,
       allowNull: true,

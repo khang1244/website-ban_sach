@@ -30,6 +30,7 @@ export const taoDonHangMoi = async (req, res) => {
       trangThai,
       diaChiGiaoHang,
       phuongThucThanhToan,
+      phuongThucGiaoHangID,
       ghiChu,
       items, // { sachID, soLuong, donGia }
     } = req.body;
@@ -44,6 +45,7 @@ export const taoDonHangMoi = async (req, res) => {
       trangThai,
       diaChiGiaoHang,
       phuongThucThanhToan,
+      phuongThucGiaoHangID,
       ghiChu,
     });
 
@@ -78,6 +80,24 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
       .json({ message: "Cập nhật trạng thái đơn hàng thành công" });
   } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+// Nhận đơn hàng theo tài khoản người dùng
+export const nhanDonHangCuaNguoiDung = async (req, res) => {
+  try {
+    const { nguoiDungID } = req.params;
+    const donHangs = await DonHang.findAll({
+      where: { nguoiDungID },
+      include: [
+        {
+          model: Sach,
+          through: { attributes: ["soLuong", "donGia"] }, // Lấy thêm thông tin số lượng và đơn giá từ bảng trung gian
+        },
+      ],
+    });
+    res.status(200).json(donHangs);
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
