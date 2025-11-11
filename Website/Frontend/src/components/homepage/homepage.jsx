@@ -6,10 +6,11 @@ import { CiHeart } from "react-icons/ci";
 import { FaFire } from "react-icons/fa";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
+import { UserContext } from "../../contexts/user-context";
 
 // const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
 
@@ -85,6 +86,9 @@ function Homepage() {
   // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách
   const [danhMucSach, setDanhMucSach] = useState([]);
 
+  // User context để cập nhật badge giỏ hàng
+  const { refreshCartCount } = useContext(UserContext);
+
   // Nạp dữ liệu danh mục sách
   useEffect(() => {
     const napDanhMucSach = async () => {
@@ -121,6 +125,8 @@ function Homepage() {
 
     if (phanHoiTuSever && phanHoiTuSever.success) {
       alert("Đã thêm sản phẩm vào giỏ hàng!");
+      // Cập nhật badge ngay lập tức
+      if (typeof refreshCartCount === "function") refreshCartCount();
     } else {
       alert(
         "Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || "")

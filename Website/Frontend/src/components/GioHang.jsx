@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   FaTrash,
   FaPlus,
@@ -14,6 +14,7 @@ import {
   xoaSanPhamKhoiGioHang,
   capNhatSoLuongSanPham,
 } from "../lib/gio-hang-apis";
+import { UserContext } from "../contexts/user-context";
 
 // Hàm định dạng tiền tệ
 const formatCurrency = (amount) => {
@@ -24,6 +25,7 @@ function GioHang() {
   const [cart, setCart] = useState([]);
   const [tongTien, setTongTien] = useState(0);
   const timeoutRef = useRef(null);
+  const { refreshCartCount } = useContext(UserContext);
 
   function updateQuantity(index, delta) {
     // Cập nhật số lượng trong state
@@ -68,6 +70,8 @@ function GioHang() {
 
     try {
       await xoaSanPhamKhoiGioHang(chiTietGioHangID);
+      // Cập nhật lại badge số lượng sản phẩm
+      if (typeof refreshCartCount === "function") refreshCartCount();
     } catch (error) {
       console.error("Lỗi khi xoá sản phẩm:", error);
     }

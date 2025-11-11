@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import { sanphammoi } from "../lib/data";
@@ -6,12 +6,16 @@ import Footer from "./Footer";
 import { layChiTietSach } from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
+import { UserContext } from "../contexts/user-context";
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
   const [soLuong, setSoLuong] = useState(1);
 
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
+
+  // User context (dùng để cập nhật badge giỏ hàng)
+  const { refreshCartCount } = useContext(UserContext);
 
   // Sử dụng useParam để lấy sachID
   const { sachID } = useParams();
@@ -49,6 +53,8 @@ function ChiTietSanPham() {
 
     if (phanHoiTuSever && phanHoiTuSever.success) {
       alert("Đã thêm sản phẩm vào giỏ hàng!");
+      // Cập nhật lại số lượng sản phẩm (distinct) trong giỏ hàng ngay khi thêm thành công
+      if (typeof refreshCartCount === "function") refreshCartCount();
     } else {
       alert(
         "Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || "")

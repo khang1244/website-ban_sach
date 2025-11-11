@@ -9,7 +9,7 @@ import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   // Sử dụng giá trị user từ context
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, cartCount } = useContext(UserContext);
 
   // thông báo chạy khi thêm, sửa, xóa
   const [toast, setToast] = useState({
@@ -76,8 +76,13 @@ function Navigation() {
             <SangToi />
           </div>
         </div>
-        <Link to="/giohang">
+        <Link to="/giohang" className="relative">
           <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer hover:scale-125 transition-transform" />
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+              {cartCount}
+            </span>
+          )}
         </Link>
 
         {/* Nếu chưa đăng nhập */}
