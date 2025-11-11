@@ -20,6 +20,7 @@ import QuanLiSach from "./components/admin/QuanLiSach";
 import DanhMucSach from "./components/admin/DanhMucSach";
 import QuanLiKhuyenMai from "./components/admin/QuanLiKhuyenMai";
 import QuanLiPhuongThucGiaoHang from "./components/admin/QuanLiPhuongThucGiaoHang";
+import QuanLiDonHang from "./components/admin/QuanLiDonHang";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
             path="phuongthucgiaohang"
             element={<QuanLiPhuongThucGiaoHang />}
           />
+          <Route path="donhang" element={<QuanLiDonHang />} />
         </Route>
       </Routes>
     </BrowserRouter>
