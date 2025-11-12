@@ -1,34 +1,12 @@
 import React, { useState } from "react";
-
-// Demo/mock data for orders
-const initialOrders = [
-  {
-    id: 1,
-    customer: "Nguyễn Văn A",
-    phone: "0901234567",
-    address: "123 Lê Lợi, Q.1, TP.HCM",
-    date: "2025-09-10",
-    total: 250000,
-    status: "Chờ xác nhận",
-    items: [
-      { name: "Thần Đồng Đất Phương Nam", qty: 2, price: 100000 },
-      { name: "Truyện tranh", qty: 1, price: 50000 },
-    ],
-  },
-  {
-    id: 2,
-    customer: "Trần Thị B",
-    phone: "0912345678",
-    address: "456 Nguyễn Trãi, Q.5, TP.HCM",
-    date: "2025-09-11",
-    total: 180000,
-    status: "Đang giao",
-    items: [
-      { name: "Ngôn tình", qty: 1, price: 80000 },
-      { name: "Kinh dị", qty: 2, price: 50000 },
-    ],
-  },
-];
+import { useEffect } from "react";
+import {
+  capNhatTrangThaiDonHang,
+  layTatCaDonHang,
+  xoaDonHangTheoID,
+  layDonHangTheoID,
+} from "../../lib/don-hang-apis";
+import { layTatCaPhuongThucGiaoHang } from "../../lib/phuong-thuc-giao-hang-apis.js";
 
 const STATUS_OPTIONS = [
   "Chờ xác nhận",
@@ -39,22 +17,77 @@ const STATUS_OPTIONS = [
 ];
 
 function QuanLiDonHang() {
-  const [orders, setOrders] = useState(initialOrders);
   const [selectedOrder, setSelectedOrder] = useState(null); // Để mở modal khi nhấn vào "Xem"
   const [searchQuery, setSearchQuery] = useState(""); // Để lưu giá trị tìm kiếm
+  const [userOrder, setUserOrder] = useState([]);
+  // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
+  const [duLieuDonHang, setDuLieuDonHang] = useState(null);
 
+  // Tạo biến trạng thái lưu danh sách phương thức giao hàng
+  const [shippingMethods, setShippingMethods] = useState([]);
+
+  // Helper function để định dạng lại ngày tháng
+  function formatDate(dateString) {
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  }
   // Update order status
-  const handleStatusChange = (id, newStatus) => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === id) {
-        return { ...order, status: newStatus };
+  const handleStatusChange = async (donHangID, newStatus) => {
+    const updatedOrders = userOrder.map((order) => {
+      if (order.donHangID === donHangID) {
+        return { ...order, trangThai: newStatus };
       } else {
         return order;
       }
     });
-    setOrders(updatedOrders);
-  };
+    setUserOrder(updatedOrders);
 
+    // Gọi API để cập nhật trạng thái đơn hàng trên server
+    const phanHoiTuSever = await capNhatTrangThaiDonHang(donHangID, newStatus);
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Cập nhật trạng thái đơn hàng thành công!");
+    } else {
+      alert(
+        "Lỗi khi cập nhật trạng thái đơn hàng trên server:",
+        phanHoiTuSever.message
+      );
+    }
+  };
+  useEffect(() => {
+    async function napDuLieuDonHang() {
+      const res = await layTatCaDonHang();
+      console.log("Đơn hàng lấy từ server:", res);
+      // Tùy cấu trúc trả về:
+      setUserOrder(Array.isArray(res) ? res : res.data || []);
+    }
+    napDuLieuDonHang();
+  }, []);
+  useEffect(() => {
+    const napDonHang = async () => {
+      const duLieuDonHang = await layDonHangTheoID(selectedOrder?.donHangID);
+      if (duLieuDonHang && duLieuDonHang.success) {
+        // Xử lý dữ liệu đơn hàng nhận được từ server
+        console.log("Dữ liệu đơn hàng:", duLieuDonHang.data);
+        setDuLieuDonHang(duLieuDonHang.data);
+      }
+    };
+    napDonHang();
+  }, [selectedOrder]);
+
+  // Nạp danh sách phương thức giao hàng từ server
+  useEffect(() => {
+    const napPhuongThucGiaoHang = async () => {
+      // Giả sử gọi API để lấy danh sách phương thức giao hàng
+      const response = await layTatCaPhuongThucGiaoHang();
+      if (response && response.success) {
+        console.log("Danh sách phương thức giao hàng:", response.data);
+
+        setShippingMethods(response.data);
+      }
+    };
+    napPhuongThucGiaoHang();
+  }, []);
   // Mở modal chi tiết đơn hàng
   const handleViewDetails = (order) => {
     setSelectedOrder(order); // Lưu đơn hàng đã chọn để hiển thị trong modal
@@ -65,17 +98,20 @@ function QuanLiDonHang() {
     setSelectedOrder(null);
   };
 
-  // Tìm kiếm đơn hàng theo tên hoặc số điện thoại
-  const filteredOrders = orders.filter(
-    (order) =>
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.phone.includes(searchQuery)
-  );
+  const filteredOrders = userOrder.filter((order) => {
+    const q = searchQuery.trim();
+    if (!q) return true; // không nhập gì -> hiện tất cả
+    return String(order.donHangID) === q; // tìm chính xác mã
+    // Nếu muốn tìm "chứa" thay vì "chính xác": dùng includes(q)
+  });
 
   // Xóa đơn hàng
   const handleDeleteOrder = (id) => {
-    const updatedOrders = orders.filter((order) => order.id !== id);
-    setOrders(updatedOrders);
+    const updatedOrders = userOrder.filter((order) => order.donHangID !== id);
+    setUserOrder(updatedOrders);
+    // Gọi API để xóa đơn hàng trên server nếu cần thiết
+    alert("Đơn hàng đã được xóa.");
+    xoaDonHangTheoID(id);
   };
 
   return (
@@ -133,52 +169,60 @@ function QuanLiDonHang() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order, idx) => (
-                <tr
-                  key={order.id}
-                  className="border-b hover:bg-[#F9FAFB] transition-colors duration-300 text-black"
-                >
-                  <td className="py-3 px-5 text-sm font-medium">{idx + 1}</td>
-                  <td className="py-3 px-5 text-sm">{order.customer}</td>
-                  <td className="py-3 px-5 text-sm">{order.phone}</td>
-                  <td className="py-3 px-5 text-sm">{order.address}</td>
-                  <td className="py-3 px-5 text-sm">{order.date}</td>
-                  <td className="py-3 px-5 text-sm">
-                    {order.total.toLocaleString()} VNĐ
-                  </td>
-                  <td className="py-3 px-5 text-sm">
-                    <select
-                      value={order.status}
-                      onChange={(e) =>
-                        handleStatusChange(order.id, e.target.value)
-                      }
-                      className="border border-gray-300 rounded-md p-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#004C61]"
-                    >
-                      {STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="py-3 px-5 text-sm">
-                    <button
-                      onClick={() => handleViewDetails(order)}
-                      className="text-[#004C61] hover:text-[#007A99] font-semibold"
-                    >
-                      Xem chi tiết
-                    </button>
-                  </td>
-                  <td className="py-3 px-5 text-sm">
-                    <button
-                      onClick={() => handleDeleteOrder(order.id)}
-                      className="text-red-600 hover:text-red-800 font-semibold"
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {userOrder &&
+                userOrder.length > 0 &&
+                filteredOrders.map((order, idx) => (
+                  <tr
+                    key={idx}
+                    className="border-b hover:bg-[#F9FAFB] transition-colors duration-300 text-black"
+                  >
+                    <td className="py-3 px-5 text-sm font-medium">
+                      MĐH {idx + 1}
+                    </td>
+                    <td className="py-3 px-5 text-sm">{order.tenKhachHang}</td>
+                    <td className="py-3 px-5 text-sm">{order.soDienThoaiKH}</td>
+                    <td className="py-3 px-5 text-sm">
+                      {order.diaChiGiaoHang}
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      {formatDate(order.ngayDat)}
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      {order.tongTien.toLocaleString()} VNĐ
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      <select
+                        value={order.trangThai}
+                        onChange={(e) =>
+                          handleStatusChange(order.donHangID, e.target.value)
+                        }
+                        className="border border-gray-300 rounded-md p-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#004C61]"
+                      >
+                        {STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      <button
+                        onClick={() => handleViewDetails(order)}
+                        className="text-[#004C61] hover:text-[#007A99] font-semibold"
+                      >
+                        Xem chi tiết
+                      </button>
+                    </td>
+                    <td className="py-3 px-5 text-sm">
+                      <button
+                        onClick={() => handleDeleteOrder(order.donHangID)}
+                        className="text-red-600 hover:text-red-800 font-semibold"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -193,29 +237,63 @@ function QuanLiDonHang() {
             </h3>
             <div className="mb-4">
               <strong>Khách hàng: </strong>
-              {selectedOrder.customer}
+              {selectedOrder.tenKhachHang}
             </div>
             <div className="mb-4">
               <strong>SĐT: </strong>
-              {selectedOrder.phone}
+              {selectedOrder.soDienThoaiKH}
             </div>
             <div className="mb-4">
               <strong>Địa chỉ: </strong>
-              {selectedOrder.address}
+              {selectedOrder.diaChiGiaoHang}
+            </div>
+            <div className="mb-3">
+              <strong> Chi phí vận chuyển: </strong>
+              <span className="">
+                {shippingMethods
+                  ?.find(
+                    (m) =>
+                      m.phuongThucGiaoHangID ===
+                      duLieuDonHang?.phuongThucGiaoHangID
+                  )
+                  ?.phiGiaoHang.toLocaleString() + "đ"}
+              </span>
             </div>
             <div className="mb-4">
-              <strong>Sản phẩm:</strong>
-              <ul className="list-disc ml-5">
-                {selectedOrder.items.map((item, i) => (
-                  <li key={i}>
-                    {item.name} x {item.qty} ({item.price.toLocaleString()} VNĐ)
-                  </li>
-                ))}
-              </ul>
+              <table className="w-full text-left  text-black">
+                <thead>
+                  <tr className="border-b text-black">
+                    <th className="py-2">Sản phẩm</th>
+                    <th className="py-2">Số lượng</th>
+                    <th className="py-2">Đơn giá</th>
+                    <th className="py-2">Tạm tính</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {duLieuDonHang &&
+                    duLieuDonHang.Saches.map((item, idx) => (
+                      <tr key={idx} className="border-b">
+                        <td className="py-3 font-semibold text-[#00809D]">
+                          {item.tenSach}
+                        </td>
+                        <td className="py-3">{item.DonHang_Sach.soLuong}</td>
+                        <td className="py-3">
+                          {item.DonHang_Sach.donGia.toLocaleString()}đ
+                        </td>
+                        <td className="py-3">
+                          {(
+                            item.DonHang_Sach.donGia * item.DonHang_Sach.soLuong
+                          ).toLocaleString()}
+                          đ
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
             <div className="mb-4">
               <strong>Tổng tiền: </strong>
-              {selectedOrder.total.toLocaleString()} VNĐ
+              {selectedOrder.tongTien.toLocaleString()} VNĐ
             </div>
             <button
               onClick={closeModal}
