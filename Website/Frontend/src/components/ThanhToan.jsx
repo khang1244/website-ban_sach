@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   FaTrash,
   FaPlus,
@@ -13,6 +13,7 @@ import Footer from "./Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { TbTruckDelivery } from "react-icons/tb";
 import { useEffect, useRef } from "react";
+import { UserContext } from "../contexts/user-context";
 import {
   capNhatSoLuongSanPham,
   layGioHangTheoNguoiDung,
@@ -80,6 +81,9 @@ function ThanhToan() {
     cardExpiry: "",
     cardCvc: "",
   });
+
+  // User context để cập nhật lại số lượng giỏ hàng toàn cục
+  const { refreshCartCount } = useContext(UserContext);
 
   // Hàm tăng/giảm số lượng sản phẩm với debouncing
   function updateQuantity(index, delta) {
@@ -214,6 +218,8 @@ function ThanhToan() {
       // Cập nhật UI local
       setCart([]);
       setTongTien(0);
+      // Cập nhật số lượng giỏ hàng ở thanh điều hướng
+      if (typeof refreshCartCount === "function") refreshCartCount();
 
       alert("Đặt hàng thành công!");
       router("/xacnhandonhang");
