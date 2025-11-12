@@ -182,7 +182,7 @@ function ThanhToan() {
     // Chuẩn bị dữ liệu để tạo đơn hàng gửi lên sever
     const duLieuDonHang = {
       nguoiDungID: khachHang.nguoiDungID,
-      tenKhachHang: khachHang.tenNguoiDung,
+      tenKhachHang: customer.name,
       soDienThoaiKH: customer.phone,
       ngayDat: new Date(),
       tongTien: total,
