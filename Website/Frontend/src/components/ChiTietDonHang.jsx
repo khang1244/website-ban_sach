@@ -4,7 +4,10 @@ import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import { useEffect } from "react";
-import { layDonHangTheoID } from "../lib/don-hang-apis.js";
+import {
+  layDonHangTheoID,
+  capNhatTrangThaiDonHang,
+} from "../lib/don-hang-apis.js";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis.js";
 
 function ChiTietDonHang() {
@@ -39,6 +42,21 @@ function ChiTietDonHang() {
     };
     napPhuongThucGiaoHang();
   }, []);
+
+  // Xử lý hủy đơn hàng
+  const xuLyHuyDonHang = async (donHangID, trangThaiMoi) => {
+    const phanHoiTuSever = await capNhatTrangThaiDonHang(
+      donHangID,
+      trangThaiMoi
+    );
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Hủy đơn hàng thành công!");
+      // Cập nhật lại trạng thái đơn hàng trong giao diện
+      setDuLieuDonHang({ ...duLieuDonHang, trangThai: trangThaiMoi });
+    } else {
+      alert("Lỗi khi hủy đơn hàng:", phanHoiTuSever.message);
+    }
+  };
   // Helper function để định dạng lại ngày tháng
   function formatDate(dateString) {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
@@ -54,7 +72,15 @@ function ChiTietDonHang() {
         >
           <FaArrowLeft /> Quay lại lịch sử đơn hàng
         </Link>
-        <div className="bg-white rounded-xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-xl shadow-xl p-8 mb-8 relative">
+          {duLieuDonHang && duLieuDonHang.trangThai === "Chờ xác nhận" && (
+            <button
+              onClick={() => xuLyHuyDonHang(duLieuDonHang.donHangID, "Đã hủy")}
+              className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-blue-700 rounded-2xl"
+            >
+              Hủy đơn hàng
+            </button>
+          )}
           <h1 className="text-2xl font-bold text-[#00809D] mb-4">
             Chi Tiết Đơn Hàng #{duLieuDonHang ? duLieuDonHang.donHangID : ""}
           </h1>
