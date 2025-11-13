@@ -7,6 +7,7 @@ import {
 
 function QuanLyNguoiDung() {
   const [users, setUsers] = useState([]); // Danh sách người dùng
+  const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
 
   const xuLyXoaTaiKhoan = async (nguoiDungID) => {
     const confirmDelete = window.confirm(
@@ -60,6 +61,14 @@ function QuanLyNguoiDung() {
       alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
     }
   };
+  // Lọc người dùng theo tên hoặc email
+  const filteredUsers = users.filter((user) => {
+    const keyword = searchTerm.toLowerCase();
+    return (
+      user.tenNguoiDung.toLowerCase().includes(keyword) ||
+      user.email.toLowerCase().includes(keyword)
+    );
+  });
 
   // Lấy tất cả người dùng khi component mount
   useEffect(() => {
@@ -96,7 +105,16 @@ function QuanLyNguoiDung() {
           <span className="text-indigo-600 font-bold">{users.length}</span>
         </div>
       </div>
-
+      {/* Ô tìm kiếm */}
+      <div className="bg-white shadow-md rounded-xl p-4 mb-6">
+        <input
+          type="text"
+          placeholder="Tìm kiếm theo Tên hoặc Email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none text-gray-700 transition duration-150"
+        />
+      </div>
       {/* Bảng danh sách người dùng */}
       <div className="bg-white shadow-xl rounded-xl overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
@@ -127,8 +145,8 @@ function QuanLyNguoiDung() {
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
-            {users.length > 0 ? (
-              users.map((user) => {
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => {
                 const isActive =
                   user.trangThaiTaiKhoan === 1 ||
                   user.trangThaiTaiKhoan === true ||
