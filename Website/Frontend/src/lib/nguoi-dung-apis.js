@@ -219,3 +219,28 @@ export const dangNhapGoogle = async (googleUser) => {
     throw error;
   }
 };
+// 4. Xóa danh mục sách
+export const xoaNguoiDungTheoID = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // Một số API trả về object JSON, một số có thể trả về text.
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      // nếu không phải JSON, đọc text thay thế
+      data = { message: await response.text() };
+    }
+
+    return { ok: response.ok, data };
+  } catch (error) {
+    console.error("Lỗi mạng:", error);
+    return { ok: false, data: { message: error.message } };
+  }
+};

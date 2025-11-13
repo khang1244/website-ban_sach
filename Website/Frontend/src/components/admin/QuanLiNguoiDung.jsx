@@ -1,10 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { layTatCaNguoiDung } from "../../lib/nguoi-dung-apis";
+import {
+  layTatCaNguoiDung,
+  xoaNguoiDungTheoID,
+} from "../../lib/nguoi-dung-apis";
 
 function QuanLyNguoiDung() {
   const [users, setUsers] = useState([]); // Danh sách người dùng
 
-  const xuLyXoaTaiKhoan = async () => {};
+  const xuLyXoaTaiKhoan = async (nguoiDungID) => {
+    const confirmDelete = window.confirm(
+      `Bạn có chắc chắn muốn XÓA người dùng có ID: ${nguoiDungID} không? Hành động này không thể hoàn tác.`
+    );
+
+    if (!confirmDelete) return;
+
+    const res = await xoaNguoiDungTheoID(nguoiDungID);
+
+    if (res.ok) {
+      setUsers((prev) =>
+        prev.filter((user) => user.nguoiDungID !== nguoiDungID)
+      );
+      alert("Đã xóa tài khoản người dùng thành công.");
+    } else {
+      alert(res.data?.message || "Xóa tài khoản thất bại.");
+    }
+  };
 
   // Xử lý Khóa / Mở khóa tài khoản (toggle)
   const xuLyKhoaTaiKhoan = async () => {};
