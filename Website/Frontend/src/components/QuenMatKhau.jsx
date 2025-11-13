@@ -1,14 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { yeuCauNhanOTPCapNhatMatKhau } from "../lib/nguoi-dung-apis";
 
 const QuenMatKhau = () => {
   const [email, setEmail] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Xử lý logic gửi yêu cầu quên mật khẩu ở đây
-    console.log("Gửi yêu cầu đặt lại mật khẩu cho:", email);
-    alert("Yêu cầu đã được gửi. Vui lòng kiểm tra email của bạn.");
+    const { status, message } = await yeuCauNhanOTPCapNhatMatKhau(email);
+    if (status) {
+      alert("Mã OTP đã được gửi đến email của bạn.");
+      navigate("/nhapmaotp", { state: { email } });
+    } else {
+      alert(`Lỗi: ${message}`);
+    }
   };
 
   return (

@@ -102,6 +102,76 @@ export const capNhatMatKhau = async (nguoiDungID, matKhauMoi) => {
     throw error;
   }
 };
+// 4. Tạo hàm để cập nhật mật khẩu người dùng
+export const yeuCauNhanOTPCapNhatMatKhau = async (email) => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung/nhan-otp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { status: response.ok, message: data.message };
+    } else {
+      return { status: response.ok, message: data.message };
+    }
+  } catch (error) {
+    console.error("Lỗi khi yêu cầu nhận OTP cập nhật mật khẩu:", error);
+    throw error;
+  }
+};
+// 5. Tạo hàm để kiểm tra mã OTP
+export const kiemTraMaOTP = async (email, maOTP) => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung/kiem-tra-otp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, otp: maOTP }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { status: response.ok, message: data.message, userID: null };
+    } else {
+      return {
+        status: response.ok,
+        message: data.message,
+        userID: data.userID,
+      };
+    }
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra mã OTP:", error);
+    throw error;
+  }
+};
+// 6. Tạo hàm để đặt lại mật khẩu
+export const datLaiMatKhau = async (userID, matKhauMoi) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/nguoiDung/cap-nhat-mat-khau/${userID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ matKhauMoi }),
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      return { status: response.ok, message: data.message };
+    } else {
+      return { status: response.ok, message: data.message };
+    }
+  } catch (error) {
+    console.error("Lỗi khi đặt lại mật khẩu:", error);
+    throw error;
+  }
+};
 // Hàm đăng nhập bằng Google
 export const dangNhapGoogle = async (googleUser) => {
   try {

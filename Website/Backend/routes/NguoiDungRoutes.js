@@ -9,6 +9,8 @@ import {
   xoaTaiKhoanNguoiDung,
   kiemTraEmailTonTai,
   dangNhapGoogle,
+  yeuCauNhanOTPCapNhatMatKhau,
+  kiemTraMaOTP,
 } from "../controller/nguoiDungController.js";
 const router = express.Router();
 
@@ -30,5 +32,9 @@ router.put("/cap-nhat-mat-khau/:id", capNhatMatKhau); // Cập nhật mật kh�
 router.delete("/:id", xoaTaiKhoanNguoiDung); // Xóa tài khoản người dùng theo ID
 
 router.post("/kiemTraEmail", kiemTraEmailTonTai); // Kiểm tra email tồn tại
+
+router.post("/nhan-otp", yeuCauNhanOTPCapNhatMatKhau); // Yêu cầu nhận OTP để cập nhật mật khẩu
+
+router.post("/kiem-tra-otp", kiemTraMaOTP); // Kiểm tra OTP để cập nhật mật khẩu
 
 export default router;
