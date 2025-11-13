@@ -11,6 +11,7 @@ import {
   dangNhapGoogle,
   yeuCauNhanOTPCapNhatMatKhau,
   kiemTraMaOTP,
+  layTatCaNguoiDung,
 } from "../controller/nguoiDungController.js";
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.post("/dang-nhap", dangNhap);
 router.post("/dang-nhap-google", dangNhapGoogle);
 //tuyến xử lý thay đổi trạng thái tài khoản
 router.post("/thay-doi-trang-thai/:nguoiDungID", thayDoiTrangThaiTaiKhoan);
+router.get("/", layTatCaNguoiDung); // Lấy tất cả người dùng
 
 router.get("/:id", layThongTinNguoiDung); // Lấy thông tin người dùng theo ID
 

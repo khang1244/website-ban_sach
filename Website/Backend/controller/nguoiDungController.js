@@ -2,6 +2,23 @@ import NguoiDung from "../models/NguoiDung.js";
 import bcrypt from "bcryptjs"; // Thư viện để mã hóa mật khẩu
 import { sendEmail } from "../utils/sendEmail.js";
 
+// Hàm để lấy tất cả người dùng
+export const layTatCaNguoiDung = async (req, res) => {
+  try {
+    const users = await NguoiDung.findAll({
+      attributes: { exclude: ["matKhau"] }, // Giấu mật khẩu cho an toàn
+      order: [["nguoiDungID", "DESC"]], // Sắp xếp từ mới đến cũ (tuỳ bạn)
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách người dùng thành công",
+      users,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách người dùng:", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
 // Hàm để đăng ký người dùng mới
 export const dangKy = async (req, res) => {
   const { tenNguoiDung, email, matKhau, soDienThoai } = req.body; // Lấy thông tin từ body của request

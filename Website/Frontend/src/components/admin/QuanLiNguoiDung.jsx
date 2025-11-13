@@ -1,13 +1,22 @@
-import React, { useState } from "react";
-import {} from "../../lib/nguoi-dung-apis";
+import React, { useState, useEffect } from "react";
+import { layTatCaNguoiDung } from "../../lib/nguoi-dung-apis";
 
 function QuanLyNguoiDung() {
-  const [users] = useState([]); // Danh sách người dùng
+  const [users, setUsers] = useState([]); // Danh sách người dùng
 
   const xuLyXoaTaiKhoan = async () => {};
 
   // Xử lý Khóa / Mở khóa tài khoản (toggle)
   const xuLyKhoaTaiKhoan = async () => {};
+
+  // Lấy tất cả người dùng khi component mount
+  useEffect(() => {
+    const fetchAll = async () => {
+      const list = await layTatCaNguoiDung(); // trả về mảng
+      setUsers(Array.isArray(list) ? list : []);
+    };
+    fetchAll();
+  }, []);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

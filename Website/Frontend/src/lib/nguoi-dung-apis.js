@@ -1,6 +1,31 @@
 // 1. Tạo hàm đăng ký
 import { BASE_URL } from "./baseUrl.js";
 
+// 1. Nhận tất cả danh mục sách
+export const layTatCaNguoiDung = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/nguoiDung`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    // Kiểm tra và trả về đúng mảng người dùng
+    if (data && Array.isArray(data.users)) {
+      return data.users;
+    }
+
+    console.error("API không trả về mảng users:", data);
+    return []; // Trả về mảng rỗng để tránh lỗi .filter
+  } catch (error) {
+    console.error("Lỗi mạng:", error);
+    return [];
+  }
+};
+
 // Hàm đăng ký tài khoản người dùng
 export const dangKyTaiKhoan = async (nguoiDung) => {
   try {
