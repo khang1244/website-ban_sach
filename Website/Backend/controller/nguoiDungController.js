@@ -89,7 +89,19 @@ export const thayDoiTrangThaiTaiKhoan = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
-
+    // Nếu mục tiêu là admin và đang cố gắng khóa (trangThai false/0), chặn
+    const isTargetAdmin =
+      (user.vaiTro || "").toString().toLowerCase() === "admin";
+    const willBeLocked =
+      trangThai === 0 ||
+      trangThai === false ||
+      trangThai === "0" ||
+      trangThai === "false";
+    if (isTargetAdmin && willBeLocked) {
+      return res
+        .status(403)
+        .json({ message: "Không thể khóa tài khoản quản trị viên." });
+    }
     // Cập nhật trạng thái người dùng
     user.trangThaiTaiKhoan = trangThai;
     await user.save();
