@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   layTatCaNguoiDung,
   xoaNguoiDungTheoID,
+  thayDoiTrangThaiNguoiDung,
 } from "../../lib/nguoi-dung-apis";
 
 function QuanLyNguoiDung() {
@@ -27,7 +28,38 @@ function QuanLyNguoiDung() {
   };
 
   // Xử lý Khóa / Mở khóa tài khoản (toggle)
-  const xuLyKhoaTaiKhoan = async () => {};
+  const xuLyKhoaTaiKhoan = async (nguoiDungID) => {
+    // Tìm trạng thái hiện tại từ state
+    const user = users.find((u) => u.nguoiDungID === nguoiDungID);
+    if (!user) return;
+
+    const isActive =
+      user.trangThaiTaiKhoan === 1 ||
+      user.trangThaiTaiKhoan === true ||
+      user.trangThaiTaiKhoan === "1";
+
+    const newTrangThai = isActive ? 0 : 1;
+
+    // Gọi API để cập nhật trạng thái
+    try {
+      const res = await thayDoiTrangThaiNguoiDung(nguoiDungID, newTrangThai);
+      if (res.ok) {
+        // Cập nhật local state khi server trả về thành công
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.nguoiDungID === nguoiDungID
+              ? { ...u, trangThaiTaiKhoan: newTrangThai }
+              : u
+          )
+        );
+      } else {
+        alert(res.data?.message || "Cập nhật trạng thái thất bại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API thay đổi trạng thái:", error);
+      alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+    }
+  };
 
   // Lấy tất cả người dùng khi component mount
   useEffect(() => {

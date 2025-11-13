@@ -244,3 +244,30 @@ export const xoaNguoiDungTheoID = async (id) => {
     return { ok: false, data: { message: error.message } };
   }
 };
+// Thay đổi trạng thái tài khoản (khóa / mở khóa)
+export const thayDoiTrangThaiNguoiDung = async (nguoiDungID, trangThai) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/nguoiDung/thay-doi-trang-thai/${nguoiDungID}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ trangThai }),
+      }
+    );
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      data = { message: await response.text() };
+    }
+
+    return { ok: response.ok, data };
+  } catch (error) {
+    console.error("Lỗi mạng khi thay đổi trạng thái:", error);
+    return { ok: false, data: { message: error.message } };
+  }
+};
