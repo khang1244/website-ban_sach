@@ -55,6 +55,15 @@ export const dangNhap = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "Email không tồn tại" });
     }
+    // Kiểm tra trạng thái tài khoản
+    const isActive =
+      user.trangThaiTaiKhoan === 1 ||
+      user.trangThaiTaiKhoan === true ||
+      user.trangThaiTaiKhoan === "1" ||
+      user.trangThaiTaiKhoan === "true";
+    if (!isActive) {
+      return res.status(403).json({ message: "Tài khoản này đã bị khóa" });
+    }
 
     // So sánh mật khẩu đã mã hóa với mật khẩu người dùng nhập vào
     const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
@@ -210,6 +219,15 @@ export const dangNhapGoogle = async (req, res) => {
     let user = await NguoiDung.findOne({ where: { email } });
 
     if (user) {
+      // Kiểm tra trạng thái tài khoản
+      const isActive =
+        user.trangThaiTaiKhoan === 1 ||
+        user.trangThaiTaiKhoan === true ||
+        user.trangThaiTaiKhoan === "1" ||
+        user.trangThaiTaiKhoan === "true";
+      if (!isActive) {
+        return res.status(403).json({ message: "Tài khoản này đã bị khóa" });
+      }
       // Nếu người dùng đã tồn tại, cập nhật thông tin Google ID (nếu chưa có)
       if (!user.googleId && googleId) {
         user.googleId = googleId;
