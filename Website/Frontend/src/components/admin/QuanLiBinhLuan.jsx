@@ -4,6 +4,7 @@ import { layTatCaBinhLuan } from "../../lib/binh-luan-apis";
 
 function QuanLiBinhLuan() {
   const [binhLuan, setBinhLuan] = useState([]);
+  const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
   useEffect(() => {
     // Gọi API để lấy danh sách bình luận từ server
     const napDuLieuBinhLuan = async () => {
@@ -42,6 +43,45 @@ function QuanLiBinhLuan() {
               Kiểm tra điểm đánh giá, nội dung bình luận và trạng thái hiển thị.
             </p>
           </div>
+
+          {/* // Lọc theo đánh giá */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLocTheoDanhGia(null)}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                loctheodanhgia === null
+                  ? "bg-[#00809D] text-white"
+                  : "bg-white text-gray-700 border border-gray-100"
+              }`}
+            >
+              Tất cả
+            </button>
+
+            {[5, 4, 3, 2, 1].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() =>
+                  setLocTheoDanhGia(loctheodanhgia === n ? null : n)
+                }
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                  loctheodanhgia === n
+                    ? "bg-[#00B3A8] text-white"
+                    : "bg-white text-gray-600 border border-gray-100"
+                }`}
+                title={`Lọc ${n} sao`}
+              >
+                <FaStar
+                  className={`${
+                    loctheodanhgia === n ? "text-yellow-200" : "text-yellow-400"
+                  }`}
+                  size={12}
+                />
+                <span className="ml-1">{n}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Table wrapper */}
@@ -60,8 +100,13 @@ function QuanLiBinhLuan() {
             </thead>
             <tbody>
               {binhLuan &&
-                binhLuan.length > 0 &&
-                binhLuan.map((c, idx) => (
+                // Lọc bình luận theo đánh giá nếu có
+                (binhLuan.length > 0
+                  ? binhLuan.filter((c) =>
+                      loctheodanhgia ? c.danhGia === loctheodanhgia : true
+                    )
+                  : []
+                ).map((c, idx) => (
                   <tr
                     key={c.id}
                     className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
@@ -132,7 +177,9 @@ function QuanLiBinhLuan() {
                     </td>
                   </tr>
                 ))}
-              {binhLuan.length === 0 && (
+              {binhLuan.filter((c) =>
+                loctheodanhgia ? c.danhGia === loctheodanhgia : true
+              ).length === 0 && (
                 <tr>
                   <td
                     colSpan={8}
