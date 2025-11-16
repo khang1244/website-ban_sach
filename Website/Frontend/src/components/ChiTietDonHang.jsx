@@ -9,6 +9,122 @@ import {
   capNhatTrangThaiDonHang,
 } from "../lib/don-hang-apis.js";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis.js";
+import { taoBinhLuanMoi } from "../lib/binh-luan-apis.js";
+
+function FormBinhLuan({ sachID, dongFormBinhLuan }) {
+  const [noiDung, setNoiDung] = useState("");
+  const [danhGia, setDanhGia] = useState(5);
+
+  const xuLyGuiBinhLuan = async (e) => {
+    e.preventDefault();
+
+    const duLieuBinhLuan = {
+      sachID: sachID,
+      nguoiDungID: JSON.parse(localStorage.getItem("user")).nguoiDungID,
+      noiDung: noiDung,
+      danhGia: danhGia,
+    };
+
+    const phanHoiTuSever = await taoBinhLuanMoi(duLieuBinhLuan);
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Gửi bình luận thành công!");
+    } else {
+      alert("Lỗi khi gửi bình luận:", phanHoiTuSever.message);
+    }
+
+    dongFormBinhLuan();
+    setNoiDung("");
+    setDanhGia(5);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-100 p-6 sm:p-8 animate-fade-in">
+        {/* Nút đóng */}
+        <button
+          onClick={dongFormBinhLuan}
+          className="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:text-[#00809D] hover:border-[#00809D] hover:bg-gray-50 transition"
+        >
+          <span className="text-xl leading-none">&times;</span>
+        </button>
+
+        {/* Tiêu đề */}
+        <div className="mb-4 text-center">
+          <h3 className="text-xl sm:text-2xl font-semibold text-[#00809D]">
+            Gửi bình luận của bạn
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Chia sẻ cảm nhận của bạn về cuốn sách này để giúp người đọc khác
+            nhé.
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={xuLyGuiBinhLuan} className="space-y-5">
+          {/* Nội dung bình luận */}
+          <div>
+            <label className="block mb-1.5 text-sm font-medium text-gray-700">
+              Nội dung bình luận <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={noiDung}
+              onChange={(e) => setNoiDung(e.target.value)}
+              placeholder="Viết bình luận của bạn..."
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-800 outline-none focus:bg-white focus:border-[#00809D] focus:ring-2 focus:ring-[#36d1c4]/30 resize-none min-h-[110px] transition"
+              required
+            />
+          </div>
+
+          {/* Đánh giá sao */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Đánh giá:
+              </label>
+              <select
+                value={danhGia}
+                onChange={(e) => setDanhGia(Number(e.target.value))}
+                className="rounded-lg borde text-black border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#00809D] focus:ring-2 focus:ring-[#36d1c4]/30 transition"
+                required
+              >
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <option key={star} value={star}>
+                    {star} {star === 1 ? "Sao" : "Sao"}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Hiển thị sao đẹp hơn */}
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((_, i) => (
+                <svg
+                  key={i}
+                  className={`w-5 h-5 ${
+                    i < danhGia ? "text-yellow-400" : "text-gray-300"
+                  }`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
+                </svg>
+              ))}
+            </div>
+          </div>
+
+          {/* Nút gửi */}
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-gradient-to-r from-[#36d1c4] to-[#00809D] px-4 py-2.5 text-sm sm:text-base font-semibold text-white shadow-md hover:from-[#00809D] hover:to-[#36d1c4] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#36d1c4]/60 active:scale-[0.98] transition"
+          >
+            Gửi bình luận
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function ChiTietDonHang() {
   const { id } = useParams();
@@ -18,6 +134,7 @@ function ChiTietDonHang() {
   // Tạo biến trạng thái lưu danh sách phương thức giao hàng
   const [shippingMethods, setShippingMethods] = useState([]);
   // Nạp dữ liệu đơn hàng từ server dựa vào id (sử dụng useEffect trong thực tế)
+  const [sachIDDangBinhLuan, setSachIDDangBinhLuan] = useState(null);
   useEffect(() => {
     const napDonHang = async () => {
       const duLieuDonHang = await layDonHangTheoID(id);
@@ -159,13 +276,30 @@ function ChiTietDonHang() {
                       đ
                     </td>
                     <td className="py-3">
-                      <button>Bình luận</button>
+                      {duLieuDonHang?.trangThai === "Hoàn thành" ? (
+                        <button
+                          onClick={() => setSachIDDangBinhLuan(item.sachID)}
+                          className="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-[#00809D] hover:text-white transition"
+                        >
+                          Bình luận
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">
+                          Chưa hoàn thành mua hàng
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
             </tbody>
           </table>
         </div>
+        {sachIDDangBinhLuan && (
+          <FormBinhLuan
+            sachID={sachIDDangBinhLuan}
+            dongFormBinhLuan={() => setSachIDDangBinhLuan(null)}
+          />
+        )}
         {duLieuDonHang?.trangThai === "Đã giao hàng" && (
           <div className="flex items-center gap-2 bg-green-100 text-green-700 rounded p-4 mb-8">
             <FaCheckCircle className="text-2xl" />
