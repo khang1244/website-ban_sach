@@ -1,22 +1,45 @@
 import { FaStar, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { layTatCaBinhLuan } from "../../lib/binh-luan-apis";
+import { layTatCaBinhLuan, xoaBinhLuanTheoID } from "../../lib/binh-luan-apis";
 
 function QuanLiBinhLuan() {
-  const [binhLuan, setBinhLuan] = useState([]);
+  const [binhLuanXoa, setBinhLuanXoa] = useState([]); // Dữ liệu bình luận
   const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
   useEffect(() => {
     // Gọi API để lấy danh sách bình luận từ server
     const napDuLieuBinhLuan = async () => {
       const phanHoiTuSever = await layTatCaBinhLuan();
       if (phanHoiTuSever && phanHoiTuSever.success) {
-        setBinhLuan(phanHoiTuSever.data); // Cập nhật danh sách bình luận từ server
+        setBinhLuanXoa(phanHoiTuSever.data); // Cập nhật danh sách bình luận từ server
       } else {
         console.error("Lỗi khi tải bình luận:", phanHoiTuSever.message);
       }
     };
     napDuLieuBinhLuan();
   }, []);
+
+  const deletebl = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa bình luận này?")) return;
+
+    try {
+      const res = await xoaBinhLuanTheoID(id); // Gọi API xóa trên server
+
+      // Nếu API trả success, xóa luôn trên UI
+      if (!res || res.success === false) {
+        alert(res?.message || "Xóa thất bại.");
+        return;
+      }
+
+      // CẬP NHẬT STATE binhLuan → UI đổi ngay, không cần F5
+      setBinhLuanXoa((prev) => prev.filter((bl) => bl.binhLuanID !== id));
+
+      alert("Bình luận đã được xóa.");
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi xảy ra khi xóa bình luận.");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
@@ -99,10 +122,10 @@ function QuanLiBinhLuan() {
               </tr>
             </thead>
             <tbody>
-              {binhLuan &&
+              {binhLuanXoa &&
                 // Lọc bình luận theo đánh giá nếu có
-                (binhLuan.length > 0
-                  ? binhLuan.filter((c) =>
+                (binhLuanXoa.length > 0
+                  ? binhLuanXoa.filter((c) =>
                       loctheodanhgia ? c.danhGia === loctheodanhgia : true
                     )
                   : []
@@ -168,6 +191,7 @@ function QuanLiBinhLuan() {
                     {/* Nút Xóa */}
                     <td className="py-3 px-4 text-center">
                       <button
+                        onClick={() => deletebl(c.binhLuanID)}
                         type="button"
                         className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-colors"
                       >
@@ -177,7 +201,7 @@ function QuanLiBinhLuan() {
                     </td>
                   </tr>
                 ))}
-              {binhLuan.filter((c) =>
+              {binhLuanXoa.filter((c) =>
                 loctheodanhgia ? c.danhGia === loctheodanhgia : true
               ).length === 0 && (
                 <tr>

@@ -58,3 +58,39 @@ export const layTatCaBinhLuan = async () => {
     };
   }
 };
+// 3. Xóa bình luận theo ID
+export const xoaBinhLuanTheoID = async (binhLuanID) => {
+  try {
+    const response = await fetch(`${BASE_URL}/binhLuan/${binhLuanID}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return {
+          success: false,
+          message: "Bình luận không tồn tại",
+          error: "Không tìm thấy bình luận để xóa",
+        };
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data,
+      message: "Xóa bình luận thành công",
+    };
+  } catch (error) {
+    console.error("Lỗi khi xóa bình luận:", error);
+    return {
+      success: false,
+      message: "Không thể xóa bình luận",
+      error: error.message,
+    };
+  }
+};
