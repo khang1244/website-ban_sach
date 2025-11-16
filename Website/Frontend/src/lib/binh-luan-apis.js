@@ -30,3 +30,31 @@ export const taoBinhLuanMoi = async (binhLuanData) => {
     };
   }
 };
+// 2. Lấy tất cả bình luận
+export const layTatCaBinhLuan = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/binhLuan`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data,
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách bình luận:", error);
+    return {
+      success: false,
+      message: "Không thể tải danh sách bình luận",
+      error: error.message,
+    };
+  }
+};
