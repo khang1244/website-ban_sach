@@ -118,6 +118,17 @@ function ChiTietSanPham() {
     // 3. Trả về định dạng mong muốn
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
+  const maskEmail = (email) => {
+    if (!email) return "Người dùng";
+    const [name, domain] = email.split("@");
+
+    if (name.length <= 3) {
+      return name[0] + "***@" + domain;
+    }
+
+    return name.slice(0, 3) + "***@" + domain;
+  };
+
   return (
     <div className=" min-h-screen w-full">
       <Navigation />
@@ -294,7 +305,7 @@ function ChiTietSanPham() {
                   {/* Gmail + ngày đánh giá */}
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold text-[#00809D]">
-                      {c.email || "Người dùng"}
+                      {maskEmail(c.email) || "Người dùng"}
                     </span>
 
                     {c.createdAt && (
