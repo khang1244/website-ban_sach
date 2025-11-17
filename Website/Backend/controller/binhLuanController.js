@@ -1,4 +1,5 @@
 import BinhLuan from "../models/BinhLuan.js";
+import NguoiDung from "../models/NguoiDung.js";
 
 // Nhận tất cả các bình luận
 export const nhanTatCaBinhLuan = async (req, res) => {
@@ -14,8 +15,23 @@ export const nhanTatCaBinhLuan = async (req, res) => {
 export const nhanBinhLuanTheoSachID = async (req, res) => {
   const { sachID } = req.params;
   try {
-    const binhLuans = await BinhLuan.findAll({ where: { sachID } });
-    res.status(200).json(binhLuans);
+    const binhLuans = await BinhLuan.findAll({
+      where: { sachID },
+      include: [
+        {
+          model: NguoiDung,
+          attributes: ["email"], // chỉ lấy email
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    // Chuyển đổi dữ liệu để bao gồm email từ bảng NguoiDung
+    const data = binhLuans.map((bl) => ({
+      ...bl.toJSON(),
+      email: bl.NguoiDung?.email || null,
+    }));
+
+    return res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

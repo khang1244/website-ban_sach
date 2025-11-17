@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import { layChiTietSach } from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
+import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
 import { UserContext } from "../contexts/user-context";
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
@@ -13,7 +14,7 @@ function ChiTietSanPham() {
 
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
-  const [binhLuan] = useState([]);
+  const [binhLuan, setBinhLuan] = useState([]);
 
   // User context (dùng để cập nhật badge giỏ hàng)
   const { refreshCartCount } = useContext(UserContext);
@@ -78,6 +79,26 @@ function ChiTietSanPham() {
     };
 
     napChiTietSanPham();
+  }, [sachID]);
+  // Nạp bình luận dựa trên sachID (sử dụng API đã viết)
+  useEffect(() => {
+    const napBinhLuan = async () => {
+      if (!sachID) return;
+      try {
+        const phanHoi = await layBinhLuanTheoSachID(sachID);
+        if (phanHoi && phanHoi.success) {
+          // Giả sử phanHoi.data là mảng bình luận
+          setBinhLuan(phanHoi.data || []);
+        } else {
+          setBinhLuan([]);
+        }
+      } catch (error) {
+        console.error("Lỗi khi nạp bình luận:", error);
+        setBinhLuan([]);
+      }
+    };
+
+    napBinhLuan();
   }, [sachID]);
 
   if (!chiTietSanPham) {

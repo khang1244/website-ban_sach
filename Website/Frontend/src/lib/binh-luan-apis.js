@@ -94,3 +94,31 @@ export const xoaBinhLuanTheoID = async (binhLuanID) => {
     };
   }
 };
+// 4. Lấy bình luận theo mã sách
+export const layBinhLuanTheoSachID = async (sachID) => {
+  try {
+    const response = await fetch(`${BASE_URL}/binhLuan/${sachID}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data,
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy bình luận theo sách ID:", error);
+    return {
+      success: false,
+      message: "Không thể tải bình luận của sách này",
+      error: error.message,
+    };
+  }
+};
