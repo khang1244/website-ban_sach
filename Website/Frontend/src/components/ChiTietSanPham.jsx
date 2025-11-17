@@ -13,6 +13,7 @@ function ChiTietSanPham() {
 
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
+  const [binhLuan] = useState([]);
 
   // User context (dùng để cập nhật badge giỏ hàng)
   const { refreshCartCount } = useContext(UserContext);
@@ -252,29 +253,58 @@ function ChiTietSanPham() {
       </div>
 
       {/* Bình luận */}
-      <div className="max-w-6xl mx-auto mt-1 bg-amber-200  rounded-xl shadow-lg p-8">
-        <h3 className="text-2xl font-bold text-[#00809D] mb-4">Bình luận</h3>
-        <div className="space-y-4">
-          {Array.isArray(chiTietSanPham.binhLuan) &&
-          chiTietSanPham.binhLuan.length > 0 ? (
-            chiTietSanPham.binhLuan.map((c, idx) => (
-              <div key={idx} className="border-b pb-2 border-black">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[#00809D]">{c.user}</span>
-                  <span className="text-yellow-400 flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <FaStar
-                        key={i}
-                        className={i < c.rating ? "" : "text-gray-300"}
-                      />
-                    ))}
-                  </span>
+      <div className="max-w-6xl mx-auto mt-4">
+        <div className="bg-amber-100 rounded-xl p-4 shadow">
+          {/* Tiêu đề + số bình luận */}
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xl font-bold text-[#00809D]">Bình luận</h3>
+            {Array.isArray(binhLuan) && binhLuan.length > 0 && (
+              <span className="text-xs text-gray-600">
+                {binhLuan.length} bình luận
+              </span>
+            )}
+          </div>
+
+          {/* Danh sách bình luận */}
+          {Array.isArray(binhLuan) && binhLuan.length > 0 ? (
+            <div className="space-y-3">
+              {binhLuan.map((c, idx) => (
+                <div key={idx} className="bg-white rounded-lg p-3 text-sm">
+                  {/* Gmail + ngày đánh giá */}
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-[#00809D]">
+                      {c.email || "Người dùng"}
+                    </span>
+
+                    {c.createdAt && (
+                      <span className="text-[11px] text-gray-500">
+                        {formatDate(c.createdAt)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Sao đánh giá */}
+                  <div className="flex items-center text-xs text-gray-600 mb-1">
+                    <span className="flex text-yellow-400 mr-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={i < c.danhGia ? "" : "text-gray-300"}
+                        />
+                      ))}
+                    </span>
+                    <span>{c.danhGia}/5</span>
+                  </div>
+
+                  {/* Nội dung bình luận */}
+                  <p className="text-gray-700">{c.noiDung}</p>
                 </div>
-                <p className="text-gray-700 ml-2">{c.comment}</p>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
-            <div className="text-gray-600">Chưa có bình luận</div>
+            <div className="text-gray-600 text-sm italic">
+              Chưa có bình luận nào cho sản phẩm này.
+            </div>
           )}
         </div>
       </div>
