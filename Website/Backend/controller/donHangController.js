@@ -138,12 +138,87 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
     const { id } = req.params; // Lấy ID đơn hàng từ tham số URL
     const { trangThai } = req.body; // Lấy trạng thái mới từ body yêu cầu
 
-    // Cập nhật trạng thái đơn hàng
-    await DonHang.update({ trangThai }, { where: { donHangID: id } });
+    // Tìm đơn hàng hiện tại
+    const donHang = await DonHang.findOne({ where: { donHangID: id } });
+    if (!donHang) {
+      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    }
 
-    res
-      .status(200)
-      .json({ message: "Cập nhật trạng thái đơn hàng thành công" });
+    const trangThaiCu = donHang.trangThai;
+
+    // Nếu trạng thái không thay đổi thì trả về ok
+    if (trangThaiCu === trangThai) {
+      return res
+        .status(200)
+        .json({ message: "Trạng thái đơn hàng không thay đổi" });
+    }
+
+    // Dùng transaction để cập nhật trạng thái và hoàn/khấu trừ tồn kho một cách atomic
+    const t = await sequelize.transaction();
+    try {
+      // Nếu cập nhật thành "Đã hủy" và trạng thái cũ chưa phải "Đã hủy" thì hoàn trả tồn kho
+      if (trangThai === "Đã hủy" && trangThaiCu !== "Đã hủy") {
+        // Lấy các mục trong đơn hàng từ bảng trung gian
+        const chiTiets = await DonHang_Sach.findAll({
+          where: { donHangID: id },
+          transaction: t,
+        });
+
+        for (const chiTiet of chiTiets) {
+          const sach = await Sach.findOne({
+            where: { sachID: chiTiet.sachID },
+            transaction: t,
+            lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+          });
+
+          if (!sach) {
+            // nếu sách không tồn tại, rollback để giữ nhất quán
+            await t.rollback();
+            return res
+              .status(400)
+              .json({ message: `Sách ${chiTiet.sachID} không tồn tại` });
+          }
+
+          const soLuongTruoc = sach.soLuongConLai || 0;
+          const soLuongHoan = Number(chiTiet.soLuong) || 0;
+          const soLuongSau = soLuongTruoc + soLuongHoan;
+
+          // Cập nhật tồn kho
+          sach.soLuongConLai = soLuongSau;
+          await sach.save({ transaction: t });
+
+          // Ghi nhận giao dịch kho (nhập do hoàn đơn)
+          await GiaoDichKho.create(
+            {
+              loaiGiaoDich: "nhập",
+              ngayGiaoDich: new Date(),
+              tenSanPham: sach.tenSach,
+              soLuong: soLuongHoan,
+              nguoiThucHien: "Hệ thống hoàn đơn",
+              ghiChu: `Hoàn đơn #${donHang.donHangID}`,
+              sachID: chiTiet.sachID,
+              soLuongTruoc,
+              soLuongSau,
+              giaBan: chiTiet.donGia || null,
+            },
+            { transaction: t }
+          );
+        }
+      }
+
+      // Cập nhật trạng thái đơn hàng
+      await DonHang.update({ trangThai }, { where: { donHangID: id }, transaction: t });
+
+      await t.commit();
+
+      return res
+        .status(200)
+        .json({ message: "Cập nhật trạng thái đơn hàng thành công" });
+    } catch (err) {
+      await t.rollback();
+      console.error("Lỗi khi cập nhật trạng thái đơn trong transaction:", err);
+      return res.status(500).json({ message: err.message });
+    }
   } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
     res.status(500).json({ message: error.message });
