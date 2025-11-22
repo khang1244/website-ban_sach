@@ -74,6 +74,17 @@ function ChiTietSanPham() {
 
         console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
 
+        // Nếu server chưa cung cấp stockStatus, tính tạm thời ở client
+        const LOW_STOCK_THRESHOLD = 5;
+        chiTietSanPham.stockStatus =
+          typeof chiTietSanPham.stockStatus !== "undefined"
+            ? chiTietSanPham.stockStatus
+            : chiTietSanPham.soLuongConLai <= 0
+            ? "out"
+            : chiTietSanPham.soLuongConLai <= LOW_STOCK_THRESHOLD
+            ? "low"
+            : "available";
+
         setChiTietSanPham(chiTietSanPham);
       }
     };
@@ -169,6 +180,45 @@ function ChiTietSanPham() {
           <h2 className="text-3xl font-bold text-[#00809D] mb-2">
             {chiTietSanPham.tenSach}
           </h2>
+          {/* Badge trạng thái tồn kho - nâng cấp đẹp, chuyên nghiệp */}
+          {chiTietSanPham.stockStatus === "out" ? (
+            <div className="w-full flex items-center gap-2 bg-red-600/90 text-white px-4 py-2 rounded-full text-sm font-semibold mb-2 shadow-lg border border-red-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              Hết hàng
+            </div>
+          ) : chiTietSanPham.stockStatus === "low" ? (
+            <div className="w-full flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-300 text-black px-4 py-2 rounded-full text-sm font-semibold mb-2 shadow-md border border-yellow-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+                />
+              </svg>
+              Sắp hết hàng còn ({chiTietSanPham.soLuongConLai} sản phẩm)
+            </div>
+          ) : null}
+
           {/* //đánh giá sản phẩm */}
           {chiTietSanPham.danhGia && (
             <div className="flex items-center gap-2 mb-2">

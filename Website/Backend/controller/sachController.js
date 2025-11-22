@@ -1,6 +1,16 @@
 import Sach from "../models/Sach.js";
 import HinhAnh from "../models/HinhAnh.js";
 
+// Ngưỡng cảnh báo tồn kho (hardcoded, không dùng .env theo yêu cầu)
+const LOW_STOCK_THRESHOLD = 5;
+
+const computeStockStatus = (soLuongConLai) => {
+  const qty = Number(soLuongConLai || 0);
+  if (qty <= 0) return "out";
+  if (qty <= LOW_STOCK_THRESHOLD) return "low";
+  return "available";
+};
+
 // Lấy tất cả các quyền sách
 export const nhanTatCaCacQuyenSach = async (req, res) => {
   try {
@@ -12,6 +22,8 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
       s.dataValues.images = JSON.stringify(
         imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
       );
+      // Thêm trạng thái tồn kho để frontend hiển thị cảnh báo
+      s.dataValues.stockStatus = computeStockStatus(s.soLuongConLai);
     }
     res.json(danhSachSach);
   } catch (error) {
@@ -239,6 +251,7 @@ export const layChiTietSach = async (req, res) => {
     const result = {
       ...sach.toJSON(),
       images: JSON.stringify(imagesForReturn),
+      stockStatus: computeStockStatus(sach.soLuongConLai),
     };
     res.json(result);
   } catch (error) {
