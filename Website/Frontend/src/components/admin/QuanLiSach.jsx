@@ -567,30 +567,34 @@ function QuanLiSach() {
           </table>
         </div>
       </div>
-        {/* Modal xem ảnh (chỉ ảnh của sách khi bấm thumbnail) */}
-        {anhModal.hien && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-lg max-w-4xl w-full p-4 relative">
-              <button
-                onClick={dongModalAnh}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-              >
-                ×
-              </button>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {anhModal.dsAnh && anhModal.dsAnh.length > 0 ? (
-                  anhModal.dsAnh.map((a, i) => (
-                    <div key={i} className="flex items-center justify-center p-2">
-                      <img src={a.url} alt={`img-${i}`} className="max-h-[60vh] object-contain rounded shadow" />
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500">Không có ảnh</div>
-                )}
-              </div>
+      {/* Modal xem ảnh (chỉ ảnh của sách khi bấm thumbnail) */}
+      {anhModal.hien && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg max-w-4xl w-full p-4 relative">
+            <button
+              onClick={dongModalAnh}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+            >
+              ×
+            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {anhModal.dsAnh && anhModal.dsAnh.length > 0 ? (
+                anhModal.dsAnh.map((a, i) => (
+                  <div key={i} className="flex items-center justify-center p-2">
+                    <img
+                      src={a.url}
+                      alt={`img-${i}`}
+                      className="max-h-[60vh] object-contain rounded shadow"
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500">Không có ảnh</div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }
