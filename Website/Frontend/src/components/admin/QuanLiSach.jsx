@@ -251,6 +251,16 @@ function QuanLiSach() {
     return obj instanceof File;
   };
 
+  // Modal xem ảnh (chỉ cho phần hình ảnh)
+  const [anhModal, setAnhModal] = useState({ hien: false, dsAnh: [] });
+
+  const moModalAnh = (dsAnh) => {
+    const ds = Array.isArray(dsAnh) ? dsAnh : [];
+    setAnhModal({ hien: true, dsAnh: ds });
+  };
+
+  const dongModalAnh = () => setAnhModal({ hien: false, dsAnh: [] });
+
   // Tạo thêm 1 biến trạng thái để lưu dữ liệu danh mục sách
   const [danhMucSach, setDanhMucSach] = useState([]);
 
@@ -510,16 +520,21 @@ function QuanLiSach() {
                   <tr key={book.sachID} className="even:bg-gray-100 text-black">
                     <td className="p-2 font-bold">{idx + 1}</td>
                     <td className="p-2">
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex items-center">
                         {book.images && book.images.length > 0 ? (
-                          book.images.map((img, i) => (
+                          <div className="relative">
                             <img
-                              key={i}
-                              src={img.url}
+                              src={book.images[0].url}
                               alt="book"
-                              className="w-10 h-10 object-cover rounded border"
+                              className="w-12 h-12 object-cover rounded border cursor-pointer"
+                              onClick={() => moModalAnh(book.images)}
                             />
-                          ))
+                            {book.images.length > 1 && (
+                              <div className="absolute -bottom-1 -right-1 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center border border-white">
+                                +{book.images.length - 1}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-gray-400">Không có ảnh</span>
                         )}
@@ -552,6 +567,30 @@ function QuanLiSach() {
           </table>
         </div>
       </div>
+        {/* Modal xem ảnh (chỉ ảnh của sách khi bấm thumbnail) */}
+        {anhModal.hien && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-lg max-w-4xl w-full p-4 relative">
+              <button
+                onClick={dongModalAnh}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+              >
+                ×
+              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {anhModal.dsAnh && anhModal.dsAnh.length > 0 ? (
+                  anhModal.dsAnh.map((a, i) => (
+                    <div key={i} className="flex items-center justify-center p-2">
+                      <img src={a.url} alt={`img-${i}`} className="max-h-[60vh] object-contain rounded shadow" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500">Không có ảnh</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
