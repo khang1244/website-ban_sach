@@ -207,7 +207,10 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
       }
 
       // Cập nhật trạng thái đơn hàng
-      await DonHang.update({ trangThai }, { where: { donHangID: id }, transaction: t });
+      await DonHang.update(
+        { trangThai },
+        { where: { donHangID: id }, transaction: t }
+      );
 
       await t.commit();
 
