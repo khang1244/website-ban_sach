@@ -22,12 +22,35 @@ const GiaoDichKho = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    // Tham chiếu tới Sach (nếu có)
+    sachID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "sach",
+        key: "sachID",
+      },
+    },
     soLuong: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         min: 1,
       },
+    },
+    // Tồn kho trước khi giao dịch
+    soLuongTruoc: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    // Tồn kho sau khi giao dịch
+    soLuongSau: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    giaBan: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
     },
     nguoiThucHien: {
       type: DataTypes.STRING,
@@ -39,7 +62,7 @@ const GiaoDichKho = sequelize.define(
     },
   },
   {
-    tableName: "giao_dich_kho",
+    tableName: "ton_kho",
     timestamps: true, // Tự động thêm các trường createdAt và updatedAt
   }
 );

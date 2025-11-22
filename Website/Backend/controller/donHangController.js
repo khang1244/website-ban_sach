@@ -1,5 +1,7 @@
 import DonHang, { DonHang_Sach } from "../models/DonHang.js";
 import Sach from "../models/Sach.js";
+import sequelize from "../config/mysql_config.js";
+import GiaoDichKho from "../models/GiaoDichKho.js";
 
 // Nhận tất cả đơn hàng
 export const nhanTatCaDonHang = async (req, res) => {
@@ -35,31 +37,97 @@ export const taoDonHangMoi = async (req, res) => {
       items, // { sachID, soLuong, donGia }
     } = req.body;
 
-    // Tạo đơn hàng mới
-    const donHangMoi = await DonHang.create({
-      nguoiDungID,
-      tenKhachHang,
-      soDienThoaiKH,
-      ngayDat,
-      tongTien,
-      trangThai,
-      diaChiGiaoHang,
-      phuongThucThanhToan,
-      phuongThucGiaoHangID,
-      ghiChu,
-    });
+    // Dùng transaction để đảm bảo atomic
+    const t = await sequelize.transaction();
+    try {
+      // Tạo đơn hàng mới
+      const donHangMoi = await DonHang.create(
+        {
+          nguoiDungID,
+          tenKhachHang,
+          soDienThoaiKH,
+          ngayDat,
+          tongTien,
+          trangThai,
+          diaChiGiaoHang,
+          phuongThucThanhToan,
+          phuongThucGiaoHangID,
+          ghiChu,
+        },
+        { transaction: t }
+      );
 
-    // Thêm các sách vào đơn hàng với số lượng và đơn giá tương ứng
-    for (const item of items) {
-      await DonHang_Sach.create({
-        donHangID: donHangMoi.donHangID,
-        sachID: item.sachID,
-        soLuong: item.soLuong,
-        donGia: item.donGia,
-      });
+      // Thêm các sách vào đơn hàng với số lượng và đơn giá tương ứng
+      for (const item of items) {
+        // Lấy sách hiện tại
+        const sach = await Sach.findOne({
+          where: { sachID: item.sachID },
+          transaction: t,
+          lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+        });
+
+        if (!sach) {
+          await t.rollback();
+          return res
+            .status(400)
+            .json({ message: `Sách ${item.sachID} không tồn tại` });
+        }
+
+        const soLuongTruoc = sach.soLuongConLai || 0;
+        const soLuongSau = soLuongTruoc - Number(item.soLuong);
+        if (soLuongSau < 0) {
+          await t.rollback();
+          return res
+            .status(400)
+            .json({ message: `Số lượng sách '${sach.tenSach}' không đủ` });
+        }
+
+        // Cập nhật tồn kho
+        sach.soLuongConLai = soLuongSau;
+        await sach.save({ transaction: t });
+
+        // Thêm vào bảng trung gian DonHang_Sach
+        await DonHang_Sach.create(
+          {
+            donHangID: donHangMoi.donHangID,
+            sachID: item.sachID,
+            soLuong: item.soLuong,
+            donGia: item.donGia,
+          },
+          { transaction: t }
+        );
+
+        // Tạo giao dịch kho (xuất kho do bán)
+        await GiaoDichKho.create(
+          {
+            loaiGiaoDich: "xuất",
+            ngayGiaoDich: ngayDat || new Date(),
+            tenSanPham: sach.tenSach,
+            soLuong: item.soLuong,
+            nguoiThucHien:
+              tenKhachHang || (nguoiDungID ? String(nguoiDungID) : "khách"),
+            ghiChu: `Đơn hàng #${donHangMoi.donHangID}`,
+            sachID: item.sachID,
+            soLuongTruoc,
+            soLuongSau,
+            giaBan: item.donGia,
+          },
+          { transaction: t }
+        );
+      }
+
+      await t.commit();
+      res
+        .status(201)
+        .json({
+          message: "Tạo đơn hàng thành công",
+          donHangID: donHangMoi.donHangID,
+        });
+    } catch (err) {
+      await t.rollback();
+      console.error("Lỗi khi xử lý tạo đơn với transaction:", err);
+      return res.status(500).json({ message: err.message });
     }
-
-    res.status(201).json(donHangMoi);
   } catch (error) {
     console.error("Lỗi khi tạo đơn hàng mới:", error);
     res.status(500).json({ message: error.message });
