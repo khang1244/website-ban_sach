@@ -113,12 +113,32 @@ export const taoGiaoDichKho = async (req, res) => {
     // Cập nhật tồn kho (nếu lỗi sẽ ném exception)
     const updatedSach = await capNhatSach(sachID, delta, giaNhap, giaBan);
 
+    // Quy tắc hiển thị người thực hiện: nếu là giao dịch 'nhập' chỉ hiện admin,
+    // còn 'xuất' thì hiển thị tên người dùng (nếu có)
+    const loaiNorm = (loaiGiaoDich || "").toString().toLowerCase();
+    let nguoiHienThi = nguoiThucHien;
+    if (
+      loaiNorm.includes("nhap") ||
+      loaiNorm.includes("nhập") ||
+      loaiNorm.includes("import")
+    ) {
+      nguoiHienThi = "Quản trị viên";
+    } else if (
+      loaiNorm.includes("xuat") ||
+      loaiNorm.includes("xuất") ||
+      loaiNorm.includes("export")
+    ) {
+      nguoiHienThi = nguoiThucHien || "Khách";
+    } else {
+      nguoiHienThi = nguoiThucHien || "Quản trị viên";
+    }
+
     const newGiaoDichKho = await GiaoDichKho.create({
       loaiGiaoDich,
       ngayGiaoDich,
       tenSanPham,
       soLuong,
-      nguoiThucHien,
+      nguoiThucHien: nguoiHienThi,
       ghiChu,
       sachID: Number(sachID),
       soLuongTruoc,
