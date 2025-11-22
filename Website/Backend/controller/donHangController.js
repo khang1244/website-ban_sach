@@ -117,12 +117,10 @@ export const taoDonHangMoi = async (req, res) => {
       }
 
       await t.commit();
-      res
-        .status(201)
-        .json({
-          message: "Tạo đơn hàng thành công",
-          donHangID: donHangMoi.donHangID,
-        });
+      res.status(201).json({
+        message: "Tạo đơn hàng thành công",
+        donHangID: donHangMoi.donHangID,
+      });
     } catch (err) {
       await t.rollback();
       console.error("Lỗi khi xử lý tạo đơn với transaction:", err);
