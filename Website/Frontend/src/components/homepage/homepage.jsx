@@ -6,7 +6,8 @@ import { CiHeart } from "react-icons/ci";
 import { FaFire } from "react-icons/fa";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
@@ -88,6 +89,19 @@ function Homepage() {
 
   // User context để cập nhật badge giỏ hàng
   const { refreshCartCount } = useContext(UserContext);
+
+  // Hàm để cuộn carousel sản phẩm bán chạy
+  const carouselRef = useRef(null);
+  const scrollCarousel = (direction) => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const scrollAmount = container.clientWidth || 600;
+    if (direction === "left") {
+      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   // Nạp dữ liệu danh mục sách
   useEffect(() => {
@@ -273,7 +287,7 @@ function Homepage() {
       {/* Sản phẩm bán chạy */}
       <div className="mt-4 ">
         <h3 className="py-2 px-5 text-white text-xl font-bold">
-          SÁCH BÁN CHẠY
+          SÁCH ĐƯỢC XEM NHIỀU NHẤT
         </h3>
         {/* Bộ lọc theo danh mục và giá của sản phẩm bán chạy */}
         <div className="flex flex-wrap gap-4 px-4 py-6 mt-5 bg-gray-50 w-auto rounded-lg mx-4  ">
@@ -306,61 +320,86 @@ function Homepage() {
             </select>
           </div>
         </div>
-        {/* // Hiển thị danh sách sản phẩm bán chạy đã lọc */}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5">
-          {bolocsachbanchay.map((product) => (
-            <li
-              key={product.maSP}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 flex flex-col "
+        {/* // Hiển thị danh sách sản phẩm bán chạy đã lọc - carousel */}
+        <div className="relative mt-6 mx-4">
+          {/* Left arrow (visible when many items) */}
+          {bolocsachbanchay.length > 5 && (
+            <button
+              onClick={() => scrollCarousel("left")}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
+              aria-label="scroll left"
             >
-              {/* Ảnh: giảm chiều cao cho gọn */}
-              <div className="w-full h-76 bg-gray-50 flex items-center justify-center overflow-hidden">
-                <img
-                  src={product.images[0]?.url}
-                  alt={product.tenSP}
-                  className="object-cover w-full h-full px-2 py-2"
-                />
-              </div>
+              <HiChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
+          )}
 
-              {/* Thông tin: chiếm hết phần còn lại & chia 2 khối trên/dưới */}
-              <div className="flex flex-col justify-between flex-grow p-4 bg-gradient-to-b from-[#3d3fa6] to-[#26288f] text-white">
-                {/* Khối trên: tiêu đề + giá */}
-                <div>
-                  {/* Tiêu đề 2 dòng cố định -> các card cao bằng nhau */}
-                  <h4 className="font-semibold text-base leading-tight line-clamp-2 h-12">
-                    {product.tenSach}
-                  </h4>
+          {/* Right arrow */}
+          {bolocsachbanchay.length > 5 && (
+            <button
+              onClick={() => scrollCarousel("right")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
+              aria-label="scroll right"
+            >
+              <HiChevronRight className="h-6 w-6 text-gray-700" />
+            </button>
+          )}
 
-                  <p className="mt-2 text-sm text-amber-300 font-semibold">
-                    Giảm giá: {product.giaGiam.toLocaleString()} VNĐ
-                  </p>
-
-                  <div className="flex justify-between items-center mt-1 text-xs">
-                    <span className="text-red-300 line-through">
+          <div
+            ref={carouselRef}
+            className="flex gap-4 overflow-x-auto whitespace-nowrap py-4 smooth-scroll"
+            style={{ scrollBehavior: "smooth" }}
+          >
+            {bolocsachbanchay.map((product) => (
+              <div
+                key={product.maSP}
+                className="min-w-[200px] sm:min-w-[220px] md:min-w-[260px] rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer"
+              >
+                <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                  <img
+                    src={product.images[0]?.url}
+                    alt={product.tenSP}
+                    className="w-full h-full object-cover px-1 py-1"
+                  />
+                </div>
+                <div className="p-3 bg-[#3d3fa6] text-white h-full ">
+                  <h4 className="font-semibold text-sm">{product.tenSach}</h4>
+                  <p>Giảm giá: {product.giaGiam.toLocaleString()} VNĐ</p>
+                  <p className="flex justify-between -translate-x-0.5 px-1">
+                    <div className="text-red-400 line-through">
                       Giá gốc: {product.giaBan.toLocaleString()} VNĐ
-                    </span>
-                    <CiHeart className="text-xl hover:text-red-400 transition-colors cursor-pointer" />
+                    </div>
+                    <CiHeart className="hover:text-red-400 text-2xl " />
+                  </p>
+                  <div>
+                    <div className=" py-2 flex gap-6">
+                      <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 ">
+                        <div className="flex justify-center items-center w-full gap-2 ">
+                          <FaFire className=" text-amber-400 " />
+                          <Link to={`/chitietsanpham/${product.sachID}`}>
+                            Xem chi tiết
+                          </Link>
+                        </div>
+                      </button>
+                      {/* Thêm giỏ hàng: button riêng, không lồng Link */}
+                      <button
+                        onClick={() =>
+                          handleThemSanPhamVaoGioHang(
+                            product.sachID,
+                            1,
+                            product.giaGiam || product.giaBan
+                          )
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                      >
+                        <RiShoppingCartLine className="text-lg" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                {/* Khối dưới: nút */}
-                <div className="flex items-center gap-3 pt-4">
-                  <Link
-                    to={`/chitietsanpham/${product.sachID}`}
-                    className="flex justify-center items-center gap-2 bg-white text-[#3d3fa6] font-semibold py-2 px-5 rounded-lg w-full hover:bg-amber-800 hover:text-white transition-all"
-                  >
-                    <FaFire className="text-amber-400" />
-                    Xem chi tiết
-                  </Link>
-
-                  <button className="p-3 rounded-lg border border-white/40 hover:bg-white hover:text-[#3d3fa6] transition-all shrink-0">
-                    <RiShoppingCartLine className="text-xl" />
-                  </button>
-                </div>
               </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
       </div>
 
       <Footer />
