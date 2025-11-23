@@ -171,6 +171,28 @@ function QuanLiSach() {
     }));
   };
 
+  // Hủy (clear) form và thoát chế độ sửa
+  const handleCancel = () => {
+    setForm({
+      sachID: null,
+      images: [],
+      tenSach: "",
+      tacGia: "",
+      nhaXuatBan: "",
+      ngayXuatBan: "",
+      ngonNgu: "Tiếng Việt",
+      danhMucSachID: 0,
+      soTrang: 0,
+      dinhDang: "Bìa mềm",
+      soLuongConLai: 0,
+      giaNhap: 0,
+      giaBan: 0,
+      giaGiam: 0,
+      moTa: "",
+    });
+    setEditId(null);
+  };
+
   const handleDelete = async (sachID) => {
     // Tìm sách cần xóa trong state
     const bookToDelete = books.find((b) => b.sachID === sachID);
@@ -283,7 +305,7 @@ function QuanLiSach() {
       </h1>
 
       {/* Form thêm / sửa sách */}
-      <div className="bg-amber-900 shadow-lg rounded-xl p-6 mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="bg-emerald-900 shadow-lg rounded-xl p-6 mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <label className="block font-semibold mb-2 text-white">
             Hình ảnh sản phẩm
@@ -387,7 +409,7 @@ function QuanLiSach() {
               name="danhMucSachID"
               value={form.danhMucSachID}
               onChange={handleChange}
-              className="text-white bg-amber-900 w-full border rounded p-2 mb-3"
+              className="text-white bg-emerald-900 w-full border rounded p-2 mb-3"
             >
               {danhMucSach.map((loai) => (
                 <option key={loai.danhMucSachID} value={loai.danhMucSachID}>
@@ -476,12 +498,19 @@ function QuanLiSach() {
               placeholder="Nhập mô tả sách..."
             />
           </div>
-          <div className="md:col-span-2 text-right">
+          <div className="md:col-span-2 flex justify-end items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition"
+            >
+              Hủy
+            </button>
             <button
               type="submit"
               className="bg-[#00809D] text-white px-6 py-2 rounded hover:bg-[#006f89] font-semibold transition"
             >
-              {editId ? "Cập nhật" : "➕ Thêm mới"}
+              {editId ? "Cập nhật" : "Thêm mới"}
             </button>
           </div>
         </form>
@@ -494,7 +523,7 @@ function QuanLiSach() {
         </h2>
         <div className="overflow-auto max-h-[600px] rounded border border-gray-200">
           <table className="min-w-full table-auto text-sm">
-            <thead className="bg-[#00809D] text-white sticky top-0">
+            <thead className="bg-emerald-900 text-white sticky top-0">
               <tr>
                 <th className="p-2">#</th>
                 <th className="p-2">Hình ảnh</th>
@@ -544,10 +573,10 @@ function QuanLiSach() {
                     <td className="p-2">{book.tacGia}</td>
                     <td className="p-2">{book.nhaXuatBan}</td>
                     <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
-                    <td className="p-2">{book.ngonNgu}</td>
-                    <td className="p-2">{book.danhMucSachID}</td>
+                    <td className="p-5">{book.ngonNgu}</td>
+                    <td className="p-8">{book.danhMucSachID}</td>
                     <td className="p-2">{book.soTrang}</td>
-                    <td className="p-2">{book.dinhDang}</td>
+                    <td className="p-4">{book.dinhDang}</td>
                     <td className="p-2">{book.soLuongConLai}</td>
                     <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
                     <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
