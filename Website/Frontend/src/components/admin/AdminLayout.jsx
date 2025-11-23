@@ -1,5 +1,6 @@
-import React from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/user-context";
 
 const sidebarLinks = [
   { label: "Quản lý chung", to: "/admin" },
@@ -13,8 +14,56 @@ const sidebarLinks = [
   { label: "Phương thức giao hàng", to: "/admin/phuongthucgiaohang" },
 ];
 
+function LogoutButton() {
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  // State hiển thị ô xác nhận ngắn gọn (compact)
+  const [open, setOpen] = useState(false);
+
+  // Hàm thực hiện logout sau khi xác nhận
+  const doLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/dangnhap");
+  };
+
+  // Trả về nút Đăng xuất và ô xác nhận nhỏ gọn khi open=true
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={() => setOpen(true)}
+        className="text-sm text-red-600 hover:underline"
+      >
+        Đăng xuất
+      </button>
+
+      {/* Ô xác nhận ngắn gọn (xuất hiện ở ngay cạnh nút) */}
+      {open && (
+        <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-sm p-2 z-50">
+          <div className="text-sm text-slate-700 mb-2">Xác nhận đăng xuất?</div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setOpen(false)}
+              className="px-2 py-1 text-sm border rounded-md text-black"
+            >
+              Huỷ
+            </button>
+            <button
+              onClick={doLogout}
+              className="px-2 py-1 text-sm bg-red-600 text-white rounded-md"
+            >
+              Có
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AdminLayout() {
   const location = useLocation();
+  const { user } = useContext(UserContext);
 
   return (
     <div className="min-h-screen w-full bg-slate-50">
@@ -73,12 +122,42 @@ function AdminLayout() {
           {/* Top bar full-bleed nhưng vẫn có padding */}
           <div className="px-6 md:px-8 pt-6">
             <div className="mb-6 rounded-2xl bg-white/70 backdrop-blur shadow-sm ring-1 ring-slate-200 px-5 py-4">
-              <h1 className="text-lg md:text-xl font-semibold text-slate-800">
-                Bảng điều khiển quản trị
-              </h1>
-              <p className="text-sm text-slate-500">
-                Quản lý nội dung và dữ liệu hệ thống.
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-lg md:text-xl font-semibold text-slate-800">
+                    Bảng điều khiển quản trị
+                  </h1>
+                  <p className="text-sm text-slate-500">
+                    Quản lý nội dung và dữ liệu hệ thống.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {user && (
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={
+                          typeof user?.avatar === "string"
+                            ? user.avatar
+                            : user?.avatar?.url || ""
+                        }
+                        alt="avatar"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.src = "";
+                        }}
+                        className="w-10 h-10 rounded-full border object-cover"
+                      />
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-slate-800">
+                          {user?.tenNguoiDung || user?.hoTen || "Admin"}
+                        </div>
+                        <LogoutButton />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Outlet container full width */}
