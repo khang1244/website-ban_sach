@@ -25,7 +25,11 @@ function QuanLiDonHang() {
 
   // Tạo biến trạng thái lưu danh sách phương thức giao hàng
   const [shippingMethods, setShippingMethods] = useState([]);
-
+  // --- CẤU HÌNH PHÂN TRANG ---
+  // Số đơn hàng hiển thị mỗi trang (theo yêu cầu: 4)
+  const donHangMotTrang = 4; // 4 đơn hàng/trang
+  // Trang hiện tại (1-based)
+  const [trangHienTai, setTrangHienTai] = useState(1); // Trang đang hiển thị
   // Helper function để định dạng lại ngày tháng
   function formatDate(dateString) {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
@@ -105,6 +109,24 @@ function QuanLiDonHang() {
     // Nếu muốn tìm "chứa" thay vì "chính xác": dùng includes(q)
   });
 
+  // --- Tính phân trang từ filteredOrders ---
+  // Tổng số trang dựa trên số phần tử và số phần tử/trang
+  const tongTrang = Math.max(
+    1,
+    Math.ceil(filteredOrders.length / donHangMotTrang)
+  ); // Tổng trang
+
+  // Nếu bộ lọc thay đổi, reset về trang 1 để tránh trang vượt quá tổng
+  useEffect(() => {
+    setTrangHienTai(1); // Khi tìm kiếm thay đổi, quay về trang 1
+  }, [searchQuery]);
+
+  // Lấy danh sách đơn hàng hiển thị cho trang hiện tại
+  const donHangHienThi = filteredOrders.slice(
+    (trangHienTai - 1) * donHangMotTrang, // start index
+    trangHienTai * donHangMotTrang // end index
+  );
+
   // Xóa đơn hàng
   const handleDeleteOrder = (id) => {
     const updatedOrders = userOrder.filter((order) => order.donHangID !== id);
@@ -171,13 +193,15 @@ function QuanLiDonHang() {
             <tbody>
               {userOrder &&
                 userOrder.length > 0 &&
-                filteredOrders.map((order, idx) => (
+                // Duyệt các đơn hàng đã được cắt theo trang
+                donHangHienThi.map((order, idx) => (
                   <tr
                     key={idx}
                     className="border-b hover:bg-[#F9FAFB] transition-colors duration-300 text-black"
                   >
                     <td className="py-3 px-5 text-sm font-medium">
-                      MĐH {idx + 1}
+                      {/* Mã đơn hàng hiển thị theo thứ tự tổng, không chỉ index trong trang */}
+                      MĐH {(trangHienTai - 1) * donHangMotTrang + idx + 1}
                     </td>
                     <td className="py-3 px-5 text-sm">{order.tenKhachHang}</td>
                     <td className="py-3 px-5 text-sm">{order.soDienThoaiKH}</td>
@@ -225,6 +249,52 @@ function QuanLiDonHang() {
                 ))}
             </tbody>
           </table>
+        </div>
+        {/* --- Phân trang đơn giản --- */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Trang {trangHienTai} / {tongTrang}
+          </div>
+          <div className="flex items-center gap-2 text-black">
+            <button
+              onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
+              disabled={trangHienTai === 1}
+              className={`px-3 py-1 rounded-md border ${
+                trangHienTai === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Trước
+            </button>
+            {/* Hiển thị các nút trang (nếu nhiều trang có thể tối giản) */}
+            {Array.from({ length: tongTrang }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setTrangHienTai(i + 1)}
+                className={`px-3 py-1 rounded-md border ${
+                  trangHienTai === i + 1
+                    ? "bg-[#004C61] text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
+              }
+              disabled={trangHienTai === tongTrang}
+              className={`px-3 py-1 rounded-md border ${
+                trangHienTai === tongTrang
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Tiếp
+            </button>
+          </div>
         </div>
       </div>
 
