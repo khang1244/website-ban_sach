@@ -44,6 +44,11 @@ function QuanLiPhuongThucGiaoHang() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  // --- PHÂN TRANG ---
+  // Số phương thức hiển thị mỗi trang (yêu cầu: 4)
+  const phuongThucMotTrang = 4; // 4 mục/trang
+  // Trang hiện tại (1-based)
+  const [trangPhuongThucHienTai, setTrangPhuongThucHienTai] = useState(1);
 
   const loadPhuongThucGiaoHangs = async () => {
     try {
@@ -248,14 +253,41 @@ function QuanLiPhuongThucGiaoHang() {
    * Lọc danh sách phương thức giao hàng theo từ khóa tìm kiếm và trạng thái
    */
   const filteredPhuongThucGiaoHangs = phuongThucGiaoHangs.filter((item) => {
+    // Chuyển mọi trường sang chuỗi trước khi gọi toLowerCase() để tránh lỗi
+    const ten = String(item.tenPhuongThuc || "").toLowerCase();
+    const thoiGian = String(item.thoiGianGiaoHang || "").toLowerCase();
     const matchesSearch =
-      item.tenPhuongThuc.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.thoiGianGiaoHang.toLowerCase().includes(searchTerm.toLowerCase());
+      ten.includes(searchTerm.toLowerCase()) ||
+      thoiGian.includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || item.trangThai === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // --- TÍNH PHÂN TRANG TỪ filteredPhuongThucGiaoHangs ---
+  const tongTrangPhuongThuc = Math.max(
+    1,
+    Math.ceil(filteredPhuongThucGiaoHangs.length / phuongThucMotTrang)
+  );
+
+  // Nếu tìm kiếm hoặc bộ lọc thay đổi, quay về trang 1
+  useEffect(() => {
+    setTrangPhuongThucHienTai(1);
+  }, [searchTerm, statusFilter]);
+
+  // Nếu tổng trang giảm (ví dụ sau khi xóa), điều chỉnh trang hiện tại
+  useEffect(() => {
+    if (trangPhuongThucHienTai > tongTrangPhuongThuc) {
+      setTrangPhuongThucHienTai(tongTrangPhuongThuc);
+    }
+  }, [tongTrangPhuongThuc, trangPhuongThucHienTai]);
+
+  // Mảng phương thức sẽ hiển thị trên trang hiện tại
+  const phuongThucHienThi = filteredPhuongThucGiaoHangs.slice(
+    (trangPhuongThucHienTai - 1) * phuongThucMotTrang,
+    trangPhuongThucHienTai * phuongThucMotTrang
+  );
 
   /**
    * Định dạng tiền tệ VND
@@ -402,7 +434,8 @@ function QuanLiPhuongThucGiaoHang() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {filteredPhuongThucGiaoHangs.map((item) => (
+                {/* Hiển thị chỉ các phương thức trong trang hiện tại */}
+                {phuongThucHienThi.map((item) => (
                   <tr
                     key={item.phuongThucGiaoHangID}
                     className="hover:bg-blue-50 transition duration-150 ease-in-out"
@@ -497,16 +530,54 @@ function QuanLiPhuongThucGiaoHang() {
           </div>
         )}
       </div>
-      {/* Footer thống kê */}
-      <div className="mt-8 text-base text-gray-700 bg-white p-4 rounded-xl shadow-md border border-gray-100">
-        <span className="font-semibold">Tổng cộng:</span>{" "}
-        {filteredPhuongThucGiaoHangs.length} phương thức giao hàng
-        {searchTerm && (
-          <span className="text-sm italic text-gray-500">
-            {" "}
-            (đã lọc từ {phuongThucGiaoHangs.length} phương thức)
-          </span>
-        )}
+      {/* PHÂN TRANG: Trước / số trang / Tiếp */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-600">
+          Trang {trangPhuongThucHienTai} / {tongTrangPhuongThuc}
+        </div>
+        <div className="flex items-center gap-2 text-black">
+          <button
+            onClick={() =>
+              setTrangPhuongThucHienTai(Math.max(1, trangPhuongThucHienTai - 1))
+            }
+            disabled={trangPhuongThucHienTai === 1}
+            className={`px-3 py-1 rounded-md border ${
+              trangPhuongThucHienTai === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Trước
+          </button>
+          {Array.from({ length: tongTrangPhuongThuc }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setTrangPhuongThucHienTai(i + 1)}
+              className={`px-3 py-1 rounded-md border ${
+                trangPhuongThucHienTai === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setTrangPhuongThucHienTai(
+                Math.min(tongTrangPhuongThuc, trangPhuongThucHienTai + 1)
+              )
+            }
+            disabled={trangPhuongThucHienTai === tongTrangPhuongThuc}
+            className={`px-3 py-1 rounded-md border ${
+              trangPhuongThucHienTai === tongTrangPhuongThuc
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Tiếp
+          </button>
+        </div>
       </div>
       {/* Modal thêm/sửa phương thức giao hàng (Sử dụng cấu trúc Modal chuyên nghiệp hơn) */}
       {showModal && (
