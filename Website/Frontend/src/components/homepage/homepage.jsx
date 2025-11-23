@@ -144,50 +144,71 @@ function Homepage() {
       <div className="mt-6">
         <h3 className="py-2 px-5 text-white  text-xl font-bold">SÁCH MỚI</h3>
         <div className="flex gap-4 mt-4 mx-4">
-          {/* Bộ lọc đẹp với danh mục và giá hiển thị hết ra */}
-          <div className="w-full md:w-1/4 bg-gray-500 rounded-xl shadow-md p-5 space-y-6">
+          {/* Bộ lọc đã chỉnh sửa: Giao diện sạch sẽ và hiện đại hơn */}
+          <div className="w-full md:w-1/4 bg-white rounded-lg shadow-xl p-6 space-y-7 border border-gray-100">
             {/* Danh mục */}
-            <div>
-              <h4 className="text-gray-800  font-semibold mb-3">Danh mục:</h4>
+            <div className="space-y-3">
+              {/* Chữ lớn hơn, font đậm, màu tối hơn */}
+              <h4 className="text-gray-800 font-bold text-lg border-b pb-2">
+                Danh mục:
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {danhMucSach.map((cat) => (
                   <button
                     key={cat.danhMucSachID}
                     onClick={() => setSelectedCategory(cat.danhMucSachID)}
-                    className={`px-3 py-1 rounded-full border ${
-                      selectedCategory === cat.danhMucSachID
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-                    } transition`}
+                    className={`
+                        px-4 py-2 text-sm rounded-lg border-2 font-medium transition-all duration-200 
+                        ${
+                          // Màu nhấn Xanh dương (Blue) sạch sẽ, đổ bóng nhẹ
+                          selectedCategory === cat.danhMucSachID
+                            ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-300/50"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-500"
+                        }
+                    `}
                   >
                     {cat.tenDanhMuc}
                   </button>
                 ))}
               </div>
             </div>
+
             {/* lọc Giá */}
-            <div className="border-t pt-4  ">
-              <h4 className="text-gray-800 font-semibold mb-3">Giá:</h4>
+            {/* Dùng đường kẻ phân chia tinh tế hơn */}
+            <div className="pt-5 border-t border-gray-200 space-y-3">
+              {/* Chữ lớn hơn, font đậm, màu tối hơn */}
+              <h4 className="text-gray-800 font-bold text-lg border-b pb-2">
+                Giá:
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {giasach.map((range) => (
                   <button
                     key={range.value}
                     onClick={() => setSelectedPrice(range.value)}
-                    className={`px-3 py-1 rounded-full border ${
-                      selectedPrice === range.value
-                        ? "bg-green-600 text-white border-green-600"
-                        : "bg-gray-100 text-gray-800 hover:bg-green-100"
-                    } transition`}
+                    className={`
+                        px-4 py-2 text-sm rounded-lg border-2 font-medium transition-all duration-200
+                        ${
+                          // Màu nhấn Xanh lá (Green) đậm hơn, đồng bộ
+                          selectedPrice === range.value
+                            ? "bg-green-600 text-white border-green-600 shadow-md shadow-green-300/50"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-green-50 hover:border-green-500"
+                        } 
+                    `}
                   >
                     {range.label}
                   </button>
                 ))}
-                <div className="mt-15 border-4 ">
-                  <img
-                    src={sach4}
-                    alt="Logo"
-                    className=" object-cover hover:scale-105 transition-transform duration-300"
-                  />
+
+                {/* Phần Ảnh Quảng Cáo/Banner */}
+                {/* Đặt ảnh trong khung gọn gàng, không dùng border-4 thô */}
+                <div className="mt-7 w-full">
+                  <div className="rounded-lg overflow-hidden shadow-lg border border-gray-100">
+                    <img
+                      src={sach4}
+                      alt="Banner quảng cáo"
+                      className="w-full h-auto object-cover hover:scale-[1.03] transition-transform duration-500 ease-in-out"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
