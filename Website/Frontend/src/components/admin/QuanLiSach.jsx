@@ -30,6 +30,11 @@ function QuanLiSach() {
     moTa: "",
   });
   const [editId, setEditId] = useState(null);
+  // --- PHÂN TRANG SÁCH ---
+  // Số sách hiển thị mỗi trang (yêu cầu: 4)
+  const soLuongSachMotTrang = 4; // 4 sách/trang
+  // Trang sách hiện tại (1-based)
+  const [trangSachHienTai, setTrangSachHienTai] = useState(1);
 
   // Xử lý thay đổi form
   const handleChange = (e) => {
@@ -267,6 +272,25 @@ function QuanLiSach() {
     };
     napDuLieuSach();
   }, []);
+
+  // --- TÍNH PHÂN TRANG ---
+  const tongTrangSach = Math.max(
+    1,
+    Math.ceil(books.length / soLuongSachMotTrang)
+  );
+
+  // Nếu số trang thay đổi (ví dụ sau khi xóa), đảm bảo trang hiện tại hợp lệ
+  useEffect(() => {
+    if (trangSachHienTai > tongTrangSach) {
+      setTrangSachHienTai(tongTrangSach);
+    }
+  }, [tongTrangSach, trangSachHienTai]);
+
+  // Mảng sách sẽ hiển thị trên trang hiện tại
+  const sachHienThi = books.slice(
+    (trangSachHienTai - 1) * soLuongSachMotTrang,
+    trangSachHienTai * soLuongSachMotTrang
+  );
 
   // Kiểm tra 1 biến có phải là 1 file hay không để hiển thị hình ảnh khi cập nhật
   const isFile = (obj) => {
@@ -545,9 +569,12 @@ function QuanLiSach() {
             <tbody>
               {books &&
                 books.length > 0 &&
-                books.map((book, idx) => (
+                // Duyệt những sách đang nằm trong trang hiện tại
+                sachHienThi.map((book, idx) => (
                   <tr key={book.sachID} className="even:bg-gray-100 text-black">
-                    <td className="p-2 font-bold">{idx + 1}</td>
+                    <td className="p-2 font-bold">
+                      {(trangSachHienTai - 1) * soLuongSachMotTrang + idx + 1}
+                    </td>
                     <td className="p-2">
                       <div className="flex items-center">
                         {book.images && book.images.length > 0 ? (
@@ -594,6 +621,55 @@ function QuanLiSach() {
                 ))}
             </tbody>
           </table>
+        </div>
+        {/* PHÂN TRANG: Trước / số trang / Tiếp */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Trang {trangSachHienTai} / {tongTrangSach}
+          </div>
+          <div className="flex items-center gap-2 text-black">
+            <button
+              onClick={() =>
+                setTrangSachHienTai(Math.max(1, trangSachHienTai - 1))
+              }
+              disabled={trangSachHienTai === 1}
+              className={`px-3 py-1 rounded-md border ${
+                trangSachHienTai === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Trước
+            </button>
+            {Array.from({ length: tongTrangSach }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setTrangSachHienTai(i + 1)}
+                className={`px-3 py-1 rounded-md border ${
+                  trangSachHienTai === i + 1
+                    ? "bg-[#00809D] text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                setTrangSachHienTai(
+                  Math.min(tongTrangSach, trangSachHienTai + 1)
+                )
+              }
+              disabled={trangSachHienTai === tongTrangSach}
+              className={`px-3 py-1 rounded-md border ${
+                trangSachHienTai === tongTrangSach
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Tiếp
+            </button>
+          </div>
         </div>
       </div>
       {/* Modal xem ảnh (chỉ ảnh của sách khi bấm thumbnail) */}
