@@ -17,6 +17,11 @@ export default function QuanLiKho() {
   // modal Cập nhật số lượng (set absolute quantity)
   const [modalLichSu, setModalLichSu] = useState(false);
   const [lichSu, setLichSu] = useState([]);
+  // --- PHÂN TRANG ---
+  // Số mục hiển thị mỗi trang (yêu cầu: 4)
+  const soLuongMotTrang = 4; // 4 mục/trang
+  // Trang hiện tại (1-based)
+  const [trangHienTai, setTrangHienTai] = useState(1);
 
   // Format ngày an toàn — trả về '-' khi không hợp lệ
   function formatDate(value) {
@@ -61,6 +66,20 @@ export default function QuanLiKho() {
       setDangTai(false);
     })();
   }, []);
+
+  // --- TÍNH PHÂN TRANG ---
+  const tongTrang = Math.max(1, Math.ceil(dsSach.length / soLuongMotTrang));
+
+  // Nếu dsSach thay đổi, đảm bảo trang hiện tại hợp lệ
+  useEffect(() => {
+    if (trangHienTai > tongTrang) setTrangHienTai(tongTrang);
+  }, [tongTrang, trangHienTai]);
+
+  // Mảng hiển thị cho trang hiện tại
+  const dsSachHienThi = dsSach.slice(
+    (trangHienTai - 1) * soLuongMotTrang,
+    trangHienTai * soLuongMotTrang
+  );
 
   function moModalNhap(sach) {
     setChonSach(sach);
@@ -129,7 +148,6 @@ export default function QuanLiKho() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold text-gray-800">Quản lý tồn kho</h2>
       </div>
-
       <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200">
         <table className="min-w-full text-sm">
           <thead className="bg-gray-100 border-b text-gray-700">
@@ -155,12 +173,14 @@ export default function QuanLiKho() {
                 </td>
               </tr>
             ) : (
-              dsSach.map((s, i) => (
+              dsSachHienThi.map((s, i) => (
                 <tr
                   key={s.sachID}
                   className="border-b hover:bg-gray-50 transition text-gray-900"
                 >
-                  <td className="p-3 font-medium">{i + 1}</td>
+                  <td className="p-3 font-medium">
+                    {(trangHienTai - 1) * soLuongMotTrang + i + 1}
+                  </td>
                   <td className="p-3">
                     <div className="font-semibold text-gray-800">
                       {s.tenSach}
@@ -194,7 +214,51 @@ export default function QuanLiKho() {
           </tbody>
         </table>
       </div>
-
+      {/* PHÂN TRANG: Trước / số trang / Tiếp (đặt dưới bảng) */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-600">
+          Trang {trangHienTai} / {tongTrang}
+        </div>
+        <div className="flex items-center gap-2 text-black">
+          <button
+            onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
+            disabled={trangHienTai === 1}
+            className={`px-3 py-1 rounded-md border ${
+              trangHienTai === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Trước
+          </button>
+          {Array.from({ length: tongTrang }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setTrangHienTai(i + 1)}
+              className={`px-3 py-1 rounded-md border ${
+                trangHienTai === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
+            }
+            disabled={trangHienTai === tongTrang}
+            className={`px-3 py-1 rounded-md border ${
+              trangHienTai === tongTrang
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Tiếp
+          </button>
+        </div>
+      </div>
       {modalNhap && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl w-96">
