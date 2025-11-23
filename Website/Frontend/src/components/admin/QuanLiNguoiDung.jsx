@@ -9,6 +9,12 @@ function QuanLyNguoiDung() {
   const [users, setUsers] = useState([]); // Danh sách người dùng
   const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
 
+  // --- PHÂN TRANG ---
+  // Số người dùng hiển thị mỗi trang (yêu cầu: 4)
+  const nguoiDungMotTrang = 4; // 4 người/trang
+  // Trang hiện tại cho danh sách người dùng (1-based)
+  const [trangNguoiHienTai, setTrangNguoiHienTai] = useState(1);
+
   const xuLyXoaTaiKhoan = async (nguoiDungID) => {
     const confirmDelete = window.confirm(
       `Bạn có chắc chắn muốn XÓA người dùng có ID: ${nguoiDungID} không? Hành động này không thể hoàn tác.`
@@ -69,6 +75,30 @@ function QuanLyNguoiDung() {
       user.email.toLowerCase().includes(keyword)
     );
   });
+
+  // Tổng số trang dựa trên filteredUsers
+  const tongTrangNguoi = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / nguoiDungMotTrang)
+  );
+
+  // Nếu tìm kiếm thay đổi, quay về trang 1 để tránh trang không hợp lệ
+  useEffect(() => {
+    setTrangNguoiHienTai(1);
+  }, [searchTerm]);
+
+  // Nếu số trang giảm (ví dụ sau khi xóa hoặc lọc), điều chỉnh trang hiện tại cho hợp lệ
+  useEffect(() => {
+    if (trangNguoiHienTai > tongTrangNguoi) {
+      setTrangNguoiHienTai(tongTrangNguoi);
+    }
+  }, [tongTrangNguoi, trangNguoiHienTai]);
+
+  // Mảng người dùng thực tế sẽ hiển thị cho trang hiện tại
+  const nguoiHienThi = filteredUsers.slice(
+    (trangNguoiHienTai - 1) * nguoiDungMotTrang,
+    trangNguoiHienTai * nguoiDungMotTrang
+  );
 
   // Lấy tất cả người dùng khi component mount
   useEffect(() => {
@@ -146,7 +176,8 @@ function QuanLyNguoiDung() {
 
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => {
+              // Hiển thị chỉ những người trong trang hiện tại
+              nguoiHienThi.map((user) => {
                 const isActive =
                   user.trangThaiTaiKhoan === 1 ||
                   user.trangThaiTaiKhoan === true ||
@@ -227,6 +258,55 @@ function QuanLyNguoiDung() {
             )}
           </tbody>
         </table>
+      </div>
+      {/* PHÂN TRANG: Hiển thị controls nếu có nhiều hơn 1 trang */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-600">
+          Trang {trangNguoiHienTai} / {tongTrangNguoi}
+        </div>
+        <div className="flex items-center gap-2 text-black">
+          <button
+            onClick={() =>
+              setTrangNguoiHienTai(Math.max(1, trangNguoiHienTai - 1))
+            }
+            disabled={trangNguoiHienTai === 1}
+            className={`px-3 py-1 rounded-md border ${
+              trangNguoiHienTai === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Trước
+          </button>
+          {Array.from({ length: tongTrangNguoi }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setTrangNguoiHienTai(i + 1)}
+              className={`px-3 py-1 rounded-md border ${
+                trangNguoiHienTai === i + 1
+                  ? "bg-indigo-600 text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setTrangNguoiHienTai(
+                Math.min(tongTrangNguoi, trangNguoiHienTai + 1)
+              )
+            }
+            disabled={trangNguoiHienTai === tongTrangNguoi}
+            className={`px-3 py-1 rounded-md border ${
+              trangNguoiHienTai === tongTrangNguoi
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            Tiếp
+          </button>
+        </div>
       </div>
     </div>
   );
