@@ -34,6 +34,9 @@ function DanhMucSach() {
   const [input, setInput] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
+  // --- PHÂN TRANG ---
+  const danhMucMotTrang = 4; // số mục trên mỗi trang (giống quản lý đơn hàng)
+  const [trangHienTai, setTrangHienTai] = useState(1);
 
   // Helper: lấy tên danh mục khi dữ liệu có thể là string hoặc object
   const getCatName = (cat) =>
@@ -137,12 +140,25 @@ function DanhMucSach() {
     napTatCaDanhMucSach();
   }, []);
 
+  // Nếu số lượng danh mục thay đổi, đảm bảo trang hiện tại hợp lệ
+  useEffect(() => {
+    const tong = Math.max(1, Math.ceil(categories.length / danhMucMotTrang));
+    if (trangHienTai > tong) setTrangHienTai(tong);
+  }, [categories]);
+
   // hàm xử lý khi hủy sửa
   const handleCancel = () => {
     setEditIndex(null);
     setEditValue("");
     showToast("success", "Thành công", "Hủy sửa thành công!");
   };
+
+  // Tính phân trang cho danh mục
+  const tongTrang = Math.max(1, Math.ceil(categories.length / danhMucMotTrang));
+  const danhMucHienThi = categories.slice(
+    (trangHienTai - 1) * danhMucMotTrang,
+    trangHienTai * danhMucMotTrang
+  );
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
@@ -159,7 +175,7 @@ function DanhMucSach() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-600 to-teal-500 text-white shadow-lg">
+          <div className="p-3 rounded-lg bg-linear-to-br from-indigo-600 to-teal-500 text-white shadow-lg">
             <FiFolder className="text-2xl" />
           </div>
           <div>
@@ -222,77 +238,131 @@ function DanhMucSach() {
         {/* Items */}
         <ul className="divide-y divide-slate-100">
           {categories && categories.length > 0 ? (
-            categories.map((cat, idx) => (
-              <li key={idx} className="px-6 py-3 hover:bg-slate-50 transition">
-                {editIndex === idx ? (
-                  <form
-                    onSubmit={handleUpdate}
-                    className="grid grid-cols-12 gap-3 items-center"
-                  >
-                    <div className="col-span-1 text-slate-500 font-medium">
-                      {cat.danhMucSachID}
+            danhMucHienThi.map((cat, idx) => {
+              const globalIdx = (trangHienTai - 1) * danhMucMotTrang + idx;
+              return (
+                <li
+                  key={cat.danhMucSachID ?? globalIdx}
+                  className="px-6 py-3 hover:bg-slate-50 transition"
+                >
+                  {editIndex === globalIdx ? (
+                    <form
+                      onSubmit={handleUpdate}
+                      className="grid grid-cols-12 gap-3 items-center"
+                    >
+                      <div className="col-span-1 text-slate-500 font-medium">
+                        {cat.danhMucSachID}
+                      </div>
+                      <div className="col-span-7">
+                        <input
+                          type="text"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          required
+                        />
+                      </div>
+                      <div className="col-span-4 flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleLuu(globalIdx)}
+                          type="submit"
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700 transition"
+                        >
+                          <FiSave /> Lưu
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancel}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition"
+                        >
+                          <FiX /> Hủy
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="grid grid-cols-12 gap-3 items-center">
+                      <div className="col-span-1 text-slate-500 font-medium">
+                        {cat.danhMucSachID}
+                      </div>
+                      <div className="col-span-8">
+                        <span className="inline-flex items-center gap-2 text-slate-800 font-medium">
+                          <span className="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
+                          {getCatName(cat) || "-"}
+                        </span>
+                      </div>
+                      <div className="col-span-3 flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(globalIdx)}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 border border-blue-200 transition"
+                        >
+                          <FiEdit2 /> Sửa
+                        </button>
+                        <button
+                          onClick={() => handleDelete(globalIdx)}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200 transition"
+                        >
+                          <FiTrash2 /> Xóa
+                        </button>
+                      </div>
                     </div>
-                    <div className="col-span-7">
-                      <input
-                        type="text"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div className="col-span-4 flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleLuu(idx)}
-                        type="submit"
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700 transition"
-                      >
-                        <FiSave /> Lưu
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition"
-                      >
-                        <FiX /> Hủy
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="grid grid-cols-12 gap-3 items-center">
-                    <div className="col-span-1 text-slate-500 font-medium">
-                      {cat.danhMucSachID}
-                    </div>
-                    <div className="col-span-8">
-                      <span className="inline-flex items-center gap-2 text-slate-800 font-medium">
-                        <span className="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
-                        {getCatName(cat) || "-"}
-                      </span>
-                    </div>
-                    <div className="col-span-3 flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(idx)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 border border-blue-200 transition"
-                      >
-                        <FiEdit2 /> Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(idx)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200 transition"
-                      >
-                        <FiTrash2 /> Xóa
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            ))
+                  )}
+                </li>
+              );
+            })
           ) : (
             <li className="px-5 py-10 text-center text-slate-500">
               Hiện chưa có danh mục nào. Hãy thêm danh mục đầu tiên nhé!
             </li>
           )}
         </ul>
+
+        {/* Pagination controls */}
+        <div className="px-6 py-4">
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-slate-600">
+              Trang {trangHienTai} / {tongTrang}
+            </div>
+            <div className="flex items-center gap-2 text-black">
+              <button
+                onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
+                disabled={trangHienTai === 1}
+                className={`px-3 py-1 rounded-md border ${
+                  trangHienTai === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                Trước
+              </button>
+              {Array.from({ length: tongTrang }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setTrangHienTai(i + 1)}
+                  className={`px-3 py-1 rounded-md border ${
+                    trangHienTai === i + 1
+                      ? "bg-[#004C61] text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() =>
+                  setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
+                }
+                disabled={trangHienTai === tongTrang}
+                className={`px-3 py-1 rounded-md border ${
+                  trangHienTai === tongTrang
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                Tiếp
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
