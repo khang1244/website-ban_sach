@@ -214,7 +214,9 @@ function DanhMucSach() {
         <div className="hidden md:grid grid-cols-12 gap-3 px-6 py-3 bg-slate-800 text-white">
           <div className="col-span-1 font-semibold text-sm">#</div>
           <div className="col-span-8 font-semibold text-sm">Tên danh mục</div>
-          <div className="col-span-3 font-semibold text-sm text-center">Hành động</div>
+          <div className="col-span-3 font-semibold text-sm text-center">
+            Hành động
+          </div>
         </div>
 
         {/* Items */}
