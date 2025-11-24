@@ -5,6 +5,7 @@ import {
   taoSachMoi,
   xoaSach,
   layChiTietSach,
+  tangLuotXem,
 } from "../controller/sachController.js";
 
 const router = express.Router();
@@ -18,5 +19,8 @@ router.put("/:id", capNhatSach); // PUT /:id
 router.delete("/:id", xoaSach); // DELETE /:id
 
 router.get("/:sachID", layChiTietSach); // GET /:sachID
+
+// Tăng lượt xem (POST) - dành cho frontend gọi khi muốn ghi một lượt xem
+router.post("/:sachID/luot-view", tangLuotXem);
 
 export default router;

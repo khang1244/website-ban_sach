@@ -66,6 +66,11 @@ const Sach = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    luotXem: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     tableName: "sach",

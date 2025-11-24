@@ -349,55 +349,59 @@ function Homepage() {
             className="flex gap-4 overflow-x-auto whitespace-nowrap py-4 smooth-scroll"
             style={{ scrollBehavior: "smooth" }}
           >
-            {bolocsachbanchay.map((product) => (
-              <div
-                key={product.maSP}
-                className="min-w-[200px] sm:min-w-[220px] md:min-w-[260px] rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer"
-              >
-                <div className="w-full h-70 flex items-center justify-center px-1 py-1">
-                  <img
-                    src={product.images[0]?.url}
-                    alt={product.tenSP}
-                    className="w-full h-full object-cover px-1 py-1"
-                  />
-                </div>
-                <div className="p-3 bg-[#3d3fa6] text-white h-full ">
-                  <h4 className="font-semibold text-sm">{product.tenSach}</h4>
-                  <p>Giảm giá: {product.giaGiam.toLocaleString()} VNĐ</p>
-                  <p className="flex justify-between -translate-x-0.5 px-1">
-                    <div className="text-red-400 line-through">
-                      Giá gốc: {product.giaBan.toLocaleString()} VNĐ
-                    </div>
-                    <CiHeart className="hover:text-red-400 text-2xl " />
-                  </p>
-                  <div>
-                    <div className=" py-2 flex gap-6">
-                      <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 ">
-                        <div className="flex justify-center items-center w-full gap-2 ">
-                          <FaFire className=" text-amber-400 " />
-                          <Link to={`/chitietsanpham/${product.sachID}`}>
-                            Xem chi tiết
-                          </Link>
-                        </div>
-                      </button>
-                      {/* Thêm giỏ hàng: button riêng, không lồng Link */}
-                      <button
-                        onClick={() =>
-                          handleThemSanPhamVaoGioHang(
-                            product.sachID,
-                            1,
-                            product.giaGiam || product.giaBan
-                          )
-                        }
-                        className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
-                      >
-                        <RiShoppingCartLine className="text-lg" />
-                      </button>
+            {bolocsachbanchay
+              // Sắp xếp sản phẩm bán chạy theo lượt xem giảm dần
+              .slice()
+              .sort((a, b) => (b.luotXem || 0) - (a.luotXem || 0))
+              .map((product) => (
+                <div
+                  key={product.maSP}
+                  className="min-w-[200px] sm:min-w-[220px] md:min-w-[260px] rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer"
+                >
+                  <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                    <img
+                      src={product.images[0]?.url}
+                      alt={product.tenSP}
+                      className="w-full h-full object-cover px-1 py-1"
+                    />
+                  </div>
+                  <div className="p-3 bg-[#3d3fa6] text-white h-full ">
+                    <h4 className="font-semibold text-sm">{product.tenSach}</h4>
+                    <p>Giảm giá: {product.giaGiam.toLocaleString()} VNĐ</p>
+                    <p className="flex justify-between -translate-x-0.5 px-1">
+                      <div className="text-red-400 line-through">
+                        Giá gốc: {product.giaBan.toLocaleString()} VNĐ
+                      </div>
+                      <CiHeart className="hover:text-red-400 text-2xl " />
+                    </p>
+                    <div>
+                      <div className=" py-2 flex gap-6">
+                        <button className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 ">
+                          <div className="flex justify-center items-center w-full gap-2 ">
+                            <FaFire className=" text-amber-400 " />
+                            <Link to={`/chitietsanpham/${product.sachID}`}>
+                              Xem chi tiết
+                            </Link>
+                          </div>
+                        </button>
+                        {/* Thêm giỏ hàng: button riêng, không lồng Link */}
+                        <button
+                          onClick={() =>
+                            handleThemSanPhamVaoGioHang(
+                              product.sachID,
+                              1,
+                              product.giaGiam || product.giaBan
+                            )
+                          }
+                          className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                        >
+                          <RiShoppingCartLine className="text-lg" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>

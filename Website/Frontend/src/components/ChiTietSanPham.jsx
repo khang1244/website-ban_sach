@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import Navigation from "./Navigation";
-import { FaStar, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
+import { FaStar, FaShoppingCart, FaMinus, FaPlus, FaEye } from "react-icons/fa";
 import { sanphammoi } from "../lib/data";
 import Footer from "./Footer";
-import { layChiTietSach } from "../lib/sach-apis";
+import { layChiTietSach, tangLuotXem } from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
@@ -91,6 +91,39 @@ function ChiTietSanPham() {
 
     napChiTietSanPham();
   }, [sachID]);
+
+  // Gọi API tăng lượt xem có kiểm soát để tránh double-count (StrictMode remounts)
+  useEffect(() => {
+    if (!chiTietSanPham || !sachID) return;
+
+    const key = `viewed_sach_${sachID}`;
+    const last = localStorage.getItem(key);
+    const now = Date.now();
+    const TTL = 1 * 1000; // 1s: chặn tăng gấp đôi do StrictMode, mỗi lần vào trang thực sự vẫn tăng
+
+    if (last && now - Number(last) < TTL) return; // đã được tính rất gần đây (ngăn double-count)
+
+    const inc = async () => {
+      try {
+        // Đặt dấu thời gian để ngăn double-count trong TTL
+        localStorage.setItem(key, String(now));
+
+        const resp = await tangLuotXem(sachID);
+        if (resp && resp.success) {
+          // cập nhật state hiển thị ngay
+          setChiTietSanPham((prev) => ({ ...prev, luotXem: resp.luotXem }));
+        } else {
+          // Nếu server thất bại, xóa dấu để lần sau có thể thử lại
+          localStorage.removeItem(key);
+        }
+      } catch (e) {
+        console.error("Không thể tăng lượt xem từ frontend:", e);
+        localStorage.removeItem(key);
+      }
+    };
+
+    inc();
+  }, [chiTietSanPham, sachID]);
   // Nạp bình luận dựa trên sachID (sử dụng API đã viết)
   useEffect(() => {
     const napBinhLuan = async () => {
@@ -176,7 +209,7 @@ function ChiTietSanPham() {
         </div>
 
         {/* Thông tin sản phẩm */}
-        <div className=" bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-4">
+        <div className="relative bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-4">
           <h2 className="text-3xl font-bold text-[#00809D] mb-2">
             {chiTietSanPham.tenSach}
           </h2>
@@ -319,6 +352,14 @@ function ChiTietSanPham() {
               >
                 <FaShoppingCart /> Thêm vào giỏ hàng
               </button>
+            </div>
+          </div>
+          <div className="absolute bottom-7 right-4 z-20">
+            <div className="flex items-center gap-1 bg-white/90 px-3 py-1 rounded-full shadow-md border">
+              <FaEye className="text-gray-600" />
+              <span className="font-medium text-gray-800 text-sm">
+                {chiTietSanPham.luotXem?.toLocaleString() || 0} lượt xem
+              </span>
             </div>
           </div>
         </div>

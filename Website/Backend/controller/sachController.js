@@ -259,3 +259,22 @@ export const layChiTietSach = async (req, res) => {
     res.status(500).json({ error: "Đã xảy ra lỗi khi lấy chi tiết sách." });
   }
 };
+
+// Hàm để tăng lượt xem của một quyển sách
+export const tangLuotXem = async (req, res) => {
+  try {
+    const { sachID } = req.params;
+    const sach = await Sach.findByPk(sachID);
+    if (!sach) return res.status(404).json({ error: "Sách không tồn tại." });
+
+    await sach.increment("luotXem", { by: 1 });
+    await sach.reload();
+
+    return res.json({ success: true, luotXem: sach.luotXem });
+  } catch (error) {
+    console.error("Lỗi khi tăng lượt xem:", error);
+    return res
+      .status(500)
+      .json({ success: false, error: "Không thể tăng lượt xem." });
+  }
+};

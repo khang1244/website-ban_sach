@@ -87,3 +87,20 @@ export const layChiTietSach = async (sachID) => {
     console.error("Error fetching book details:", error);
   }
 };
+
+// 6. Gọi API tăng lượt xem (POST) — frontend gọi có kiểm soát (localStorage)
+export const tangLuotXem = async (sachID) => {
+  try {
+    const response = await fetch(`${BASE_URL}/sach/${sachID}/luot-view`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("tangLuotXem response:", data);
+    return data;
+  } catch (error) {
+    console.error("Error incrementing view:", error);
+  }
+};
