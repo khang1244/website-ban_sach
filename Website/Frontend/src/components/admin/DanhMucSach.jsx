@@ -145,7 +145,7 @@ function DanhMucSach() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
       {/* Toast */}
       <ThongBaoChay
         show={toast.show}
@@ -158,16 +158,17 @@ function DanhMucSach() {
       />
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-600 text-white shadow-md">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-600 to-teal-500 text-white shadow-lg">
             <FiFolder className="text-2xl" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               Quản lý danh mục sách
             </h1>
-            <p className="text-slate-500 text-sm">
-              Thêm, sửa, xoá danh mục với giao diện mới gọn gàng, hiện đại.
+            <p className="text-slate-500 text-sm mt-1">
+              Quản lý danh mục một cách trực quan — màu sắc, khoảng cách và nút
+              được tinh chỉnh để chuyên nghiệp hơn.
             </p>
           </div>
         </div>
@@ -175,8 +176,8 @@ function DanhMucSach() {
 
       {/* Add form */}
       <form onSubmit={handleAdd} className="mb-8">
-        <div className="bg-white/90 backdrop-blur rounded-2xl shadow border border-slate-100 p-4 md:p-5">
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+        <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-5 md:p-6">
+          <label className="block text-sm font-semibold text-slate-700 mb-3">
             Thêm danh mục mới
           </label>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -185,12 +186,12 @@ function DanhMucSach() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ví dụ: Văn học thiếu nhi"
-              className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+              className="flex-1 rounded-lg border border-slate-200 px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               required
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-white font-semibold shadow hover:bg-teal-700 active:bg-teal-800 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-white font-semibold shadow hover:bg-indigo-700 active:bg-indigo-800 transition"
             >
               <FiPlus className="text-lg" /> Thêm
             </button>
@@ -199,10 +200,10 @@ function DanhMucSach() {
       </form>
 
       {/* List */}
-      <div className="bg-white/90 backdrop-blur rounded-2xl shadow border border-slate-100">
-        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <span role="img" aria-label="book"></span> Danh sách danh mục
+      <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
+        <div className="px-6 pt-5 pb-3 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
+          <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+            Danh sách danh mục
           </h2>
           <div className="text-sm text-slate-500">
             Tổng: {categories.length} mục
@@ -210,17 +211,17 @@ function DanhMucSach() {
         </div>
 
         {/* Header row */}
-        <div className="hidden md:grid grid-cols-12 gap-3 px-5 py-2 bg-teal-700 text-white rounded-t-2xl">
-          <div className="col-span-1 font-semibold">#</div>
-          <div className="col-span-8 font-semibold">Tên danh mục</div>
-          <div className="col-span-3 font-semibold text-center">Hành động</div>
+        <div className="hidden md:grid grid-cols-12 gap-3 px-6 py-3 bg-slate-800 text-white">
+          <div className="col-span-1 font-semibold text-sm">#</div>
+          <div className="col-span-8 font-semibold text-sm">Tên danh mục</div>
+          <div className="col-span-3 font-semibold text-sm text-center">Hành động</div>
         </div>
 
         {/* Items */}
         <ul className="divide-y divide-slate-100">
           {categories && categories.length > 0 ? (
             categories.map((cat, idx) => (
-              <li key={idx} className="px-5 py-3 hover:bg-slate-50 transition">
+              <li key={idx} className="px-6 py-3 hover:bg-slate-50 transition">
                 {editIndex === idx ? (
                   <form
                     onSubmit={handleUpdate}
@@ -234,7 +235,7 @@ function DanhMucSach() {
                         type="text"
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                        className="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         required
                       />
                     </div>
@@ -242,14 +243,14 @@ function DanhMucSach() {
                       <button
                         onClick={() => handleLuu(idx)}
                         type="submit"
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700 transition"
                       >
                         <FiSave /> Lưu
                       </button>
                       <button
                         type="button"
                         onClick={handleCancel}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium hover:bg-slate-300"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition"
                       >
                         <FiX /> Hủy
                       </button>
@@ -269,13 +270,13 @@ function DanhMucSach() {
                     <div className="col-span-3 flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEdit(idx)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 border border-blue-200"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 border border-blue-200 transition"
                       >
                         <FiEdit2 /> Sửa
                       </button>
                       <button
                         onClick={() => handleDelete(idx)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200 transition"
                       >
                         <FiTrash2 /> Xóa
                       </button>
