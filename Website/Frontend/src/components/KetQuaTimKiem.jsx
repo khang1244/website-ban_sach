@@ -3,10 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { useEffect, useState } from "react";
-
-import { FaShoppingCart } from "react-icons/fa";
+import { useEffect, useState, useContext } from "react";
+import { FaShoppingCart, FaFire } from "react-icons/fa";
+import { CiHeart } from "react-icons/ci";
+import { RiShoppingCartLine } from "react-icons/ri";
 import { nhanTatCaCacQuyenSach } from "../lib/sach-apis";
+import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
+import { UserContext } from "../contexts/user-context";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -41,6 +44,35 @@ const KetQuaTimKiemSach = () => {
     };
     napTatCaSanPham();
   }, []);
+  // User context để cập nhật badge giỏ hàng (giống homepage)
+  const { refreshCartCount } = useContext(UserContext);
+
+  // Hàm để xử lý thêm sản phẩm vào giỏ hàng (giống homepage behavior)
+  const handleThemSanPhamVaoGioHang = async (sachID, soLuong, giaLucThem) => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+    const user = JSON.parse(storedUser);
+    const nguoiDungID = user.nguoiDungID;
+
+    const phanHoiTuSever = await themSanPhamVaoGioHang(
+      nguoiDungID,
+      sachID,
+      soLuong,
+      giaLucThem
+    );
+
+    if (phanHoiTuSever && phanHoiTuSever.success) {
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+      if (typeof refreshCartCount === "function") refreshCartCount();
+    } else {
+      alert(
+        "Thêm sản phẩm vào giỏ hàng thất bại! " + (phanHoiTuSever.message || "")
+      );
+    }
+  };
   return (
     <div className="bg-[#00809D] min-h-screen h-fit">
       <Navigation />
@@ -65,34 +97,52 @@ const KetQuaTimKiemSach = () => {
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <li
-                key={product.maSP}
-                className="bg-white rounded-lg shadow p-4 flex flex-col"
+                key={product.sachID || product.maSP}
+                className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer w-70"
               >
-                <Link to="/chitietsanpham">
-                  <div className="h-56 w-full rounded-lg overflow-hidden mb-4">
-                    <img
-                      src={product.images[0]?.url}
-                      alt={product.tenSP}
-                      className="w-full h-full object-cover"
-                    />
+                <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                  <img
+                    src={product.images?.[0]?.url}
+                    alt={product.tenSach}
+                    className="w-full h-full object-cover px-1 py-1"
+                  />
+                </div>
+                <div className="p-3 bg-[#3d3fa6] text-white h-full ">
+                  <h4 className="font-semibold text-sm">{product.tenSach}</h4>
+                  <p>Giảm giá: {product.giaGiam?.toLocaleString()} VNĐ</p>
+                  <p className="flex justify-between translate-x-[-2px] px-1">
+                    <div className="text-red-400 line-through">
+                      Giá gốc: {product.giaBan?.toLocaleString()} VNĐ
+                    </div>
+                    <CiHeart className="hover:text-red-400 text-2xl " />
+                  </p>
+                  <div>
+                    <div className=" py-2 flex gap-6">
+                      <Link
+                        className=" flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500 "
+                        to={`/chitietsanpham/${product.sachID || product.maSP}`}
+                      >
+                        <div className="flex justify-center items-center w-full gap-2 ">
+                          <FaFire className=" text-amber-400 " />
+                          <span>Xem chi tiết</span>
+                        </div>
+                      </Link>
+                      {/* Thêm giỏ hàng: button riêng, không lồng Link */}
+                      <button
+                        onClick={() =>
+                          handleThemSanPhamVaoGioHang(
+                            product.sachID || product.maSP,
+                            1,
+                            product.giaGiam || product.giaBan
+                          )
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                      >
+                        <RiShoppingCartLine className="text-lg" />
+                      </button>
+                    </div>
                   </div>
-                </Link>
-                <h3 className="font-bold text-[#00809D] text-lg mb-2">
-                  {product.tenSach}
-                </h3>
-                <p className="text-[#00f821] font-bold">
-                  {product.giaGiam.toLocaleString()} VNĐ
-                </p>
-                <p className="text-gray-400 line-through text-sm mb-2">
-                  Giá gốc: {product.giaBan.toLocaleString()} VNĐ
-                </p>
-                <Link
-                  to="/giohang"
-                  className="flex justify-center items-center gap-2 mt-auto bg-[#00809D] text-white py-2 px-4 rounded-full font-semibold hover:bg-[#005f73] transition"
-                >
-                  <FaShoppingCart />
-                  Thêm Giỏ Hàng
-                </Link>
+                </div>
               </li>
             ))}
           </ul>
