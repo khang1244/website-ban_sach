@@ -25,6 +25,9 @@ function QuanLiKhuyenMai() {
   };
   // trạng thái danh sách mã khuyến mãi
   const [promos, setPromos] = useState([]);
+  // --- PHÂN TRANG giống QuanLiDonHang ---
+  const promosMotTrang = 4; // số mục mỗi trang
+  const [trangHienTai, setTrangHienTai] = useState(1);
   // trạng thái biểu mẫu
   const [form, setForm] = useState({
     khuyenMaiID: "",
@@ -111,6 +114,12 @@ function QuanLiKhuyenMai() {
     napTatCaMaKhuyenMai();
   }, []);
 
+  // Khi `promos` thay đổi, đảm bảo trang hiện tại không vượt quá tổng trang
+  useEffect(() => {
+    const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
+    setTrangHienTai((prev) => Math.min(prev, tongTrang));
+  }, [promos]);
+
   // Hàm định dạng ngày tháng từ ISO sang dd/mm/yyyy
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
@@ -125,6 +134,12 @@ function QuanLiKhuyenMai() {
     // 3. Trả về định dạng mong muốn
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
+  // tính toán phân trang
+  const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
+  const promosHienThi = promos.slice(
+    (trangHienTai - 1) * promosMotTrang,
+    trangHienTai * promosMotTrang
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -342,16 +357,16 @@ function QuanLiKhuyenMai() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {promos &&
-                promos.length > 0 &&
-                promos.map((promo, idx) => (
+              {promosHienThi &&
+                promosHienThi.length > 0 &&
+                promosHienThi.map((promo, idx) => (
                   <tr
-                    key={promo.id}
+                    key={promo.khuyenMaiID}
                     className="hover:bg-indigo-50/20 transition-colors duration-150 text-sm text-gray-700"
                   >
                     {/* STT */}
                     <td className="py-3 px-5 font-medium text-gray-900">
-                      {idx + 1}
+                      {(trangHienTai - 1) * promosMotTrang + idx + 1}
                     </td>
                     {/* Mã */}
                     <td className="py-3 px-5 font-mono text-indigo-600 tracking-wider">
@@ -407,6 +422,51 @@ function QuanLiKhuyenMai() {
                 ))}
             </tbody>
           </table>
+        </div>
+        {/* --- Phân trang đơn giản --- */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Trang {trangHienTai} / {tongTrang}
+          </div>
+          <div className="flex items-center gap-2 text-black">
+            <button
+              onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
+              disabled={trangHienTai === 1}
+              className={`px-3 py-1 rounded-md border ${
+                trangHienTai === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Trước
+            </button>
+            {Array.from({ length: tongTrang }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setTrangHienTai(i + 1)}
+                className={`px-3 py-1 rounded-md border ${
+                  trangHienTai === i + 1
+                    ? "bg-[#004C61] text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
+              }
+              disabled={trangHienTai === tongTrang}
+              className={`px-3 py-1 rounded-md border ${
+                trangHienTai === tongTrang
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Tiếp
+            </button>
+          </div>
         </div>
       </div>
     </div>
