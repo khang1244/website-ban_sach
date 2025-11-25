@@ -282,8 +282,15 @@ function ThanhToan() {
     const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
     console.log("Phản hồi từ server về mã giảm giá:", response);
     if (response && response.success) {
-      // Kiểm tra mã khuyến mãi còn hạn không
-      if (!response.khuyenMai.ngayHetHan) {
+      // Kiểm tra mã khuyến mãi còn hạn (so sánh ngày đến cuối ngày)
+      const expiry = new Date(response.khuyenMai.ngayHetHan);
+      if (isNaN(expiry.getTime())) {
+        alert("Mã giảm giá không hợp lệ");
+        return;
+      }
+      const expiryEnd = new Date(expiry);
+      expiryEnd.setHours(23, 59, 59, 999);
+      if (new Date() > expiryEnd) {
         alert("Mã giảm giá đã hết hạn sử dụng!");
         return;
       }
