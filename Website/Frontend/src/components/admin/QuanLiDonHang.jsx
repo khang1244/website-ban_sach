@@ -317,6 +317,14 @@ function QuanLiDonHang() {
               <strong>Địa chỉ: </strong>
               {selectedOrder.diaChiGiaoHang}
             </div>
+            <div className="mb-4 text-black">
+              <strong> Mã giảm giá: </strong>
+              <span className="">
+                {duLieuDonHang?.tienGiam && duLieuDonHang?.tienGiam !== ""
+                  ? "-" + duLieuDonHang.tienGiam.toLocaleString() + "đ"
+                  : "Không sử dụng"}
+              </span>
+            </div>
             <div className="mb-3">
               <strong> Chi phí vận chuyển: </strong>
               <span className="">

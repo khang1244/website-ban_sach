@@ -238,6 +238,14 @@ function ChiTietDonHang() {
             </span>
           </div>
           <div className="mb-2 text-gray-700">
+            Mã giảm giá:{" "}
+            <span className="font-semibold">
+              {duLieuDonHang?.tienGiam && duLieuDonHang?.tienGiam !== ""
+                ? "-" + duLieuDonHang.tienGiam.toLocaleString() + "đ"
+                : "Không sử dụng"}
+            </span>
+          </div>
+          <div className="mb-2 text-gray-700">
             Tổng tiền:{" "}
             <span className="font-bold text-[#00809D]">
               {duLieuDonHang?.tongTien.toLocaleString()}đ
