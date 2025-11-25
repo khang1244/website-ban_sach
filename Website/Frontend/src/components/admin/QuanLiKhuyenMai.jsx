@@ -302,69 +302,103 @@ function QuanLiKhuyenMai() {
           </button>
         </div>
       </form>
-      {/* LIST */}
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/60">
-        <div className="px-6 py-4 border-b border-slate-200/60 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Danh sách mã khuyến mãi
+      {/* LIST - Giao diện Chuyên nghiệp hơn */}
+      <div className="bg-white rounded-xl shadow-lg ring-1 ring-gray-100">
+        {/* Tiêu đề và Tổng quan */}
+        <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
+            ✨ Danh sách mã khuyến mãi
           </h2>
-          <span className="text-sm text-slate-500">
-            Tổng cộng: <strong>{promos.length}</strong> mã
+          <span className="mt-2 sm:mt-0 text-md font-medium text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
+            Tổng cộng:{" "}
+            <strong className="text-gray-900">{promos.length}</strong> mã
           </span>
         </div>
 
+        {/* Bảng (Table) */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 sticky top-0">
-              <tr className="text-sm text-slate-600">
-                <th className="py-3 px-4">#</th>
-                <th className="py-3 px-4">Mã</th>
-                <th className="py-3 px-4">Mô tả</th>
-                <th className="py-3 px-4">Giá trị giảm</th>
-                <th className="py-3 px-4">Giá cơ bản</th>
-                <th className="py-3 px-4">Số lượng</th>
-                <th className="py-3 px-4">Trạng thái</th>
-                <th className="py-3 px-4">Hết hạn</th>
-                <th className="py-3 px-4">Hành động</th>
+          <table className="min-w-full text-left divide-y divide-gray-200">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr className="text-xs uppercase tracking-wider text-gray-500">
+                <th className="py-3 px-5 font-semibold w-10">#</th>
+                <th className="py-3 px-5 font-semibold">Mã</th>
+                <th className="py-3 px-5 font-semibold">Mô tả</th>
+                <th className="py-3 px-5 font-semibold text-right">
+                  Giá trị giảm
+                </th>
+                <th className="py-3 px-5 font-semibold text-right">
+                  Giá cơ bản
+                </th>
+                <th className="py-3 px-5 font-semibold text-center">
+                  Số lượng
+                </th>
+                <th className="py-3 px-5 font-semibold text-center">
+                  Trạng thái
+                </th>
+                <th className="py-3 px-5 font-semibold">Hết hạn</th>
+                <th className="py-3 px-5 font-semibold text-center">
+                  Hành động
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-100">
               {promos &&
                 promos.length > 0 &&
                 promos.map((promo, idx) => (
                   <tr
                     key={promo.id}
-                    className=" border-b hover:bg-gray-50 text-black"
+                    className="hover:bg-indigo-50/20 transition-colors duration-150 text-sm text-gray-700"
                   >
-                    <td className="py-2 px-3 font-bold">{idx + 1}</td>
-                    <td className="py-2 px-3">{promo.khuyenMaiID}</td>
-                    <td className="py-2 px-3">{promo.moTa}</td>
-                    <td className="py-2 px-3">
+                    {/* STT */}
+                    <td className="py-3 px-5 font-medium text-gray-900">
+                      {idx + 1}
+                    </td>
+                    {/* Mã */}
+                    <td className="py-3 px-5 font-mono text-indigo-600 tracking-wider">
+                      {promo.khuyenMaiID}
+                    </td>
+                    {/* Mô tả */}
+                    <td className="py-3 px-5 max-w-xs truncate">
+                      {promo.moTa}
+                    </td>
+                    <td className="py-3 px-5 font-medium text-right text-green-600">
                       {promo.giaTriGiam}
-                      {promo.type === "%"
-                        ? "%"
-                        : promo.type === "VNĐ"
-                        ? " VNĐ"
-                        : ""}
+                      {/* Logic: Nếu type là VNĐ, hiển thị ' VNĐ', ngược lại hiển thị '%' */}
+                      {promo.type === "VNĐ" ? " VNĐ" : "%"}
                     </td>
-                    <td className="py-2 px-3">{promo.giaCoBan}</td>
-                    <td className="py-2 px-3">{promo.soLuong}</td>
-                    <td className="py-2 px-3">
-                      {promo.trangThai ? "Hoạt động" : "Không hoạt động"}
+                    {/* Giá cơ bản */}
+                    <td className="py-3 px-5 text-right font-medium">
+                      {promo.giaCoBan.toLocaleString("vi-VN")} VNĐ
                     </td>
-                    <td className="py-2 px-3">
+                    {/* Số lượng */}
+                    <td className="py-3 px-5 text-center">{promo.soLuong}</td>
+                    {/* Trạng thái (Sử dụng Badge) */}
+                    <td className="py-3 px-5 text-center">
+                      <span
+                        className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium transition-colors duration-150 ${
+                          promo.trangThai
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {promo.trangThai ? "Hoạt động" : "Không hoạt động"}
+                      </span>
+                    </td>
+                    {/* Hết hạn */}
+                    <td className="py-3 px-5 font-light text-gray-500">
                       {formatDate(promo.ngayHetHan)}
                     </td>
-                    <td className="py-2 px-3 ">
+                    {/* Hành động */}
+                    <td className="py-3 px-5 text-center whitespace-nowrap">
                       <button
                         onClick={() => handleEdit(promo)}
-                        className="text-blue-600 mr-2 border w-15 rounded-2xl border-blue-600 hover:bg-blue-600 hover:text-white"
+                        className="mr-2 px-3 py-1 text-xs font-semibold text-indigo-600 border border-indigo-500 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-150 shadow-sm"
                       >
                         Sửa
                       </button>
                       <button
                         onClick={() => handleDelete(promo.khuyenMaiID)}
-                        className="text-red-600 mr-2 border w-15 rounded-2xl border-blue-600 hover:bg-red-600 hover:text-white"
+                        className="px-3 py-1 text-xs font-semibold text-red-600 border border-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-150 shadow-sm"
                       >
                         Xóa
                       </button>
