@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import Navigation from "./Navigation";
 import { FaStar, FaShoppingCart, FaMinus, FaPlus, FaEye } from "react-icons/fa";
-import { sanphammoi } from "../lib/data";
 import Footer from "./Footer";
 import { layChiTietSach, tangLuotXem } from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
@@ -430,48 +429,6 @@ function ChiTietSanPham() {
             </div>
           )}
         </div>
-      </div>
-
-      {/* Sách liên quan */}
-      <div className="  max-w-6xl mx-auto mt-10 rounded-xl shadow-lg border p-8">
-        <h3 className="text-2xl font-bold  mb-4">Sách liên quan</h3>
-        <ul className="grid grid-cols-4 gap-6  ">
-          {sanphammoi.map((product) => (
-            <li
-              key={product.maSP}
-              className="w-full h-full rounded-md border p-4 shadow-lg hover:scale-105 transition-all bg-amber-100 "
-            >
-              <div className="w-full h-[350px] rounded-xl overflow-hidden">
-                <img
-                  src={product.hinhAnh}
-                  alt={product.tenSP}
-                  className="w-full h-full object-cover "
-                />
-              </div>
-              <div className="p-2 bg-transparent">
-                <h4 className="font-bold uppercase py-2 text-[#00809D]">
-                  {product.tenSP}
-                </h4>
-                <p className=" text-[#205d28] font-bold">
-                  {product.giaGiam.toLocaleString()} VNĐ
-                </p>
-                <p className="text-red-500 line-through text-sm mt-2">
-                  Giá gốc: {product.gia.toLocaleString()} VNĐ
-                </p>
-                <div>
-                  <button className="flex justify-center items-center hover:scale-105 hover:cursor-pointer transition-all gap-x-2 mt-4 bg-[#00809D] text-white py-1 px-2 w-full rounded-full font-bold">
-                    <span>
-                      <FaShoppingCart />
-                    </span>
-                    <div className="mt-auto">
-                      <span>Thêm Giỏ Hàng</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
       </div>
       {/* <Footer /> */}
       <Footer />
