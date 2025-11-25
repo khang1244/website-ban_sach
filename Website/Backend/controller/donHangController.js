@@ -2,6 +2,7 @@ import DonHang, { DonHang_Sach } from "../models/DonHang.js";
 import Sach from "../models/Sach.js";
 import sequelize from "../config/mysql_config.js";
 import GiaoDichKho from "../models/GiaoDichKho.js";
+import KhuyenMai from "../models/KhuyenMai.js";
 
 // Nhận tất cả đơn hàng
 export const nhanTatCaDonHang = async (req, res) => {
@@ -35,11 +36,64 @@ export const taoDonHangMoi = async (req, res) => {
       phuongThucGiaoHangID,
       ghiChu,
       items, // { sachID, soLuong, donGia }
+      khuyenMaiID, // Mã khuyến mãi
+      tienGiam, // Số tiền giảm giá
+      tongTienBanDau, // Tổng tiền ban đầu trước khi giảm giá
     } = req.body;
 
     // Dùng transaction để đảm bảo atomic
     const t = await sequelize.transaction();
     try {
+      // Xử lý mã khuyến mãi nếu có
+      let appliedCoupon = null;
+      if (khuyenMaiID) {
+        appliedCoupon = await KhuyenMai.findOne({
+          where: { khuyenMaiID },
+          transaction: t,
+          lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+        });
+
+        if (!appliedCoupon) {
+          await t.rollback();
+          return res
+            .status(400)
+            .json({ message: "Mã khuyến mãi không tồn tại" });
+        }
+
+        // Kiểm tra hạn sử dụng
+        const hetHan = appliedCoupon.ngayHetHan
+          ? new Date(appliedCoupon.ngayHetHan)
+          : null;
+        if (hetHan) {
+          const endOfDay = new Date(hetHan);
+          endOfDay.setHours(23, 59, 59, 999);
+          if (new Date() > endOfDay) {
+            await t.rollback();
+            return res
+              .status(400)
+              .json({ message: "Mã khuyến mãi đã hết hạn" });
+          }
+        }
+
+        if (!appliedCoupon.soLuong || appliedCoupon.soLuong <= 0) {
+          await t.rollback();
+          return res
+            .status(400)
+            .json({ message: "Mã khuyến mãi đã hết số lượng" });
+        }
+
+        //  Cập nhật số lượng mã khuyến mãi
+        console.log(
+          `Áp dụng mã khuyến mãi ${khuyenMaiID}, soLuong trước: ${appliedCoupon.soLuong}`
+        );
+        appliedCoupon.soLuong = appliedCoupon.soLuong - 1;
+        if (appliedCoupon.soLuong <= 0) appliedCoupon.trangThai = false;
+        await appliedCoupon.save({ transaction: t });
+        console.log(
+          `Áp dụng mã khuyến mãi ${khuyenMaiID}, soLuong sau: ${appliedCoupon.soLuong}`
+        );
+      }
+
       // Tạo đơn hàng mới
       const donHangMoi = await DonHang.create(
         {
@@ -53,6 +107,9 @@ export const taoDonHangMoi = async (req, res) => {
           phuongThucThanhToan,
           phuongThucGiaoHangID,
           ghiChu,
+          khuyenMaiID: khuyenMaiID || null,
+          tienGiam: tienGiam || null,
+          tongTienBanDau: tongTienBanDau || null,
         },
         { transaction: t }
       );
@@ -203,6 +260,32 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
             },
             { transaction: t }
           );
+        }
+        // Nếu đơn hàng có áp dụng mã khuyến mãi, hoàn lại số lượng mã trong transaction
+        try {
+          const donHangTrans = await DonHang.findOne({
+            where: { donHangID: id },
+            transaction: t,
+            lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+          });
+
+          if (donHangTrans && donHangTrans.khuyenMaiID) {
+            const km = await KhuyenMai.findOne({
+              where: { khuyenMaiID: donHangTrans.khuyenMaiID },
+              transaction: t,
+              lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+            });
+
+            if (km) {
+              km.soLuong = (km.soLuong || 0) + 1;
+              if (km.soLuong > 0) km.trangThai = true;
+              await km.save({ transaction: t });
+            }
+          }
+        } catch (e) {
+          await t.rollback();
+          console.error("Lỗi khi hoàn lại mã khuyến mãi:", e);
+          return res.status(500).json({ message: e.message });
         }
       }
 

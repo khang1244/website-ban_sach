@@ -39,6 +39,18 @@ const DonHang = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    khuyenMaiID: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    tienGiam: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    tongTienBanDau: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
     diaChiGiaoHang: {
       type: DataTypes.STRING,
       allowNull: false,

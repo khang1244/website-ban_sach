@@ -198,6 +198,10 @@ function ThanhToan() {
         soLuong: item.soLuong,
         donGia: item.giaLucThem,
       })),
+      // Gửi thông tin mã giảm giá (nếu có) để backend xử lý và trừ số lượng
+      khuyenMaiID: coupon || null,
+      tienGiam: discount || 0,
+      tongTienBanDau: tongTien || total || 0,
     };
 
     console.log(duLieuDonHang);
