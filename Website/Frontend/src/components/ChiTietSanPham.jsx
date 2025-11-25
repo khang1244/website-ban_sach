@@ -14,6 +14,7 @@ function ChiTietSanPham() {
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
   const [binhLuan, setBinhLuan] = useState([]);
+  const [showAllComments, setShowAllComments] = useState(false); // trạng thái hiển thị tất cả bình luận hay không
 
   // User context (dùng để cập nhật badge giỏ hàng)
   const { refreshCartCount } = useContext(UserContext);
@@ -390,38 +391,53 @@ function ChiTietSanPham() {
           {/* Danh sách bình luận */}
           {Array.isArray(binhLuan) && binhLuan.length > 0 ? (
             <div className="space-y-3">
-              {binhLuan.map((c, idx) => (
-                <div key={idx} className="bg-white rounded-lg p-3 text-sm">
-                  {/* Gmail + ngày đánh giá */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-[#00809D]">
-                      {maskEmail(c.email) || "Người dùng"}
-                    </span>
-
-                    {c.createdAt && (
-                      <span className="text-[11px] text-gray-500">
-                        {formatDate(c.createdAt)}
+              {(showAllComments ? binhLuan : binhLuan.slice(0, 3)).map(
+                (c, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-3 text-sm">
+                    {/* Gmail + ngày đánh giá */}
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-[#00809D]">
+                        {maskEmail(c.email) || "Người dùng"}
                       </span>
-                    )}
-                  </div>
 
-                  {/* Sao đánh giá */}
-                  <div className="flex items-center text-xs text-gray-600 mb-1">
-                    <span className="flex text-yellow-400 mr-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <FaStar
-                          key={i}
-                          className={i < c.danhGia ? "" : "text-gray-300"}
-                        />
-                      ))}
-                    </span>
-                    <span>{c.danhGia}/5</span>
-                  </div>
+                      {c.createdAt && (
+                        <span className="text-[11px] text-gray-500">
+                          {formatDate(c.createdAt)}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Nội dung bình luận */}
-                  <p className="text-gray-700">{c.noiDung}</p>
+                    {/* Sao đánh giá */}
+                    <div className="flex items-center text-xs text-gray-600 mb-1">
+                      <span className="flex text-yellow-400 mr-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={i < c.danhGia ? "" : "text-gray-300"}
+                          />
+                        ))}
+                      </span>
+                      <span>{c.danhGia}/5</span>
+                    </div>
+
+                    {/* Nội dung bình luận */}
+                    <p className="text-gray-700">{c.noiDung}</p>
+                  </div>
+                )
+              )}
+
+              {Array.isArray(binhLuan) && binhLuan.length > 3 && (
+                <div className="flex justify-center mt-2">
+                  <button
+                    onClick={() => setShowAllComments((s) => !s)}
+                    className="px-4 py-2 rounded-full bg-[#00809D] text-white text-sm hover:bg-[#006b85] transition"
+                  >
+                    {showAllComments
+                      ? "Thu gọn"
+                      : `Xem thêm (${binhLuan.length - 3})`}
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             <div className="text-gray-600 text-sm italic">
