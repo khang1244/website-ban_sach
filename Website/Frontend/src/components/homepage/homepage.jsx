@@ -50,6 +50,19 @@ function Homepage() {
     }
     return matchCategory && matchPrice;
   });
+  // Phân trang cho SÁCH MỚI
+  const itemsPerPage = 8; // show 8 products per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(bolocsachmoi.length / itemsPerPage));
+  const paginatedSachMoi = bolocsachmoi.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Nếu bộ lọc thay đổi và trang hiện tại vượt quá tổng số trang, đặt lại trang hiện tại về 1
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [totalPages]);
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách bán chạy
   const bolocsachbanchay = danhSachSanPham.filter((product) => {
     let matchCategory =
@@ -231,7 +244,7 @@ function Homepage() {
           {/* Danh sách sản phẩm bên phải */}
           <div className="w-3/4 ">
             <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {bolocsachmoi.map((product) => (
+              {paginatedSachMoi.map((product) => (
                 <li
                   key={product.maSP}
                   className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer "
@@ -281,6 +294,46 @@ function Homepage() {
                 </li>
               ))}
             </ul>
+
+            {/* Pagination controls for SÁCH MỚI */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
+                >
+                  Trước
+                </button>
+
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const p = idx + 1;
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => setCurrentPage(p)}
+                      className={`px-3 py-1 rounded border ${
+                        currentPage === p
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-700"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
+                >
+                  Sau
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
