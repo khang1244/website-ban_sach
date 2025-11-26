@@ -1,8 +1,21 @@
 import { useState, useEffect, useContext } from "react";
 import Navigation from "./Navigation";
-import { FaStar, FaShoppingCart, FaMinus, FaPlus, FaEye } from "react-icons/fa";
+import {
+  FaStar,
+  FaShoppingCart,
+  FaMinus,
+  FaPlus,
+  FaEye,
+  FaFire,
+} from "react-icons/fa";
+import { RiShoppingCartLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
-import { layChiTietSach, tangLuotXem } from "../lib/sach-apis";
+import {
+  layChiTietSach,
+  tangLuotXem,
+  nhanTatCaCacQuyenSach,
+} from "../lib/sach-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
@@ -14,6 +27,7 @@ function ChiTietSanPham() {
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
   const [binhLuan, setBinhLuan] = useState([]);
+  const [sachLienQuan, setSachLienQuan] = useState([]); // danh sách sách liên quan cùng danh mục
   const [showAllComments, setShowAllComments] = useState(false); // trạng thái hiển thị tất cả bình luận hay không
 
   // User context (dùng để cập nhật badge giỏ hàng)
@@ -144,6 +158,35 @@ function ChiTietSanPham() {
 
     napBinhLuan();
   }, [sachID]);
+
+  // Nạp sách liên quan: lấy tất cả sách rồi lọc theo danh mục (tránh thay đổi backend)
+  useEffect(() => {
+    const napSachLienQuan = async () => {
+      if (!chiTietSanPham) return;
+      try {
+        const data = await nhanTatCaCacQuyenSach();
+        if (!data) return;
+
+        // Chuyển images từ chuỗi JSON sang mảng nếu cần
+        const sachCungDanhMuc = data
+          .map((s) => ({ ...s, images: JSON.parse(s.images || "[]") }))
+          .filter(
+            (s) =>
+              String(s.danhMucSachID) ===
+                String(chiTietSanPham.danhMucSachID) &&
+              String(s.sachID) !== String(chiTietSanPham.sachID)
+          )
+          .slice(0, 6); // lấy tối đa 6 cuốn liên quan
+
+        setSachLienQuan(sachCungDanhMuc);
+      } catch (error) {
+        console.error("Lỗi khi nạp sách liên quan:", error);
+        setSachLienQuan([]);
+      }
+    };
+
+    napSachLienQuan();
+  }, [chiTietSanPham]);
 
   if (!chiTietSanPham) {
     return <div>Đang tải chi tiết sản phẩm...</div>;
@@ -443,6 +486,68 @@ function ChiTietSanPham() {
             <div className="text-gray-600 text-sm italic">
               Chưa có bình luận nào cho sản phẩm này.
             </div>
+          )}
+        </div>
+      </div>
+      {/* Sách liên quan (hiển thị các sách cùng danh mục) */}
+      <div className="max-w-6xl mx-auto mt-6">
+        <h3 className="py-2 text-white text-xl font-bold bg-transparent">
+          SÁCH LIÊN QUAN
+        </h3>
+        <div className="mt-4">
+          {sachLienQuan.length === 0 ? (
+            <p className="text-gray-600 italic">Không có sách liên quan.</p>
+          ) : (
+            <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {sachLienQuan.map((product) => (
+                <li
+                  key={product.sachID || product.maSP}
+                  className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer"
+                >
+                  <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                    <img
+                      src={product.images?.[0]?.url}
+                      alt={product.tenSach}
+                      className="w-full h-full object-cover px-1 py-1"
+                    />
+                  </div>
+                  <div className="p-3 bg-[#3d3fa6] text-white h-full">
+                    <h4 className="font-semibold text-sm">{product.tenSach}</h4>
+                    <p>Giảm giá: {product.giaGiam?.toLocaleString()} VNĐ</p>
+                    <p className="flex justify-between translate-x-[-2px] px-1">
+                      <div className="text-red-400 line-through">
+                        Giá gốc: {product.giaBan?.toLocaleString()} VNĐ
+                      </div>
+                      <div className="">
+                        {/* placeholder for heart or badge */}
+                      </div>
+                    </p>
+                    <div className="py-2 flex gap-6">
+                      <button className="flex gap-4 mt-2 bg-blue-500 text-white py-1 px-2 rounded-xl w-47 font-semibold hover:bg-white hover:text-red-500">
+                        <div className="flex justify-center items-center w-full gap-2">
+                          <FaFire className="text-amber-400" />
+                          <Link to={`/chitietsanpham/${product.sachID}`}>
+                            Xem chi tiết
+                          </Link>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleThemSanPhamVaoGioHang(
+                            product.sachID || product.maSP,
+                            1,
+                            product.giaGiam || product.giaBan
+                          )
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                      >
+                        <RiShoppingCartLine className="text-lg" />
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>
