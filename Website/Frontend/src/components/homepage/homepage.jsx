@@ -297,9 +297,9 @@ function Homepage() {
           </div>
         </div>
       </div>
-      {/* Pagination controls for SÁCH MỚI */}
+      {/* // Phân trang cho Sách Mới */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
+        <div className="flex justify-center items-center gap-2 mt-9 ml-76">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
