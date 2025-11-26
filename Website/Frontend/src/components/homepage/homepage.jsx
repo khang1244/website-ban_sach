@@ -294,49 +294,46 @@ function Homepage() {
                 </li>
               ))}
             </ul>
-
-            {/* Pagination controls for SÁCH MỚI */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
-                >
-                  Trước
-                </button>
-
-                {Array.from({ length: totalPages }).map((_, idx) => {
-                  const p = idx + 1;
-                  return (
-                    <button
-                      key={p}
-                      onClick={() => setCurrentPage(p)}
-                      className={`px-3 py-1 rounded border ${
-                        currentPage === p
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-700"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  );
-                })}
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
-                >
-                  Sau
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
+      {/* Pagination controls for SÁCH MỚI */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
+          >
+            Trước
+          </button>
+
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const p = idx + 1;
+            return (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`px-3 py-1 rounded border ${
+                  currentPage === p
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700"
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded bg-white border text-gray-700 disabled:opacity-50"
+          >
+            Sau
+          </button>
+        </div>
+      )}
       {/* Sản phẩm bán chạy */}
       <div className="mt-4 ">
         <h3 className="py-2 px-5 text-white text-xl font-bold">
