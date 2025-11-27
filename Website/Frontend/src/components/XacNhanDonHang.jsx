@@ -6,55 +6,72 @@ import { Link } from "react-router-dom";
 
 function XacNhanDonHang() {
   return (
-    <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full flex flex-col">
+    <div className="bg-gray-50 min-h-screen w-full flex flex-col">
       <Navigation />
-      <div className="flex-1 flex flex-col justify-center items-center py-16">
-        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-lg w-full flex flex-col items-center border border-[#e0eafc]">
-          <FaCheckCircle className="text-green-500 text-6xl mb-4 drop-shadow" />
-          <h1 className="text-3xl font-bold text-[#00809D] mb-2 text-center">
-            Đặt hàng thành công!
+      <div className="flex-1 flex flex-col justify-center items-center py-12 px-4">
+        {/* ĐIỀU CHỈNH: Trở lại max-w-sm để có sự cân đối tốt hơn */}
+        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full flex flex-col items-center border border-green-200">
+          {/* Icon lớn hơn và viền bo tròn (tạo cảm giác 3D nhẹ) */}
+          <div className="p-1 bg-white rounded-full shadow-lg mb-4">
+            <FaCheckCircle className="text-green-500 text-6xl drop-shadow-sm" />
+          </div>
+
+          {/* Tiêu đề với emoji trang trọng */}
+          <h1 className="text-3xl font-extrabold text-green-700 mb-2 text-center tracking-tight flex items-center gap-2">
+            <span className="text-xl">🎉</span> Đặt hàng thành công!
           </h1>
 
-          <p className="text-lg text-gray-700 mb-6 text-center">
+          <p className="text-base text-gray-700 mb-6 text-center leading-relaxed">
             Cảm ơn bạn đã mua sách tại{" "}
-            <span className="font-semibold text-[#00809D]">BookStore</span>.
+            <span className="font-bold text-green-600">
+              Tiệm sách HOÀNG KHANG
+            </span>
+            .
             <br />
-            Đơn hàng của bạn đã được ghi nhận và sẽ được xử lý trong thời gian
-            sớm nhất.
+            Đơn hàng của bạn đã được xác nhận và sẽ được xử lý sớm.
           </p>
+
           <div className="flex flex-col gap-3 w-full">
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 bg-[#00809D] text-white py-3 rounded-full font-bold text-lg hover:bg-[#006b85] transition"
+              // Nút chính: Màu xanh đậm hơn, đổ bóng rõ ràng hơn
+              className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-full font-bold text-base shadow-lg shadow-green-300 hover:bg-green-700 transition"
             >
-              <FaHome /> Về trang chủ
+              <FaHome /> Về Trang Chủ
             </Link>
             <Link
-              to="/don-hang"
-              className="flex items-center justify-center gap-2 bg-white border border-[#00809D] text-[#00809D] py-3 rounded-full font-bold text-lg hover:bg-[#e0eafc] transition"
+              to="/lichsumuahang"
+              // Nút phụ: Viền tinh tế, không có đổ bóng nặng nề
+              className="flex items-center justify-center gap-2 bg-white border border-green-600 text-green-600 py-3 rounded-full font-bold text-base hover:bg-green-50 transition"
             >
-              <FaShoppingCart /> Xem đơn hàng của tôi
+              <FaShoppingCart /> Xem Đơn Hàng
             </Link>
           </div>
-          <div className="mt-6 text-gray-600 text-center text-sm">
-            <p>
-              Mọi thắc mắc vui lòng liên hệ{" "}
+
+          {/* Thông tin liên hệ: Bố cục rõ ràng, link nổi bật */}
+          <div className="mt-6 pt-4 border-t border-gray-200 text-gray-600 text-xs w-full text-center">
+            <p className="mb-1">
+              Hỗ trợ:{" "}
               <a
                 href="mailto:support@bookstore.vn"
-                className="text-blue-600 underline"
+                className="text-blue-600 font-medium hover:text-blue-800"
               >
-                support@bookstore.vn
+                khangck23v7k512@vlvh.ctu.edu.vn
               </a>{" "}
-              hoặc hotline{" "}
-              <a href="tel:0123456789" className="text-blue-600 underline">
-                0123 456 789
+              | Hotline:{" "}
+              <a
+                href="tel:0762835400"
+                className="text-blue-600 font-medium hover:text-blue-800"
+              >
+                0762 835 400
               </a>
-              .
             </p>
-            <p className="mt-2">
-              Xem{" "}
-              <a href="#" className="text-blue-600 underline">
-                Chính sách đổi trả & hoàn tiền
+            <p className="mt-1">
+              <a
+                href="#"
+                className="text-blue-600 underline font-medium hover:text-blue-800"
+              >
+                Chính sách Đổi trả & Hoàn tiền
               </a>
             </p>
           </div>
