@@ -234,14 +234,14 @@ function QuanLiBinhLuan() {
                           </button>
                         )}
 
-                      <button
-                        onClick={() => deletebl(c.binhLuanID)}
-                        type="button"
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-colors"
-                      >
-                        <FaTrash size={12} />
-                        <span>Xóa</span>
-                      </button>
+                        <button
+                          onClick={() => deletebl(c.binhLuanID)}
+                          type="button"
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-colors"
+                        >
+                          <FaTrash size={12} />
+                          <span>Xóa</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
