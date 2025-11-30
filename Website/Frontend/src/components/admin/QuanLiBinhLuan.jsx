@@ -1,6 +1,10 @@
 import { FaStar, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { layTatCaBinhLuan, xoaBinhLuanTheoID } from "../../lib/binh-luan-apis";
+import {
+  layTatCaBinhLuan,
+  xoaBinhLuanTheoID,
+  duyetBinhLuanTheoID,
+} from "../../lib/binh-luan-apis";
 
 function QuanLiBinhLuan() {
   const [binhLuanXoa, setBinhLuanXoa] = useState([]); // Dữ liệu bình luận
@@ -37,6 +41,26 @@ function QuanLiBinhLuan() {
     } catch (error) {
       console.error(error);
       alert("Có lỗi xảy ra khi xóa bình luận.");
+    }
+  };
+
+  const toggleDuyet = async (id, current) => {
+    try {
+      const phanHoi = await duyetBinhLuanTheoID(id, !current);
+      if (!phanHoi || phanHoi.success === false) {
+        alert(phanHoi?.message || "Cập nhật trạng thái duyệt thất bại.");
+        return;
+      }
+
+      // Cập nhật state ngay
+      setBinhLuanXoa((prev) =>
+        prev.map((bl) =>
+          bl.binhLuanID === id ? { ...bl, duyet: phanHoi.data.duyet } : bl
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi khi cập nhật trạng thái duyệt.");
     }
   };
 
@@ -131,7 +155,7 @@ function QuanLiBinhLuan() {
                   : []
                 ).map((c, idx) => (
                   <tr
-                    key={c.id}
+                    key={c.binhLuanID}
                     className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
                   >
                     <td className="py-3 px-4 text-gray-500 text-xs sm:text-sm">
@@ -190,6 +214,26 @@ function QuanLiBinhLuan() {
 
                     {/* Nút Xóa */}
                     <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {/* Duyệt / Trạng thái */}
+                        {c.duyet ? (
+                          <button
+                            onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
+                            type="button"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 transition-colors"
+                          >
+                            Đã duyệt
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
+                            type="button"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-800 hover:bg-yellow-100 border border-yellow-100 transition-colors"
+                          >
+                            Duyệt
+                          </button>
+                        )}
+
                       <button
                         onClick={() => deletebl(c.binhLuanID)}
                         type="button"
@@ -198,6 +242,7 @@ function QuanLiBinhLuan() {
                         <FaTrash size={12} />
                         <span>Xóa</span>
                       </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

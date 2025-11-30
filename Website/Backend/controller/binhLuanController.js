@@ -16,7 +16,8 @@ export const nhanBinhLuanTheoSachID = async (req, res) => {
   const { sachID } = req.params;
   try {
     const binhLuans = await BinhLuan.findAll({
-      where: { sachID },
+      // Chỉ lấy những bình luận đã được duyệt để hiển thị ở phần chi tiết sản phẩm
+      where: { sachID, duyet: true },
       include: [
         {
           model: NguoiDung,
@@ -46,6 +47,8 @@ export const taoBinhLuan = async (req, res) => {
       nguoiDungID,
       noiDung,
       danhGia,
+      // Mặc định khi người dùng tạo bình luận chưa được duyệt
+      duyet: false,
     });
     res.status(201).json(binhLuan);
   } catch (error) {
@@ -65,5 +68,26 @@ export const xoaBinhLuan = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Cập nhật trạng thái duyệt của bình luận (duyệt/huỷ duyệt)
+export const capNhatTrangThaiDuyet = async (req, res) => {
+  const { binhLuanID } = req.params;
+  const { duyet } = req.body;
+  try {
+    const [updatedCount] = await BinhLuan.update(
+      { duyet },
+      { where: { binhLuanID } }
+    );
+
+    if (updatedCount === 0) {
+      return res.status(404).json({ message: "Không tìm thấy bình luận" });
+    }
+
+    const updated = await BinhLuan.findOne({ where: { binhLuanID } });
+    return res.status(200).json(updated);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };

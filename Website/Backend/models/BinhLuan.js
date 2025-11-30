@@ -35,6 +35,11 @@ const BinhLuan = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    duyet: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     tableName: "binh_luan",

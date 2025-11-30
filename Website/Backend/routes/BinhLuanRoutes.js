@@ -4,6 +4,7 @@ import {
   nhanTatCaBinhLuan,
   taoBinhLuan,
   xoaBinhLuan,
+  capNhatTrangThaiDuyet,
 } from "../controller/binhLuanController.js";
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.post("/", taoBinhLuan);
 
 // Xóa bình luận
 router.delete("/:binhLuanID", xoaBinhLuan);
+
+// Cập nhật trạng thái duyệt
+router.put("/:binhLuanID/duyet", capNhatTrangThaiDuyet);
 
 export default router;

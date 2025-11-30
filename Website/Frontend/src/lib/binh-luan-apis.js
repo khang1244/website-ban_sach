@@ -94,6 +94,35 @@ export const xoaBinhLuanTheoID = async (binhLuanID) => {
     };
   }
 };
+// 4.1 Cập nhật trạng thái duyệt bình luận
+export const duyetBinhLuanTheoID = async (binhLuanID, duyet) => {
+  try {
+    const response = await fetch(`${BASE_URL}/binhLuan/${binhLuanID}/duyet`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ duyet }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái duyệt:", error);
+    return {
+      success: false,
+      message: "Không thể cập nhật trạng thái duyệt",
+      error: error.message,
+    };
+  }
+};
 // 4. Lấy bình luận theo mã sách
 export const layBinhLuanTheoSachID = async (sachID) => {
   try {
