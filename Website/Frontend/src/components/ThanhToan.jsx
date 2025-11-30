@@ -26,7 +26,7 @@ import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
 import tinhTP from "../lib/du-Lieu-TinhTP";
 import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
-
+import PayPalButton from "./PaypalButton";
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
   {
@@ -76,10 +76,6 @@ function ThanhToan() {
   });
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
-    cardNumber: "",
-    cardName: "",
-    cardExpiry: "",
-    cardCvc: "",
   });
 
   // User context để cập nhật lại số lượng giỏ hàng toàn cục
@@ -164,7 +160,9 @@ function ThanhToan() {
   };
 
   const datHang = async (e) => {
-    e.preventDefault(); // Ngăn chặn hành vi mặc định của form (tải lại trang)
+    if (e) {
+      e.preventDefault();
+    } // Ngăn chặn hành vi mặc định của form (tải lại trang)
 
     // Kiểm tra người dùng chọn phương thức giao hàng chưa
     if (!shipping.phuongThucGiaoHang) {
@@ -529,10 +527,8 @@ function ThanhToan() {
                       name="payment"
                       className="accent-[#00809D]"
                       value={m.value}
-                      checked={active}
-                      onChange={(e) =>
-                        setPayment({ ...payment, method: e.target.value })
-                      }
+                      checked={payment.method === m.value}
+                      onChange={() => setPayment({ method: m.value })}
                     />
                     <div className="flex items-center gap-3">
                       <div className="text-[#00809D]">{m.icon}</div>
@@ -717,20 +713,33 @@ function ThanhToan() {
                 </span>
               </label>
 
-              <button
-                type="submit"
-                disabled={!agreed}
-                className="w-full py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#00809D] to-[#00b4d8] shadow hover:from-[#006f86] hover:to-[#0096c7] transition disabled:opacity-60"
-              >
-                Đặt hàng
-              </button>
+              {/* Bắt đầu khối Điều kiện Thanh toán */}
+              {payment.method === "paypal" ? (
+                <PayPalButton
+                  termIsAccepted={agreed}
+                  // Hàm để gọi khi thanh toán thành công và cung cấp đối tượng event cho hàm đó
+                  submitForm={datHang}
+                  amount={total}
+                />
+              ) : (
+                // Khối ELSE (Thanh toán COD/Thường) - Dùng Fragment để bao bọc 2 phần tử
+                <>
+                  <button
+                    type="submit"
+                    disabled={!agreed}
+                    className="w-full py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#00809D] to-[#00b4d8] shadow hover:from-[#006f86] hover:to-[#0096c7] transition disabled:opacity-60"
+                  >
+                    Đặt hàng
+                  </button>
 
-              <div className="text-gray-600 text-sm">
-                Dự kiến giao hàng:{" "}
-                <span className="font-semibold text-[#00809D]">
-                  {estimatedDate()}
-                </span>
-              </div>
+                  <div className="text-gray-600 text-sm">
+                    Dự kiến giao hàng:{" "}
+                    <span className="font-semibold text-[#00809D]">
+                      {estimatedDate()}
+                    </span>
+                  </div>
+                </> // <-- Kết thúc Fragment
+              )}
             </div>
           </section>
         </div>
