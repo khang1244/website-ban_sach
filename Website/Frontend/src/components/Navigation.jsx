@@ -8,6 +8,7 @@ import { UserContext } from "../contexts/user-context";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   // Sử dụng giá trị user từ context
   const { user, setUser, cartCount } = useContext(UserContext);
 
@@ -127,31 +128,60 @@ function Navigation() {
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl text-black overflow-hidden z-50">
-                <Link
-                  to="/hosonguoidung"
-                  className="block px-4 py-2 hover:bg-amber-100"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Cập nhật thông tin cá nhân
-                </Link>
-                <Link
-                  to="/doimatkhau"
-                  className="block px-4 py-2 hover:bg-amber-100"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Đổi mật khẩu
-                </Link>
-                <Link
-                  to="/lichsumuahang"
-                  className="block px-4 py-2 hover:bg-amber-100"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Lịch sử mua hàng
-                </Link>
+              <div className="absolute right-0 mt-2 w-65 bg-white rounded-xl shadow-xl text-black overflow-hidden z-50">
+                <div>
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-amber-100 flex justify-between items-center"
+                    onClick={() => setShowAccountMenu(!showAccountMenu)}
+                  >
+                    <span>Quản lý tài khoản cá nhân</span>
+                    <span className="text-sm text-gray-500">
+                      {showAccountMenu ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {showAccountMenu && (
+                    <div className="bg-white border-t border-gray-100">
+                      <Link
+                        to="/hosonguoidung"
+                        className="block px-6 py-2 hover:bg-amber-100"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setShowAccountMenu(false);
+                        }}
+                      >
+                        Cập nhật thông tin cá nhân
+                      </Link>
+                      <Link
+                        to="/doimatkhau"
+                        className="block px-6 py-2 hover:bg-amber-100"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setShowAccountMenu(false);
+                        }}
+                      >
+                        Đổi mật khẩu
+                      </Link>
+                      <Link
+                        to="/lichsumuahang"
+                        className="block px-6 py-2 hover:bg-amber-100"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setShowAccountMenu(false);
+                        }}
+                      >
+                        Lịch sử mua hàng
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout();
+                    setShowAccountMenu(false);
+                  }}
                 >
                   Đăng xuất
                 </button>
