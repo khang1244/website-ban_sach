@@ -11,6 +11,7 @@ import KhuyenMaiRoutes from "./routes/KhuyenMaiRoutes.js";
 import GiaoDichKhoRoutes from "./routes/GiaoDichKhoRoutes.js";
 import HinhAnhRoutes from "./routes/HinhAnhRoutes.js";
 import GioHangRoutes from "./routes/GioHangRoutes.js";
+import DiaChiRoutes from "./routes/DiaChiRoutes.js";
 import PhuongThucGiaoHangRoutes from "./routes/PhuongThucGiaoHangRoutes.js";
 import ThongKeRoutes from "./routes/ThongKeRoutes.js";
 
@@ -56,6 +57,8 @@ app.use("/api/giaoDichKho", GiaoDichKhoRoutes); // Sử dụng routes giaoDichKh
 app.use("/api/hinhAnh", HinhAnhRoutes); // Sử dụng routes hinhAnh
 
 app.use("/api/gioHang", GioHangRoutes); // sử dụng route giỏ hàng
+
+app.use("/api/diaChi", DiaChiRoutes); // routes quản lý địa chỉ
 
 app.use("/api/phuongThucGiaoHang", PhuongThucGiaoHangRoutes);
 app.use("/api/thong-ke", ThongKeRoutes);

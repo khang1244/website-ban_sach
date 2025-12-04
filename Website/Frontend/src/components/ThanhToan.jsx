@@ -25,6 +25,12 @@ import { nhanMaKhuyenMaiTheoID } from "../lib/khuyenmai-apis";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
 import tinhTP from "../lib/du-Lieu-TinhTP";
 import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
+import {
+  layDiaChiTheoNguoiDung,
+  taoDiaChi,
+  xoaDiaChi,
+  datMacDinhDiaChi,
+} from "../lib/dia-chi-apis";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
 import PayPalButton from "./PaypalButton";
 const PAYMENT_METHODS = [
@@ -46,27 +52,14 @@ function ThanhToan() {
   const timeoutRef = useRef(null);
 
   // Giữ nguyên logic/state
-  const [cart, setCart] = useState([]);
-  // Thông tin khách hàng
-  const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
-  // Mã giảm giá
-  const [coupon, setCoupon] = useState(""); //Lưu mã giảm giá
-  // Giảm giá
-  const [discount, setDiscount] = useState(0); //Lưu giá trị giảm giá
-  // Đồng ý với điều khoản
-  const [agreed, setAgreed] = useState(false); //Lưu trạng thái đồng ý với điều khoản
-  // Biến trạng thái để lưu giá trị tổng tiền
+  const [cart, setCart] = useState([]); // Giỏ hàng
   const [tongTien, setTongTien] = useState(0);
-  // Biến trạng thái để lưu trữ danh sách phương thức giao hàng từ server
-  const [shippingMethods, setShippingMethods] = useState([]);
-  // Biến trạng thái để lưu trữ danh sách xã phường theo tỉnh/thành phố
-  const [wards, setWards] = useState([]);
-  // Ghi chú đơn hàng
-  const [note, setNote] = useState("");
-
-  // Điều hướng
-  const router = useNavigate();
-
+  const [discount, setDiscount] = useState(0); // Số tiền được giảm
+  const [coupon, setCoupon] = useState(""); // Mã giảm giá
+  const [wards, setWards] = useState([]); // Danh sách xã/phường
+  const [shippingMethods, setShippingMethods] = useState([]); // Phương thức giao hàng
+  const [customer, setCustomer] = useState({ name: "", email: "", phone: "" }); // Thông tin khách hàng
+  const [agreed, setAgreed] = useState(false); // Đồng ý điều khoản
   // Thông tin giao hàng
   const [shipping, setShipping] = useState({
     tinhThanhPho: "",
@@ -74,6 +67,17 @@ function ThanhToan() {
     diaChiCuThe: "",
     phuongThucGiaoHang: "",
   });
+  const [diaChiDaLuu, setDiaChiDaLuu] = useState([]); // Danh sách địa chỉ đã lưu
+  const [diaChiDuocChonId, setDiaChiDuocChonId] = useState(null); // ID địa chỉ được chọn
+  // Hiển thị/ẩn form nhập địa chỉ mới. Mặc định ẩn nếu đã có địa chỉ lưu
+  const [hienFormDiaChi, setHienFormDiaChi] = useState(true);
+  // Hiện/ẩn danh sách địa chỉ đã lưu (collapsed by default)
+  const [hienDanhSachDiaChi, setHienDanhSachDiaChi] = useState(false);
+  const [note, setNote] = useState(""); // Ghi chú đơn hàng
+
+  // Điều hướng
+  const router = useNavigate(); // Sử dụng useNavigate điều hướng trang
+
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
   });
@@ -185,9 +189,16 @@ function ThanhToan() {
       ngayDat: new Date(),
       tongTien: total,
       trangThai: "Chờ xác nhận",
-      diaChiGiaoHang: `${shipping.diaChiCuThe}, ${
-        wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || ""
-      }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`,
+      //  Xây dựng chuỗi địa chỉ giao hàng
+      diaChiGiaoHang: (function () {
+        if (diaChiDuocChonId) {
+          const addr = diaChiDaLuu.find((a) => a.diaChiID === diaChiDuocChonId);
+          return addr?.diaChi || shipping.diaChiCuThe;
+        }
+        return `${shipping.diaChiCuThe}, ${
+          wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || ""
+        }, ${tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || ""}`;
+      })(),
       phuongThucThanhToan: payment.method,
       phuongThucGiaoHangID: shipping.phuongThucGiaoHang,
       ghiChu: note,
@@ -256,6 +267,24 @@ function ThanhToan() {
         email: duLieuNguoiDung.email || "",
         phone: duLieuNguoiDung.soDienThoai || "",
       });
+      // Nạp danh sách địa chỉ đã lưu của người dùng
+      (async () => {
+        try {
+          const list = await layDiaChiTheoNguoiDung(
+            duLieuNguoiDung.nguoiDungID
+          );
+          setDiaChiDaLuu(list || []);
+          // Nếu đã có địa chỉ lưu, ẩn form nhập địa chỉ mới; ngược lại hiện
+          setHienFormDiaChi((list || []).length === 0);
+          const def = (list || []).find((a) => a.macDinh);
+          if (def) {
+            setDiaChiDuocChonId(def.diaChiID);
+            setShipping((s) => ({ ...s, diaChiCuThe: def.diaChi }));
+          }
+        } catch (err) {
+          console.error("Lỗi khi load địa chỉ người dùng:", err);
+        }
+      })();
     }
   }, []);
   // Nạp danh sách phương thức giao hàng từ server
@@ -278,6 +307,93 @@ function ThanhToan() {
     setWards(duLieuXaPhuong);
     console.log("Hàm tính toán lại xã phường đã chạy lại");
   }, [shipping.tinhThanhPho]);
+
+  // Hàm xây dựng chuỗi địa chỉ đầy đủ từ các trường nhập liệu
+  const xayDungChuoiDiaChi = () => {
+    const wardName =
+      wards.find((w) => w.code == parseInt(shipping.xaPhuong))?.name || "";
+    const provinceName =
+      tinhTP.find((t) => t.code == shipping.tinhThanhPho)?.name || "";
+    return `${shipping.diaChiCuThe}${wardName ? ", " + wardName : ""}${
+      provinceName ? ", " + provinceName : ""
+    }`;
+  };
+
+  // Hàm lưu địa chỉ hiện tại vào danh sách địa chỉ đã lưu
+  const luuDiaChiHienTai = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!storedUser) return alert("Vui lòng đăng nhập để lưu địa chỉ.");
+      const diaChiFull = xayDungChuoiDiaChi();
+      if (!diaChiFull || diaChiFull.trim().length === 0)
+        return alert("Vui lòng nhập địa chỉ trước khi lưu.");
+      const res = await taoDiaChi({
+        nguoiDungID: storedUser.nguoiDungID,
+        diaChi: diaChiFull,
+        macDinh: diaChiDaLuu.length === 0,
+      });
+      if (res && res.ok) {
+        const list = await layDiaChiTheoNguoiDung(storedUser.nguoiDungID);
+        setDiaChiDaLuu(list || []);
+        const created = res.address;
+        if (created) {
+          setDiaChiDuocChonId(created.diaChiID);
+          setShipping((s) => ({ ...s, diaChiCuThe: created.diaChi }));
+          // Sau khi lưu thành công, ẩn form nhập địa chỉ để tránh chiếm chỗ
+          setHienFormDiaChi(false);
+        }
+        alert("Đã lưu địa chỉ thành công");
+      } else {
+        alert("Lưu địa chỉ thất bại");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi lưu địa chỉ");
+    }
+  };
+
+  // Hàm tải lại danh sách địa chỉ đã lưu (dùng sau khi tạo/cập nhật/xóa)
+  const taiLaiDiaChiDaLuu = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!storedUser) return;
+      const list = await layDiaChiTheoNguoiDung(storedUser.nguoiDungID);
+      setDiaChiDaLuu(list || []);
+      const def = (list || []).find((a) => a.macDinh);
+      if (def) {
+        setDiaChiDuocChonId(def.diaChiID);
+        setShipping((s) => ({ ...s, diaChiCuThe: def.diaChi }));
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải lại địa chỉ:", err);
+    }
+  };
+  // Xóa địa chỉ
+  const xoaDiaChiDaLuu = async (id) => {
+    if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
+    try {
+      await xoaDiaChi(id);
+      if (diaChiDuocChonId === id) {
+        setDiaChiDuocChonId(null);
+        setShipping((s) => ({ ...s, diaChiCuThe: "" }));
+      }
+      await taiLaiDiaChiDaLuu();
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi xóa địa chỉ");
+    }
+  };
+
+  // Đặt mặc định
+  const datMacDinhDiaChiLocal = async (diaChiID) => {
+    try {
+      await datMacDinhDiaChi(diaChiID);
+      await taiLaiDiaChiDaLuu();
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi đặt mặc định");
+    }
+  };
 
   // Hàm kiểm tra và áp dụng mã giảm giá
   const hamKiemTraMaGiamGia = async () => {
@@ -403,44 +519,262 @@ function ThanhToan() {
               </h2>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 text-black">
-              <select
-                required
-                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
-                value={shipping.tinhThanhPho}
-                onChange={(e) =>
-                  setShipping({ ...shipping, tinhThanhPho: e.target.value })
-                }
-              >
-                {tinhTP.map((tp) => (
-                  <option key={tp.code} value={tp.code}>
-                    {tp.name}
-                  </option>
-                ))}
-              </select>
+              {(hienFormDiaChi || !diaChiDaLuu || diaChiDaLuu.length === 0) && (
+                <>
+                  <select
+                    required={!diaChiDuocChonId}
+                    className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
+                    value={shipping.tinhThanhPho}
+                    onChange={(e) =>
+                      setShipping({
+                        ...shipping,
+                        tinhThanhPho: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">-- Chọn tỉnh/thành --</option>
+                    {tinhTP.map((tp) => (
+                      <option key={tp.code} value={tp.code}>
+                        {tp.name}
+                      </option>
+                    ))}
+                  </select>
 
-              <select
-                required
-                className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
-                value={shipping.xaPhuong}
-                onChange={(e) =>
-                  setShipping({ ...shipping, xaPhuong: e.target.value })
-                }
-              >
-                {wards.map((ward) => (
-                  <option key={ward.code} value={ward.code}>
-                    {ward.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                required
-                className="border w-191 border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
-                placeholder="Địa chỉ cụ thể"
-                value={shipping.diaChiCuThe}
-                onChange={(e) =>
-                  setShipping({ ...shipping, diaChiCuThe: e.target.value })
-                }
-              />
+                  <select
+                    required={!diaChiDuocChonId}
+                    className="border-2 border-[#cfdef3] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00809D] transition"
+                    value={shipping.xaPhuong}
+                    onChange={(e) =>
+                      setShipping({
+                        ...shipping,
+                        xaPhuong: e.target.value,
+                      })
+                    }
+                    disabled={wards.length === 0}
+                  >
+                    <option value="">
+                      {wards.length === 0
+                        ? "-- Chọn tỉnh/thành trước --"
+                        : "-- Chọn quận/huyện --"}
+                    </option>
+                    {wards.map((ward) => (
+                      <option key={ward.code} value={ward.code}>
+                        {ward.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    required={!diaChiDuocChonId}
+                    className="border w-191 border-[#cfdef3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00a2c7] bg-[#fbfdff]"
+                    placeholder="Địa chỉ cụ thể"
+                    value={shipping.diaChiCuThe}
+                    onChange={(e) =>
+                      setShipping({
+                        ...shipping,
+                        diaChiCuThe: e.target.value,
+                      })
+                    }
+                  />
+                  {/* nút lưu lại địa chỉ hiện tại (sử dụng các ô trên) */}
+                  <div className="md:col-span-2">
+                    <button
+                      type="button"
+                      onClick={luuDiaChiHienTai}
+                      className="mt-2 bg-amber-600 text-white px-3 py-2 rounded-md text-sm"
+                    >
+                      Lưu địa chỉ hiện tại
+                    </button>
+                    {diaChiDaLuu && diaChiDaLuu.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setHienFormDiaChi(false)}
+                        className="mt-2 ml-3 text-sm text-black  bg-amber-300 rounded-2xl p-2 border-2 border-amber-200 hover:border-amber-400 transition no-underline"
+                      >
+                        Ẩn form
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+              {/* Saved addresses selection */}
+              {diaChiDaLuu && diaChiDaLuu.length > 0 && (
+                <div className="md:col-span-2 mb-4">
+                  <div className="flex items-center justify-between mb-4 border-b pb-2">
+                    <div className="text-lg font-bold text-gray-800">
+                      Địa chỉ đã lưu
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setHienDanhSachDiaChi((s) => !s)}
+                      className="flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.02]"
+                    >
+                      {/* Thêm biểu tượng để tăng tính trực quan */}
+                      {hienDanhSachDiaChi ? (
+                        <>
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                          Đóng quản lý
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 10l4.55 4.55L15 19m-6-9l-4.55 4.55L9 19m10-4.55a4.5 4.5 0 00-9 0m-6 0a4.5 4.5 0 00-9 0"
+                            />
+                          </svg>
+                          Quản lý địa chỉ
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* // Hiển thị địa chỉ được chọn khi danh sách địa chỉ đang thu gọn */}
+                  <div className="p-3 bg-white border rounded-lg shadow-sm mb-3 flex items-center gap-4">
+                    <div className="flex-1 flex items-center gap-3">
+                      <div className="p-2 bg-[#f0f9ff] text-[#00809D] rounded-full">
+                        <FaMapMarkerAlt />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {
+                            (
+                              diaChiDaLuu.find(
+                                (a) => a.diaChiID === diaChiDuocChonId
+                              ) || diaChiDaLuu[0]
+                            ).diaChi
+                          }
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {diaChiDaLuu.find(
+                            (a) => a.diaChiID === diaChiDuocChonId
+                          )?.macDinh
+                            ? "Mặc định"
+                            : ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2"></div>
+                  </div>
+
+                  {/* Nút mở form khi đã có địa chỉ lưu */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHienFormDiaChi(true); // Mở form nhập
+                      setDiaChiDuocChonId(null); // Bỏ chọn địa chỉ đã lưu
+                      setShipping((s) => ({
+                        ...s,
+                        diaChiCuThe: "", // QUAN TRỌNG: reset địa chỉ cụ thể
+                      }));
+                    }}
+                    className=" mb-4 flex items-center text-indigo-600 font-semibold text-sm transition-colors hover:text-indigo-800 border-2 border-indigo-200 hover:border-indigo-400 rounded-full px-4 py-2 shadow-sm"
+                  >
+                    {/* icon + text */}
+                    Thêm địa chỉ mới
+                  </button>
+
+                  {/* Full list (expanded) */}
+                  {hienDanhSachDiaChi && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {diaChiDaLuu.map((a) => (
+                        <div
+                          key={a.diaChiID}
+                          className="p-4 bg-white border rounded-xl shadow-md flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-start gap-3">
+                              <input
+                                type="radio"
+                                name="savedAddress"
+                                checked={diaChiDuocChonId === a.diaChiID}
+                                onChange={() => {
+                                  setDiaChiDuocChonId(a.diaChiID);
+                                  setShipping((s) => ({
+                                    ...s,
+                                    diaChiCuThe: a.diaChi,
+                                  }));
+                                }}
+                                className="accent-[#00809D] mt-1"
+                              />
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {a.diaChi}
+                                </div>
+                                <div className="mt-2 text-xs text-gray-500">
+                                  {a.ghiChu || ""}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDiaChiDuocChonId(a.diaChiID);
+                                  setShipping((s) => ({
+                                    ...s,
+                                    diaChiCuThe: a.diaChi,
+                                  }));
+                                  setHienDanhSachDiaChi(false);
+                                }}
+                                className="text-sm px-3 py-1 bg-[#00809D] text-white rounded flex items-center gap-2"
+                              >
+                                Sử dụng
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {!a.macDinh ? (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    datMacDinhDiaChiLocal(a.diaChiID)
+                                  }
+                                  className="text-sm px-3 py-1 bg-blue-600 text-white rounded"
+                                >
+                                  Đặt mặc định
+                                </button>
+                              ) : (
+                                <div className="text-xs text-green-700 flex items-center gap-1">
+                                  <FaCheckCircle /> Mặc định
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => xoaDiaChiDaLuu(a.diaChiID)}
+                                className="text-sm px-3 py-1 border rounded text-red-600"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Inline add address form */}
             </div>
 
             {/* Radio chip: phương thức giao hàng */}
@@ -749,7 +1083,6 @@ function ThanhToan() {
     </div>
   );
 }
-
 // Icon for "user info" tiêu chuẩn, giữ nguyên như bạn có
 function FaUserIcon() {
   return (
