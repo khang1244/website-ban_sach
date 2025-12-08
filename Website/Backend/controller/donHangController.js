@@ -152,7 +152,6 @@ export const taoDonHangMoi = async (req, res) => {
           },
           { transaction: t }
         );
-
       }
 
       await t.commit();
@@ -225,7 +224,6 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
           // Cập nhật tồn kho
           sach.soLuongConLai = soLuongSau;
           await sach.save({ transaction: t });
-
         }
         // Nếu đơn hàng có áp dụng mã khuyến mãi, hoàn lại số lượng mã trong transaction
         try {

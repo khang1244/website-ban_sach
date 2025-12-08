@@ -51,7 +51,6 @@ app.use("/api/binhLuan", BinhLuanRoutes); // Sử dụng routes binhLuan
 
 app.use("/api/khuyenMai", KhuyenMaiRoutes); // Sử dụng routes khuyenMai
 
-
 app.use("/api/hinhAnh", HinhAnhRoutes); // Sử dụng routes hinhAnh
 
 app.use("/api/gioHang", GioHangRoutes); // sử dụng route giỏ hàng
