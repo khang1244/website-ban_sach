@@ -1,7 +1,6 @@
 import DonHang, { DonHang_Sach } from "../models/DonHang.js";
 import Sach from "../models/Sach.js";
 import sequelize from "../config/mysql_config.js";
-import GiaoDichKho from "../models/GiaoDichKho.js";
 import KhuyenMai from "../models/KhuyenMai.js";
 
 // Nhận tất cả đơn hàng
@@ -154,23 +153,6 @@ export const taoDonHangMoi = async (req, res) => {
           { transaction: t }
         );
 
-        // Tạo giao dịch kho (xuất kho do bán)
-        await GiaoDichKho.create(
-          {
-            loaiGiaoDich: "xuất",
-            ngayGiaoDich: ngayDat || new Date(),
-            tenSanPham: sach.tenSach,
-            soLuong: item.soLuong,
-            nguoiThucHien:
-              tenKhachHang || (nguoiDungID ? String(nguoiDungID) : "khách"),
-            ghiChu: `Đơn hàng #${donHangMoi.donHangID}`,
-            sachID: item.sachID,
-            soLuongTruoc,
-            soLuongSau,
-            giaBan: item.donGia,
-          },
-          { transaction: t }
-        );
       }
 
       await t.commit();
@@ -244,22 +226,6 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
           sach.soLuongConLai = soLuongSau;
           await sach.save({ transaction: t });
 
-          // Ghi nhận giao dịch kho (nhập do hoàn đơn)
-          await GiaoDichKho.create(
-            {
-              loaiGiaoDich: "nhập",
-              ngayGiaoDich: new Date(),
-              tenSanPham: sach.tenSach,
-              soLuong: soLuongHoan,
-              nguoiThucHien: "Hệ thống hoàn đơn",
-              ghiChu: `Hoàn đơn #${donHang.donHangID}`,
-              sachID: chiTiet.sachID,
-              soLuongTruoc,
-              soLuongSau,
-              giaBan: chiTiet.donGia || null,
-            },
-            { transaction: t }
-          );
         }
         // Nếu đơn hàng có áp dụng mã khuyến mãi, hoàn lại số lượng mã trong transaction
         try {

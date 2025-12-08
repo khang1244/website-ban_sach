@@ -8,7 +8,6 @@ import DonHangRoutes from "./routes/DonHangRoutes.js";
 import NguoiDungRoutes from "./routes/NguoiDungRoutes.js";
 import BinhLuanRoutes from "./routes/BinhLuanRoutes.js";
 import KhuyenMaiRoutes from "./routes/KhuyenMaiRoutes.js";
-import GiaoDichKhoRoutes from "./routes/GiaoDichKhoRoutes.js";
 import HinhAnhRoutes from "./routes/HinhAnhRoutes.js";
 import GioHangRoutes from "./routes/GioHangRoutes.js";
 import DiaChiRoutes from "./routes/DiaChiRoutes.js";
@@ -52,7 +51,6 @@ app.use("/api/binhLuan", BinhLuanRoutes); // Sử dụng routes binhLuan
 
 app.use("/api/khuyenMai", KhuyenMaiRoutes); // Sử dụng routes khuyenMai
 
-app.use("/api/giaoDichKho", GiaoDichKhoRoutes); // Sử dụng routes giaoDichKho
 
 app.use("/api/hinhAnh", HinhAnhRoutes); // Sử dụng routes hinhAnh
 
