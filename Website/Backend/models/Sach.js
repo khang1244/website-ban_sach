@@ -46,14 +46,6 @@ const Sach = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    soLuongConLai: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    giaNhap: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
     giaBan: {
       type: DataTypes.FLOAT,
       allowNull: false,

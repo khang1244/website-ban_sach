@@ -23,8 +23,6 @@ function QuanLiSach() {
     danhMucSachID: 0,
     soTrang: 0,
     dinhDang: "Bìa mềm",
-    soLuongConLai: 0,
-    giaNhap: 0,
     giaBan: 0,
     giaGiam: 0,
     moTa: "",
@@ -146,8 +144,6 @@ function QuanLiSach() {
       danhMucSachID: 0,
       soTrang: 0,
       dinhDang: "Bìa mềm",
-      soLuongConLai: 0,
-      giaNhap: 0,
       giaBan: 0,
       giaGiam: 0,
     });
@@ -189,8 +185,6 @@ function QuanLiSach() {
       danhMucSachID: 0,
       soTrang: 0,
       dinhDang: "Bìa mềm",
-      soLuongConLai: 0,
-      giaNhap: 0,
       giaBan: 0,
       giaGiam: 0,
       moTa: "",
@@ -469,28 +463,6 @@ function QuanLiSach() {
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Số lượng</label>
-            <input
-              type="number"
-              name="soLuongConLai"
-              value={form.soLuongConLai}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              min="0"
-            />
-          </div>
-          <div>
-            <label className="block font.medium mb-1">Giá Nhập</label>
-            <input
-              type="number"
-              name="giaNhap"
-              value={form.giaNhap}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              min="0"
-            />
-          </div>
-          <div>
             <label className="block font.medium mb-1">Giá Bán</label>
             <input
               type="number"
@@ -559,8 +531,6 @@ function QuanLiSach() {
                 <th className="p-2">Danh mục sách</th>
                 <th className="p-2">Trang</th>
                 <th className="p-2">Định dạng</th>
-                <th className="p-2">SL</th>
-                <th className="p-2">Giá nhập</th>
                 <th className="p-2">Giá bán</th>
                 <th className="p-2">Giá giảm</th>
                 <th className="p-2">Hành động</th>
@@ -604,8 +574,6 @@ function QuanLiSach() {
                     <td className="p-8">{book.danhMucSachID}</td>
                     <td className="p-2">{book.soTrang}</td>
                     <td className="p-4">{book.dinhDang}</td>
-                    <td className="p-2">{book.soLuongConLai}</td>
-                    <td className="p-2">{book.giaNhap.toLocaleString()} VNĐ</td>
                     <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
                     <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
                     <td className="p-2 flex gap-2">
