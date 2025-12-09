@@ -90,11 +90,15 @@ function DangKy() {
           setToast({ show: false, type: "", title: "", message: "" })
         }
       />
-      
+
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Đăng Ký Tài Khoản</h2>
-          <p className="text-gray-600 text-sm mt-1">Tạo tài khoản mới để bắt đầu mua sách</p>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Đăng Ký Tài Khoản
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            Tạo tài khoản mới để bắt đầu mua sách
+          </p>
         </div>
 
         <form className="space-y-4">
