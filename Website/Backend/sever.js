@@ -13,10 +13,13 @@ import GioHangRoutes from "./routes/GioHangRoutes.js";
 import DiaChiRoutes from "./routes/DiaChiRoutes.js";
 import PhuongThucGiaoHangRoutes from "./routes/PhuongThucGiaoHangRoutes.js";
 import ThongKeRoutes from "./routes/ThongKeRoutes.js";
+import PhieuNhapRoutes from "./routes/PhieuNhapRoutes.js";
+import PhieuXuatRoutes from "./routes/PhieuXuatRoutes.js";
 
 //Đồng bộ và cập nhật cấu trúc bảng khi có thay đổi
-// await sequelize.sync({ alter: true });
-// console.log("Đã cập nhật cấu trúc bảng!");
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Đã cập nhật cấu trúc bảng!");
+// });
 
 // Đọc biến môi trường từ file .env
 dotenv.config();
@@ -57,8 +60,13 @@ app.use("/api/gioHang", GioHangRoutes); // sử dụng route giỏ hàng
 
 app.use("/api/diaChi", DiaChiRoutes); // routes quản lý địa chỉ
 
-app.use("/api/phuongThucGiaoHang", PhuongThucGiaoHangRoutes);
-app.use("/api/thong-ke", ThongKeRoutes);
+app.use("/api/phuongThucGiaoHang", PhuongThucGiaoHangRoutes); // routes phương thức giao hàng
+
+app.use("/api/thong-ke", ThongKeRoutes); // routes thống kê
+
+app.use("/api/phieunhap", PhieuNhapRoutes); // routes phiếu nhập
+
+app.use("/api/phieuxuat", PhieuXuatRoutes); // routes phiếu xuất
 
 // lắng nge kết nối trên cổng 3001 hoặc cổng được chỉ định trong biến môi trường
 const PORT = process.env.PORT || 3001;

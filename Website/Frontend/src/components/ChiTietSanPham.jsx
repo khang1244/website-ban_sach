@@ -16,6 +16,7 @@ import {
   tangLuotXem,
   nhanTatCaCacQuyenSach,
 } from "../lib/sach-apis";
+import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
@@ -26,6 +27,7 @@ function ChiTietSanPham() {
 
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
+  const [tonKho, setTonKho] = useState(0); // Tồn kho từ hệ thống quản lý
   const [binhLuan, setBinhLuan] = useState([]);
   const [sachLienQuan, setSachLienQuan] = useState([]); // danh sách sách liên quan cùng danh mục
   const [showAllComments, setShowAllComments] = useState(false); // trạng thái hiển thị tất cả bình luận hay không
@@ -45,7 +47,7 @@ function ChiTietSanPham() {
   };
 
   const tangSoLuong = () => {
-    if (soLuong < chiTietSanPham.soLuongConLai) {
+    if (soLuong < tonKho) {
       let soLuongMoi = soLuong + 1;
       setSoLuong(soLuongMoi);
     }
@@ -104,6 +106,22 @@ function ChiTietSanPham() {
     };
 
     napChiTietSanPham();
+  }, [sachID]);
+
+  // Lấy tồn kho từ hệ thống quản lý
+  useEffect(() => {
+    const napTonKho = async () => {
+      if (!sachID) return;
+      try {
+        const data = await layTonKhoTheoSach(sachID);
+        setTonKho(data.tonKho || 0);
+      } catch (error) {
+        console.error("Lỗi khi lấy tồn kho:", error);
+        setTonKho(0);
+      }
+    };
+
+    napTonKho();
   }, [sachID]);
 
   // Gọi API tăng lượt xem có kiểm soát để tránh double-count (StrictMode remounts)
@@ -291,7 +309,7 @@ function ChiTietSanPham() {
                   d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
                 />
               </svg>
-              Sắp hết hàng còn ({chiTietSanPham.soLuongConLai} sản phẩm)
+              Sắp hết hàng còn ({tonKho} sản phẩm)
             </div>
           ) : null}
 
@@ -346,8 +364,7 @@ function ChiTietSanPham() {
               {chiTietSanPham.dinhDang}
             </div>
             <div>
-              <span className="font-semibold">Số lượng còn lại:</span>{" "}
-              {chiTietSanPham.soLuongConLai}
+              <span className="font-semibold">Số lượng còn lại:</span> {tonKho}
             </div>
           </div>
           <div className="flex items-center gap-4 mt-4 mr-auto">
@@ -381,15 +398,15 @@ function ChiTietSanPham() {
                     chiTietSanPham.giaGiam || chiTietSanPham.giaBan
                   )
                 }
-                disabled={soLuong < 1 || soLuong > chiTietSanPham.soLuongConLai}
+                disabled={soLuong < 1 || soLuong > tonKho}
                 className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold ml-6 transition-all ${
-                  soLuong < 1 || soLuong > chiTietSanPham.soLuongConLai
+                  soLuong < 1 || soLuong > tonKho
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                     : "bg-[#00809D] text-white hover:bg-[#006b85]"
                 }`}
                 title={
-                  soLuong > chiTietSanPham.soLuongConLai
-                    ? `Chỉ còn ${chiTietSanPham.soLuongConLai} sản phẩm`
+                  soLuong > tonKho
+                    ? `Chỉ còn ${tonKho} sản phẩm`
                     : "Thêm vào giỏ hàng"
                 }
               >

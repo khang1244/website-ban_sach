@@ -10,6 +10,7 @@ const sidebarLinks = [
   { label: "Quản lý Người dùng", to: "/admin/nguoidung" },
   { label: "Quản lý Bình luận", to: "/admin/binhluan" },
   { label: "Quản lý Khuyến mãi", to: "/admin/khuyenmai" },
+  { label: "Quản lý Tồn kho", to: "/admin/tonkho" },
   { label: "Phương thức giao hàng", to: "/admin/phuongthucgiaohang" },
 ];
 

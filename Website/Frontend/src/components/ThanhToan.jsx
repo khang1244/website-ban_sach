@@ -37,12 +37,12 @@ const PAYMENT_METHODS = [
   // Phương thức thanh toán
   {
     label: "PayPal",
-    value: "paypal",
+    value: "Đã thanh toán bằng Paypal",
     icon: <FaCcPaypal className="text-xl" />,
   },
   {
     label: "Thanh toán khi nhận hàng (COD)",
-    value: "cod",
+    value: "Thanh toán khi nhận hàng",
     icon: <FaCheckCircle className="text-xl" />,
   },
 ];
@@ -1048,7 +1048,7 @@ function ThanhToan() {
               </label>
 
               {/* Bắt đầu khối Điều kiện Thanh toán */}
-              {payment.method === "paypal" ? (
+              {payment.method === "Đã thanh toán bằng Paypal" ? (
                 <PayPalButton
                   termIsAccepted={agreed}
                   // Hàm để gọi khi thanh toán thành công và cung cấp đối tượng event cho hàm đó

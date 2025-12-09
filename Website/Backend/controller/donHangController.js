@@ -2,6 +2,8 @@ import DonHang, { DonHang_Sach } from "../models/DonHang.js";
 import Sach from "../models/Sach.js";
 import sequelize from "../config/mysql_config.js";
 import KhuyenMai from "../models/KhuyenMai.js";
+import PhieuXuat from "../models/PhieuXuat.js";
+import ChiTietPhieuXuat from "../models/ChiTietPhieuXuat.js";
 
 // Nhận tất cả đơn hàng
 export const nhanTatCaDonHang = async (req, res) => {
@@ -119,7 +121,6 @@ export const taoDonHangMoi = async (req, res) => {
         const sach = await Sach.findOne({
           where: { sachID: item.sachID },
           transaction: t,
-          lock: t.LOCK ? t.LOCK.UPDATE : undefined,
         });
 
         if (!sach) {
@@ -129,18 +130,43 @@ export const taoDonHangMoi = async (req, res) => {
             .json({ message: `Sách ${item.sachID} không tồn tại` });
         }
 
-        const soLuongTruoc = sach.soLuongConLai || 0;
-        const soLuongSau = soLuongTruoc - Number(item.soLuong);
-        if (soLuongSau < 0) {
-          await t.rollback();
-          return res
-            .status(400)
-            .json({ message: `Số lượng sách '${sach.tenSach}' không đủ` });
-        }
+        // Kiểm tra tồn kho
+        const tongNhap = await sequelize.query(
+          `
+          SELECT SUM(soLuongNhap) as tongSoLuongNhap
+          FROM chi_tiet_phieu_nhap
+          WHERE sachID = :sachID
+        `,
+          {
+            replacements: { sachID: item.sachID },
+            type: sequelize.QueryTypes.SELECT,
+            transaction: t,
+          }
+        );
 
-        // Cập nhật tồn kho
-        sach.soLuongConLai = soLuongSau;
-        await sach.save({ transaction: t });
+        const tongXuat = await sequelize.query(
+          `
+          SELECT SUM(soLuongXuat) as tongSoLuongXuat
+          FROM chi_tiet_phieu_xuat
+          WHERE sachID = :sachID
+        `,
+          {
+            replacements: { sachID: item.sachID },
+            type: sequelize.QueryTypes.SELECT,
+            transaction: t,
+          }
+        );
+
+        const soLuongNhap = tongNhap[0]?.tongSoLuongNhap || 0;
+        const soLuongXuat = tongXuat[0]?.tongSoLuongXuat || 0;
+        const tonKhoHienTai = soLuongNhap - soLuongXuat;
+
+        if (tonKhoHienTai < item.soLuong) {
+          await t.rollback();
+          return res.status(400).json({
+            message: `Sách '${sach.tenSach}' không đủ. Tồn kho: ${tonKhoHienTai}, yêu cầu: ${item.soLuong}`,
+          });
+        }
 
         // Thêm vào bảng trung gian DonHang_Sach
         await DonHang_Sach.create(
@@ -177,7 +203,16 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
     const { trangThai } = req.body; // Lấy trạng thái mới từ body yêu cầu
 
     // Tìm đơn hàng hiện tại
-    const donHang = await DonHang.findOne({ where: { donHangID: id } });
+    const donHang = await DonHang.findOne({
+      where: { donHangID: id },
+      include: [
+        {
+          model: Sach,
+          through: { attributes: ["soLuong", "donGia"] },
+        },
+      ],
+    });
+
     if (!donHang) {
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
     }
@@ -194,62 +229,63 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
     // Dùng transaction để cập nhật trạng thái và hoàn/khấu trừ tồn kho một cách atomic
     const t = await sequelize.transaction();
     try {
-      // Nếu cập nhật thành "Đã hủy" và trạng thái cũ chưa phải "Đã hủy" thì hoàn trả tồn kho
-      if (trangThai === "Đã hủy" && trangThaiCu !== "Đã hủy") {
-        // Lấy các mục trong đơn hàng từ bảng trung gian
+      // Khi đơn hàng được hoàn tất/xác nhận => Tạo phiếu xuất để trừ kho
+      // Chỉ trừ kho khi đơn được hoàn thành
+      if (trangThai === "Hoàn thành" && trangThaiCu !== "Hoàn thành") {
         const chiTiets = await DonHang_Sach.findAll({
           where: { donHangID: id },
           transaction: t,
         });
 
-        for (const chiTiet of chiTiets) {
-          const sach = await Sach.findOne({
-            where: { sachID: chiTiet.sachID },
-            transaction: t,
-            lock: t.LOCK ? t.LOCK.UPDATE : undefined,
-          });
+        // Tạo phiếu xuất bán hàng nếu chưa có
+        const phieuXuatBan = await PhieuXuat.findOne({
+          where: { donHangID: donHang.donHangID, loaiXuat: "bán hàng" },
+          transaction: t,
+        });
 
-          if (!sach) {
-            // nếu sách không tồn tại, rollback để giữ nhất quán
-            await t.rollback();
-            return res
-              .status(400)
-              .json({ message: `Sách ${chiTiet.sachID} không tồn tại` });
+        if (!phieuXuatBan) {
+          const phieuXuatMoi = await PhieuXuat.create(
+            {
+              donHangID: donHang.donHangID,
+              nguoiDungID: donHang.nguoiDungID,
+              tenKhachHang: donHang.tenKhachHang,
+              ngayXuat: new Date(),
+              loaiXuat: "bán hàng",
+              nguoiXuat: "Hệ thống tự động",
+              ghiChu: `Đơn hàng #${donHang.donHangID} - ${donHang.tenKhachHang}`,
+            },
+            { transaction: t }
+          );
+
+          for (const chiTiet of chiTiets) {
+            await ChiTietPhieuXuat.create(
+              {
+                phieuXuatID: phieuXuatMoi.phieuXuatID,
+                sachID: chiTiet.sachID,
+                soLuongXuat: chiTiet.soLuong,
+                donGiaBan: chiTiet.donGia,
+                thanhTien: chiTiet.soLuong * chiTiet.donGia,
+              },
+              { transaction: t }
+            );
           }
-
-          const soLuongTruoc = sach.soLuongConLai || 0;
-          const soLuongHoan = Number(chiTiet.soLuong) || 0;
-          const soLuongSau = soLuongTruoc + soLuongHoan;
-
-          // Cập nhật tồn kho
-          sach.soLuongConLai = soLuongSau;
-          await sach.save({ transaction: t });
         }
-        // Nếu đơn hàng có áp dụng mã khuyến mãi, hoàn lại số lượng mã trong transaction
-        try {
-          const donHangTrans = await DonHang.findOne({
-            where: { donHangID: id },
+      }
+
+      // Khi hủy đơn hàng => chỉ hoàn lại mã khuyến mãi, không tạo phiếu xuất
+      if (trangThai === "Đã hủy" && trangThaiCu !== "Đã hủy") {
+        // Hoàn lại mã khuyến mãi nếu có
+        if (donHang.khuyenMaiID) {
+          const km = await KhuyenMai.findOne({
+            where: { khuyenMaiID: donHang.khuyenMaiID },
             transaction: t,
-            lock: t.LOCK ? t.LOCK.UPDATE : undefined,
           });
 
-          if (donHangTrans && donHangTrans.khuyenMaiID) {
-            const km = await KhuyenMai.findOne({
-              where: { khuyenMaiID: donHangTrans.khuyenMaiID },
-              transaction: t,
-              lock: t.LOCK ? t.LOCK.UPDATE : undefined,
-            });
-
-            if (km) {
-              km.soLuong = (km.soLuong || 0) + 1;
-              if (km.soLuong > 0) km.trangThai = true;
-              await km.save({ transaction: t });
-            }
+          if (km) {
+            km.soLuong = (km.soLuong || 0) + 1;
+            if (km.soLuong > 0) km.trangThai = true;
+            await km.save({ transaction: t });
           }
-        } catch (e) {
-          await t.rollback();
-          console.error("Lỗi khi hoàn lại mã khuyến mãi:", e);
-          return res.status(500).json({ message: e.message });
         }
       }
 
