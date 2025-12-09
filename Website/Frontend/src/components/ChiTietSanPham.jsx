@@ -17,6 +17,7 @@ import {
   nhanTatCaCacQuyenSach,
 } from "../lib/sach-apis";
 import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis";
+import { nhanTatCaDanhMucSach } from "../lib/danh-muc-sach-apis";
 import { useParams } from "react-router-dom";
 import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
@@ -31,6 +32,7 @@ function ChiTietSanPham() {
   const [binhLuan, setBinhLuan] = useState([]);
   const [sachLienQuan, setSachLienQuan] = useState([]); // danh sách sách liên quan cùng danh mục
   const [showAllComments, setShowAllComments] = useState(false); // trạng thái hiển thị tất cả bình luận hay không
+  const [tenDanhMuc, setTenDanhMuc] = useState("");
 
   // User context (dùng để cập nhật badge giỏ hàng)
   const { refreshCartCount } = useContext(UserContext);
@@ -104,6 +106,25 @@ function ChiTietSanPham() {
 
     napChiTietSanPham();
   }, [sachID]);
+
+  // Lấy tên danh mục theo danhMucSachID để hiển thị thay vì ID
+  useEffect(() => {
+    const danhMucID = chiTietSanPham?.danhMucSachID;
+    (async () => {
+      try {
+        const data = await nhanTatCaDanhMucSach();
+        if (!Array.isArray(data)) return;
+
+        const found = data.find(
+          (dm) => String(dm.danhMucSachID) === String(danhMucID)
+        );
+        setTenDanhMuc(found?.tenDanhMuc || "");
+      } catch (error) {
+        console.error("Lỗi khi lấy tên danh mục:", error);
+        setTenDanhMuc("");
+      }
+    })();
+  }, [chiTietSanPham?.danhMucSachID]);
 
   // Lấy tồn kho từ hệ thống quản lý và cập nhật stockStatus
   useEffect(() => {
@@ -325,7 +346,7 @@ function ChiTietSanPham() {
             </div>
             <div>
               <span className="font-semibold">Danh mục sách:</span>{" "}
-              {chiTietSanPham.danhMucSachID}
+              {tenDanhMuc || chiTietSanPham.danhMucSachID}
             </div>
             <div>
               <span className="font-semibold">Số trang:</span>{" "}
