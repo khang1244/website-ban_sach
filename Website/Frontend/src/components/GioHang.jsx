@@ -15,6 +15,7 @@ import {
   capNhatSoLuongSanPham,
 } from "../lib/gio-hang-apis";
 import { UserContext } from "../contexts/user-context";
+import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis";
 
 // Hàm định dạng tiền tệ
 const formatCurrency = (amount) => {
@@ -27,10 +28,35 @@ function GioHang() {
   const timeoutRef = useRef(null);
   const { refreshCartCount } = useContext(UserContext);
 
-  function updateQuantity(index, delta) {
+  async function updateQuantity(index, delta) {
+    const item = cart[index];
+    const soLuongMoi = item.soLuong + delta;
+
+    // Không cho giảm xuống dưới 1
+    if (soLuongMoi < 1) return;
+
+    // Nếu tăng số lượng, kiểm tra tồn kho
+    if (delta > 0) {
+      try {
+        const tonKhoData = await layTonKhoTheoSach(item.sachID);
+        const tonKho = tonKhoData?.tonKho ?? 0;
+
+        if (soLuongMoi > tonKho) {
+          alert(
+            `Không thể thêm! Sản phẩm "${item.Sach?.tenSach}" chỉ còn ${tonKho} cuốn trong kho.`
+          );
+          return;
+        }
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra tồn kho:", error);
+        alert("Không thể kiểm tra số lượng tồn kho. Vui lòng thử lại.");
+        return;
+      }
+    }
+
     // Cập nhật số lượng trong state
     const newCart = [...cart];
-    newCart[index].soLuong = Math.max(1, newCart[index].soLuong + delta);
+    newCart[index].soLuong = soLuongMoi;
     setCart(newCart);
 
     const newTotal = newCart.reduce(

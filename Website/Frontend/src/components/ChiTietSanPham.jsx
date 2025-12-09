@@ -47,10 +47,18 @@ function ChiTietSanPham() {
   };
 
   const tangSoLuong = () => {
-    if (soLuong < tonKho) {
-      let soLuongMoi = soLuong + 1;
-      setSoLuong(soLuongMoi);
+    if (tonKho <= 0) {
+      alert("Sản phẩm đã hết hàng.");
+      return;
     }
+
+    if (soLuong >= tonKho) {
+      alert(`Chỉ còn ${tonKho} cuốn trong kho, không thể tăng thêm.`);
+      return;
+    }
+
+    const soLuongMoi = soLuong + 1;
+    setSoLuong(soLuongMoi);
   };
   // Hàm để xử lý thêm sản phẩm vào giỏ hàng
   const handleThemSanPhamVaoGioHang = async (sachID, soLuong, giaLucThem) => {
