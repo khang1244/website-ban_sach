@@ -90,17 +90,6 @@ function ChiTietSanPham() {
 
         console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
 
-        // Nếu server chưa cung cấp stockStatus, tính tạm thời ở client
-        const LOW_STOCK_THRESHOLD = 5;
-        chiTietSanPham.stockStatus =
-          typeof chiTietSanPham.stockStatus !== "undefined"
-            ? chiTietSanPham.stockStatus
-            : chiTietSanPham.soLuongConLai <= 0
-            ? "out"
-            : chiTietSanPham.soLuongConLai <= LOW_STOCK_THRESHOLD
-            ? "low"
-            : "available";
-
         setChiTietSanPham(chiTietSanPham);
       }
     };
@@ -108,13 +97,30 @@ function ChiTietSanPham() {
     napChiTietSanPham();
   }, [sachID]);
 
-  // Lấy tồn kho từ hệ thống quản lý
+  // Lấy tồn kho từ hệ thống quản lý và cập nhật stockStatus
   useEffect(() => {
     const napTonKho = async () => {
       if (!sachID) return;
       try {
         const data = await layTonKhoTheoSach(sachID);
-        setTonKho(data.tonKho || 0);
+        const newTonKho = data.tonKho || 0;
+        setTonKho(newTonKho);
+
+        // Cập nhật stockStatus ngay sau khi có tonKho
+        const LOW_STOCK_THRESHOLD = 10;
+        const newStatus =
+          newTonKho <= 0
+            ? "out"
+            : newTonKho < LOW_STOCK_THRESHOLD
+            ? "low"
+            : "available";
+
+        setChiTietSanPham((prev) => {
+          if (prev && prev.stockStatus !== newStatus) {
+            return { ...prev, stockStatus: newStatus };
+          }
+          return prev;
+        });
       } catch (error) {
         console.error("Lỗi khi lấy tồn kho:", error);
         setTonKho(0);
@@ -270,68 +276,26 @@ function ChiTietSanPham() {
         </div>
 
         {/* Thông tin sản phẩm */}
-        <div className="relative bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-4">
-          <h2 className="text-3xl font-bold text-[#00809D] mb-2">
+        <div className="relative bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-5">
+          <h2 className="text-3xl font-bold text-[#00809D] mb-3">
             {chiTietSanPham.tenSach}
           </h2>
-          {/* Badge trạng thái tồn kho - nâng cấp đẹp, chuyên nghiệp */}
-          {chiTietSanPham.stockStatus === "out" ? (
-            <div className="w-full flex items-center gap-2 bg-red-600/90 text-white px-4 py-2 rounded-full text-sm font-semibold mb-2 shadow-lg border border-red-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-              Hết hàng
-            </div>
-          ) : chiTietSanPham.stockStatus === "low" ? (
-            <div className="w-full flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-300 text-black px-4 py-2 rounded-full text-sm font-semibold mb-2 shadow-md border border-yellow-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
-                />
-              </svg>
-              Sắp hết hàng còn ({tonKho} sản phẩm)
-            </div>
-          ) : null}
 
-          {/* //đánh giá sản phẩm */}
-          {chiTietSanPham.danhGia && (
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-yellow-400 flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={
-                      i < Math.round(chiTietSanPham.danhGia)
-                        ? ""
-                        : "text-gray-300"
-                    }
-                  />
-                ))}
-              </span>
-              <span className="text-gray-600 ml-2">
-                {chiTietSanPham.danhGia}/5
-              </span>
-            </div>
+          {/* Badge trạng thái tồn kho - Chỉ hiển thị khi đã có tonKho */}
+          {tonKho !== undefined && tonKho !== null && (
+            <>
+              {tonKho <= 0 ? (
+                <div className="w-full flex items-center gap-2 bg-red-100 border-l-4 border-red-500 px-4 py-3 rounded text-red-700 font-semibold">
+                  <span className="text-xl">⚠️</span>
+                  <span>Hết hàng</span>
+                </div>
+              ) : tonKho < 10 ? (
+                <div className="w-full flex items-center gap-2 bg-orange-100 border-l-4 border-orange-600 px-4 py-3 rounded text-orange-700 font-semibold">
+                  <span className="text-xl">⚠️</span>
+                  <span>Sắp hết hàng - Chỉ còn {tonKho} cuốn</span>
+                </div>
+              ) : null}
+            </>
           )}
           {/* // Thông số chi tiết 1 quyển sách */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-base">
@@ -367,60 +331,87 @@ function ChiTietSanPham() {
               <span className="font-semibold">Số lượng còn lại:</span> {tonKho}
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-4 mr-auto">
-            <span className="text-2xl text-[#00f821] font-bold">
-              {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
-            </span>
-            <span className="text-red-500 line-through text-2xl">
-              {chiTietSanPham.giaBan.toLocaleString()} VNĐ
-            </span>
-          </div>
-          <div className="flex items-center gap-4 mt-4 ">
-            <button
-              onClick={giamSoLuong}
-              className="p-2 rounded-full text-black bg-gray-200 hover:bg-gray-300"
-            >
-              <FaMinus />
-            </button>
-            <span className=" text-black w-8 text-center">{soLuong}</span>
-            <button
-              onClick={tangSoLuong}
-              className="p-2 rounded-full text-black bg-gray-200 hover:bg-gray-300"
-            >
-              <FaPlus />
-            </button>
-            <div className="ml-3">
-              <button
-                onClick={() =>
-                  handleThemSanPhamVaoGioHang(
-                    chiTietSanPham.sachID,
-                    soLuong,
-                    chiTietSanPham.giaGiam || chiTietSanPham.giaBan
-                  )
-                }
-                disabled={soLuong < 1 || soLuong > tonKho}
-                className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold ml-6 transition-all ${
-                  soLuong < 1 || soLuong > tonKho
-                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-[#00809D] text-white hover:bg-[#006b85]"
-                }`}
-                title={
-                  soLuong > tonKho
-                    ? `Chỉ còn ${tonKho} sản phẩm`
-                    : "Thêm vào giỏ hàng"
-                }
-              >
-                <FaShoppingCart /> Thêm vào giỏ hàng
-              </button>
-            </div>
-          </div>
-          <div className="absolute bottom-7 right-4 z-20">
-            <div className="flex items-center gap-1 bg-white/90 px-3 py-1 rounded-full shadow-md border">
-              <FaEye className="text-gray-600" />
-              <span className="font-medium text-gray-800 text-sm">
-                {chiTietSanPham.luotXem?.toLocaleString() || 0} lượt xem
+
+          {/* Giá tiền */}
+          <div className="py-4 border-b border-gray-200">
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl font-bold text-emerald-600">
+                {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
+              </span>
+              <span className="text-lg text-gray-500 line-through">
+                {chiTietSanPham.giaBan.toLocaleString()} VNĐ
+              </span>
+              <span className="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">
+                -
+                {Math.round(
+                  ((chiTietSanPham.giaBan - chiTietSanPham.giaGiam) /
+                    chiTietSanPham.giaBan) *
+                    100
+                )}
+                %
               </span>
             </div>
+          </div>
+
+          {/* Chọn số lượng và nút mua */}
+          <div className="flex items-center gap-4 mt-6 pt-4">
+            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-2 py-2.5">
+              <button
+                onClick={giamSoLuong}
+                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600"
+              >
+                <FaMinus size={14} />
+              </button>
+              <span className="w-8 text-center font-semibold text-gray-800">
+                {soLuong}
+              </span>
+              <button
+                onClick={tangSoLuong}
+                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600"
+              >
+                <FaPlus size={14} />
+              </button>
+            </div>
+
+            <button
+              onClick={() =>
+                handleThemSanPhamVaoGioHang(
+                  chiTietSanPham.sachID,
+                  soLuong,
+                  chiTietSanPham.giaGiam || chiTietSanPham.giaBan
+                )
+              }
+              disabled={
+                soLuong < 1 ||
+                soLuong > tonKho ||
+                chiTietSanPham.stockStatus === "out"
+              }
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${
+                soLuong < 1 ||
+                soLuong > tonKho ||
+                chiTietSanPham.stockStatus === "out"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg hover:shadow-xl"
+              }`}
+              title={
+                chiTietSanPham.stockStatus === "out"
+                  ? "Sản phẩm đã hết hàng"
+                  : soLuong > tonKho
+                  ? `Chỉ còn ${tonKho} sản phẩm`
+                  : "Thêm vào giỏ hàng"
+              }
+            >
+              <RiShoppingCartLine size={20} /> Thêm vào giỏ hàng
+            </button>
+          </div>
+
+          {/* Lượt xem - góc dưới phải */}
+          <div className="flex justify-end items-center gap-2 pt-18 text-gray-600">
+            <FaEye size={16} />
+            <span className="text-sm font-semibold text-gray-800">
+              {chiTietSanPham.luotXem?.toLocaleString() || 0}
+            </span>
+            <span className="text-sm">lượt xem</span>
           </div>
         </div>
       </div>
