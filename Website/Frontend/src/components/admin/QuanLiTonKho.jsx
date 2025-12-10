@@ -187,7 +187,9 @@ function QuanLiTonKho() {
                       {item.soLuongNhap}
                     </td>
                     <td className="border p-2 text-center text-black  ">
-                      {item.soLuongXuat}
+                      {item.soLuongXuat < 0
+                        ? `+${Math.abs(item.soLuongXuat)}`
+                        : item.soLuongXuat}
                     </td>
                     <td
                       className={`border p-2 text-center font-semibold ${
@@ -445,6 +447,7 @@ function QuanLiTonKho() {
                   <th className="border p-2">Ngày Xuất</th>
                   <th className="border p-2">Khách Hàng</th>
                   <th className="border p-2">Loại Xuất</th>
+                  <th className="border p-2">Đơn Hàng</th>
                   <th className="border p-2">Tên Sách</th>
                   <th className="border p-2">Số Lượng Xuất</th>
                   <th className="border p-2">Người xuất</th>
@@ -483,9 +486,28 @@ function QuanLiTonKho() {
                             {phieu.loaiXuat}
                           </span>
                         </td>
+                        <td className="border p-2 text-center">
+                          {phieu.donHangID ? (
+                            <span className="font-semibold text-blue-600">
+                              #{phieu.donHangID}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
                         <td className="border p-2">{sach?.tenSach || "-"}</td>
-                        <td className="border p-2 text-center text-red-500">
-                          -{chi.soLuongXuat}
+                        <td className="border p-2 text-center">
+                          <span
+                            className={
+                              phieu.loaiXuat === "Khách trả hàng"
+                                ? "text-green-600 font-semibold"
+                                : "text-red-500"
+                            }
+                          >
+                            {chi.soLuongXuat < 0
+                              ? `+${Math.abs(chi.soLuongXuat)}`
+                              : `-${chi.soLuongXuat}`}
+                          </span>
                         </td>
                         <td className="border p-2 text-center text-black  ">
                           {phieu.nguoiXuat}
@@ -496,8 +518,26 @@ function QuanLiTonKho() {
                         </td>
 
                         <td className="border p-2 text-right font-semibold w-29">
-                          {(chi.soLuongXuat * chi.donGiaBan)?.toLocaleString()}{" "}
-                          đ
+                          <div
+                            className={
+                              phieu.loaiXuat === "Khách trả hàng"
+                                ? "text-green-600"
+                                : "text-blue-600"
+                            }
+                          >
+                            {phieu.loaiXuat === "Khách trả hàng"
+                              ? `-${Math.abs(
+                                  chi.soLuongXuat * chi.donGiaBan
+                                )?.toLocaleString()} đ`
+                              : `${(
+                                  chi.soLuongXuat * chi.donGiaBan
+                                )?.toLocaleString()} đ`}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {phieu.loaiXuat === "Khách trả hàng"
+                              ? "(Hoàn trả)"
+                              : "(Bán hàng)"}
+                          </div>
                         </td>
                         <td className="border p-2 text-sm text-gray-600">
                           {phieu.ghiChu || "-"}

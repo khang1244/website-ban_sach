@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import {
   layDonHangTheoID,
   capNhatTrangThaiDonHang,
+  traHang,
 } from "../lib/don-hang-apis.js";
 import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis.js";
 import { taoBinhLuanMoi } from "../lib/binh-luan-apis.js";
@@ -126,6 +127,95 @@ function FormBinhLuan({ sachID, dongFormBinhLuan }) {
   );
 }
 
+// Modal form trả hàng
+function FormTraHang({ donHangID, dongForm, onTraHangSuccess }) {
+  const [lyDoTraHang, setLyDoTraHang] = useState("");
+  const [dangLoading, setDangLoading] = useState(false);
+
+  const xuLyTraHang = async (e) => {
+    e.preventDefault();
+    
+    if (!lyDoTraHang.trim()) {
+      alert("Vui lòng nhập lí do trả hàng");
+      return;
+    }
+
+    setDangLoading(true);
+    const response = await traHang(donHangID, lyDoTraHang);
+    setDangLoading(false);
+
+    if (response && response.success) {
+      alert("Trả hàng thành công! Phiếu xuất đã được tạo");
+      dongForm();
+      // Gọi callback để update state ở parent component
+      if (onTraHangSuccess) {
+        onTraHangSuccess();
+      }
+    } else {
+      alert("Lỗi: " + (response?.message || "Không thể trả hàng"));
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-100 p-6 sm:p-8">
+        {/* Nút đóng */}
+        <button
+          onClick={dongForm}
+          className="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-600 hover:bg-red-50 transition"
+        >
+          <span className="text-xl leading-none">&times;</span>
+        </button>
+
+        {/* Tiêu đề */}
+        <div className="mb-6 text-center">
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">
+            Trả Hàng
+          </h3>
+          <p className="mt-2 text-sm text-gray-600">
+            Vui lòng nhập lí do trả hàng để chúng tôi có thể hỗ trợ tốt hơn
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={xuLyTraHang} className="space-y-5">
+          {/* Lí do trả hàng */}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Lí do trả hàng <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={lyDoTraHang}
+              onChange={(e) => setLyDoTraHang(e.target.value)}
+              placeholder="Ví dụ: Sách bị hư hỏng, không đúng với mô tả..."
+              className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-200 resize-none min-h-[120px] transition"
+              required
+            />
+          </div>
+
+          {/* Nút hành động */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={dongForm}
+              className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={dangLoading}
+              className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {dangLoading ? "Đang xử lý..." : "Trả Hàng"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function ChiTietDonHang() {
   const { id } = useParams();
 
@@ -135,6 +225,8 @@ function ChiTietDonHang() {
   const [shippingMethods, setShippingMethods] = useState([]);
   // Nạp dữ liệu đơn hàng từ server dựa vào id (sử dụng useEffect trong thực tế)
   const [sachIDDangBinhLuan, setSachIDDangBinhLuan] = useState(null);
+  // State cho modal trả hàng
+  const [hienThiModalTraHang, setHienThiModalTraHang] = useState(false);
   useEffect(() => {
     const napDonHang = async () => {
       const duLieuDonHang = await layDonHangTheoID(id);
@@ -316,6 +408,40 @@ function ChiTietDonHang() {
               BookStore!
             </span>
           </div>
+        )}
+        {duLieuDonHang?.trangThai === "Hoàn thành" && (
+          <div className="flex items-center gap-3 bg-blue-100 text-blue-700 rounded-lg p-5 mb-8">
+            <span className="text-2xl">📦</span>
+            <div className="flex-1">
+              <p className="font-semibold">Đơn hàng đã hoàn thành</p>
+              <p className="text-sm">Bạn có thể trả hàng nếu có vấn đề gì không?</p>
+            </div>
+            <button
+              onClick={() => setHienThiModalTraHang(true)}
+              className="whitespace-nowrap px-5 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+            >
+              Trả Hàng
+            </button>
+          </div>
+        )}
+        {duLieuDonHang?.trangThai === "Đã trả hàng" && (
+          <div className="flex items-center gap-3 bg-amber-100 text-amber-700 rounded-lg p-5 mb-8">
+            <span className="text-2xl">✅</span>
+            <div className="flex-1">
+              <p className="font-semibold">Đã trả hàng thành công</p>
+              <p className="text-sm">Cảm ơn bạn, phiếu xuất đã được tạo và gửi về kho</p>
+            </div>
+          </div>
+        )}
+        {hienThiModalTraHang && (
+          <FormTraHang
+            donHangID={duLieuDonHang?.donHangID}
+            dongForm={() => setHienThiModalTraHang(false)}
+            onTraHangSuccess={() => {
+              // Update trạng thái đơn hàng thành "Đã trả hàng"
+              setDuLieuDonHang({ ...duLieuDonHang, trangThai: "Đã trả hàng" });
+            }}
+          />
         )}
       </div>
       <Footer />

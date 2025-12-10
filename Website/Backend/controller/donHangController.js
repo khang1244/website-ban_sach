@@ -355,6 +355,92 @@ export const nhanDonHangTheoID = async (req, res) => {
   }
 };
 
+// Trả hàng - Khách hàng trả sản phẩm đã nhận
+export const traHang = async (req, res) => {
+  try {
+    const { donHangID, lyDoTraHang } = req.body;
+
+    // Kiểm tra đơn hàng tồn tại
+    const donHang = await DonHang.findOne({
+      where: { donHangID },
+      include: [
+        {
+          model: Sach,
+          through: { attributes: ["soLuong", "donGia"] },
+        },
+      ],
+    });
+
+    if (!donHang) {
+      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    }
+
+    // Kiểm tra trạng thái đơn hàng (phải là "Hoàn thành" mới được trả)
+    if (donHang.trangThai !== "Hoàn thành") {
+      return res.status(400).json({
+        message: `Không thể trả hàng. Trạng thái đơn hàng phải là "Hoàn thành", hiện tại là "${donHang.trangThai}"`,
+      });
+    }
+
+    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
+    const t = await sequelize.transaction();
+    try {
+      // 1. Cập nhật trạng thái đơn hàng thành "Đã trả hàng"
+      donHang.trangThai = "Đã trả hàng";
+      donHang.ghiChu = lyDoTraHang || donHang.ghiChu;
+      await donHang.save({ transaction: t });
+
+      // 2. Tạo phiếu xuất loại "Khách trả hàng"
+      const phieuXuatMoi = await PhieuXuat.create(
+        {
+          donHangID: donHangID,
+          nguoiDungID: donHang.nguoiDungID,
+          tenKhachHang: donHang.tenKhachHang,
+          ngayXuat: new Date(),
+          loaiXuat: "Khách trả hàng",
+          ghiChu: `Lí do trả hàng: ${lyDoTraHang || "Không có lí do"}`,
+          nguoiXuat: "Hệ thống tự động",
+        },
+        { transaction: t }
+      );
+
+      // 3. Tạo chi tiết phiếu xuất và tăng số lượng tồn kho
+      for (const sach of donHang.Saches) {
+        const soLuong = sach.DonHang_Sach.soLuong;
+
+        // Tạo chi tiết phiếu xuất
+        // Lưu soLuongXuat là SỐ ÂM (-) để khi tính tồn kho: Nhập - Xuất sẽ cộng lại
+        // Ví dụ: 10 nhập - (-10 xuất) = 10 + 10 = 20
+        await ChiTietPhieuXuat.create(
+          {
+            phieuXuatID: phieuXuatMoi.phieuXuatID,
+            sachID: sach.sachID,
+            soLuongXuat: -soLuong, // SỐ ÂM - để cộng lại tồn kho
+            donGiaBan: sach.DonHang_Sach.donGia,
+            thanhTien: soLuong * sach.DonHang_Sach.donGia, // Thành tiền giữ dương để dễ đọc (tiền hoàn lại)
+          },
+          { transaction: t }
+        );
+      }
+
+      await t.commit();
+
+      res.status(200).json({
+        message: "Trả hàng thành công. Phiếu xuất đã được tạo",
+        donHangID,
+        phieuXuatID: phieuXuatMoi.phieuXuatID,
+      });
+    } catch (err) {
+      await t.rollback();
+      console.error("Lỗi transaction khi trả hàng:", err);
+      return res.status(500).json({ message: err.message });
+    }
+  } catch (error) {
+    console.error("Lỗi khi trả hàng:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Xóa đơn hàng theo ID
 export const xoaDonHangTheoID = async (req, res) => {
   try {

@@ -181,3 +181,52 @@ export const xoaDonHangTheoID = async (donHangID) => {
     };
   }
 };
+
+// Trả hàng
+export const traHang = async (donHangID, lyDoTraHang) => {
+  try {
+    const response = await fetch(`${BASE_URL}/donHang/tra-hang`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        donHangID,
+        lyDoTraHang,
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return {
+          success: false,
+          message: "Đơn hàng không tồn tại",
+          error: "Không tìm thấy đơn hàng",
+        };
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        return {
+          success: false,
+          message: errorData.message || "Không thể trả hàng",
+          error: errorData.message,
+        };
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data,
+      message: "Trả hàng thành công",
+    };
+  } catch (error) {
+    console.error("Lỗi khi trả hàng:", error);
+    return {
+      success: false,
+      message: "Không thể trả hàng",
+      error: error.message,
+    };
+  }
+};

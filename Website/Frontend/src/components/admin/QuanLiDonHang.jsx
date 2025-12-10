@@ -13,6 +13,7 @@ const STATUS_OPTIONS = [
   "Đã xác nhận",
   "Đang giao",
   "Hoàn thành",
+  "Đã trả hàng",
   "Đã hủy",
 ];
 
@@ -97,9 +98,17 @@ function QuanLiDonHang() {
     setSelectedOrder(order); // Lưu đơn hàng đã chọn để hiển thị trong modal
   };
 
+  // Reload danh sách đơn hàng từ server
+  const reloadDonHang = async () => {
+    const res = await layTatCaDonHang();
+    setUserOrder(Array.isArray(res) ? res : res.data || []);
+  };
+
   // Đóng modal
   const closeModal = () => {
     setSelectedOrder(null);
+    // Reload danh sách đơn hàng khi đóng modal để cập nhật trạng thái mới
+    reloadDonHang();
   };
 
   const filteredOrders = userOrder.filter((order) => {

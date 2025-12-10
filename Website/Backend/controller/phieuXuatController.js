@@ -104,7 +104,18 @@ export const taoPhieuXuat = async (req, res) => {
           attributes: [
             [sequelize.fn("SUM", sequelize.col("soLuongXuat")), "total"],
           ],
-          where: { sachID },
+          where: {
+            sachID,
+            // Chỉ tính phiếu xuất loại "bán hàng", không tính "Khách trả hàng"
+            "$PhieuXuat.loaiXuat$": "bán hàng",
+          },
+          include: [
+            {
+              model: PhieuXuat,
+              attributes: [],
+              required: true,
+            },
+          ],
           raw: true,
           transaction: t,
         });
