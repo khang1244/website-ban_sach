@@ -457,15 +457,83 @@ function ChiTietSanPham() {
 
       {/* Bình luận */}
       <div className="max-w-6xl mx-auto mt-4">
-        <div className="bg-amber-100 rounded-xl p-4 shadow">
-          {/* Tiêu đề + số bình luận */}
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xl font-bold text-[#00809D]">Bình luận</h3>
-            {Array.isArray(binhLuan) && binhLuan.length > 0 && (
-              <span className="text-xs text-gray-600">
-                {binhLuan.length} bình luận
+        {/* Phần Đánh giá sản phẩm */}
+        <div className="bg-white rounded-xl p-8 shadow-lg mb-4">
+          <h3 className="text-2xl font-bold text-[#00809D] mb-6">
+            Đánh giá sản phẩm
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Cột trái: Tổng điểm */}
+            <div className="flex flex-col items-center justify-center border-r md:border-r border-gray-200">
+              <div className="text-6xl font-bold text-gray-800 mb-2">
+                {Array.isArray(binhLuan) && binhLuan.length > 0
+                  ? (
+                      binhLuan.reduce((sum, b) => sum + (b.danhGia || 0), 0) /
+                      binhLuan.length
+                    ).toFixed(1)
+                  : "0"}
+              </div>
+              <span className="text-sm text-gray-600">
+                /{Array.isArray(binhLuan) && binhLuan.length > 0 ? "5" : "0"}
               </span>
-            )}
+              <div className="flex text-yellow-400 mt-2 text-xl">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const avgRating =
+                    Array.isArray(binhLuan) && binhLuan.length > 0
+                      ? binhLuan.reduce((sum, b) => sum + (b.danhGia || 0), 0) /
+                        binhLuan.length
+                      : 0;
+                  return (
+                    <FaStar
+                      key={i}
+                      className={
+                        i < Math.round(avgRating) ? "" : "text-gray-300"
+                      }
+                    />
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                ({Array.isArray(binhLuan) ? binhLuan.length : 0} đánh giá)
+              </p>
+            </div>
+
+            {/* Cột phải: Biểu đồ */}
+            <div className="md:col-span-2 space-y-3">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = Array.isArray(binhLuan)
+                  ? binhLuan.filter((b) => b.danhGia === star).length
+                  : 0;
+                const percentage =
+                  Array.isArray(binhLuan) && binhLuan.length > 0
+                    ? ((count / binhLuan.length) * 100).toFixed(0)
+                    : 0;
+                return (
+                  <div key={star} className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-700 w-20">
+                      {star} sao
+                    </span>
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-yellow-400 h-2 rounded-full transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600 w-12 text-right">
+                      {percentage}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Tiêu đề + số bình luận */}
+          <div className="flex items-center justify-between mb-3 pt-4 border-gray-300">
+            <h4 className="text-lg font-bold text-[#00809D]">
+              Bình luận ({Array.isArray(binhLuan) ? binhLuan.length : 0})
+            </h4>
           </div>
 
           {/* Danh sách bình luận */}
