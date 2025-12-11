@@ -1,5 +1,7 @@
 import DonHang, { DonHang_Sach } from "../models/DonHang.js";
 import Sach from "../models/Sach.js";
+import HinhAnh from "../models/HinhAnh.js";
+import PhuongThucGiaoHang from "../models/PhuongThucGiaoHang.js";
 import sequelize from "../config/mysql_config.js";
 import KhuyenMai from "../models/KhuyenMai.js";
 import PhieuXuat from "../models/PhieuXuat.js";
@@ -340,6 +342,17 @@ export const nhanDonHangTheoID = async (req, res) => {
         {
           model: Sach,
           through: { attributes: ["soLuong", "donGia"] },
+          include: [
+            {
+              model: HinhAnh,
+              as: "hinhAnhs",
+              attributes: ["hinhAnhID", "url"],
+            },
+          ],
+        },
+        {
+          model: PhuongThucGiaoHang,
+          attributes: ["phuongThucGiaoHangID", "tenPhuongThuc", "phiGiaoHang"],
         },
       ],
     });

@@ -2,14 +2,21 @@ import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { FaArrowLeft, FaCheckCircle } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaTruck,
+  FaCreditCard,
+  FaCalendarAlt,
+} from "react-icons/fa";
 import { useEffect } from "react";
 import {
   layDonHangTheoID,
   capNhatTrangThaiDonHang,
   traHang,
 } from "../lib/don-hang-apis.js";
-import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis.js";
 import { taoBinhLuanMoi } from "../lib/binh-luan-apis.js";
 
 function FormBinhLuan({ sachID, dongFormBinhLuan }) {
@@ -134,7 +141,7 @@ function FormTraHang({ donHangID, dongForm, onTraHangSuccess }) {
 
   const xuLyTraHang = async (e) => {
     e.preventDefault();
-    
+
     if (!lyDoTraHang.trim()) {
       alert("Vui lòng nhập lí do trả hàng");
       return;
@@ -221,8 +228,6 @@ function ChiTietDonHang() {
 
   // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
   const [duLieuDonHang, setDuLieuDonHang] = useState(null);
-  // Tạo biến trạng thái lưu danh sách phương thức giao hàng
-  const [shippingMethods, setShippingMethods] = useState([]);
   // Nạp dữ liệu đơn hàng từ server dựa vào id (sử dụng useEffect trong thực tế)
   const [sachIDDangBinhLuan, setSachIDDangBinhLuan] = useState(null);
   // State cho modal trả hàng
@@ -238,19 +243,6 @@ function ChiTietDonHang() {
     };
     napDonHang();
   }, [id]);
-  // Nạp danh sách phương thức giao hàng từ server
-  useEffect(() => {
-    const napPhuongThucGiaoHang = async () => {
-      // Giả sử gọi API để lấy danh sách phương thức giao hàng
-      const response = await layTatCaPhuongThucGiaoHang();
-      if (response && response.success) {
-        console.log("Danh sách phương thức giao hàng:", response.data);
-
-        setShippingMethods(response.data);
-      }
-    };
-    napPhuongThucGiaoHang();
-  }, []);
 
   // Xử lý hủy đơn hàng
   const xuLyHuyDonHang = async (donHangID, trangThaiMoi) => {
@@ -266,133 +258,327 @@ function ChiTietDonHang() {
       alert("Lỗi khi hủy đơn hàng:", phanHoiTuSever.message);
     }
   };
-  // Helper function để định dạng lại ngày tháng
-  function formatDate(dateString) {
-    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  }
+  const formatDateTime = (dateString) =>
+    new Date(dateString)
+      .toLocaleString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      .replace(",", "");
+
+  const formatMoney = (value) =>
+    typeof value === "number"
+      ? value.toLocaleString("vi-VN", { minimumFractionDigits: 0 })
+      : "-";
+
+  const getStatusTone = (status = "") => {
+    const s = status.toLowerCase();
+    if (s.includes("hủy")) return "bg-rose-100 text-rose-700 border-rose-200";
+    if (s.includes("hoàn thành"))
+      return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    if (s.includes("đã giao"))
+      return "bg-green-100 text-green-700 border-green-200";
+    if (s.includes("đang giao"))
+      return "bg-sky-100 text-sky-700 border-sky-200";
+    if (s.includes("chờ") || s.includes("xử lý"))
+      return "bg-amber-100 text-amber-700 border-amber-200";
+    return "bg-slate-100 text-slate-700 border-slate-200";
+  };
+
+  const getFirstImage = (hinhAnhs) => {
+    try {
+      if (Array.isArray(hinhAnhs) && hinhAnhs.length > 0) {
+        console.log("Hình ảnh của sản phẩm:", hinhAnhs);
+        return hinhAnhs[0]?.url || null;
+      }
+      console.log("Không có hình ảnh:", hinhAnhs);
+      return null;
+    } catch (error) {
+      console.error("Lỗi khi lấy hình ảnh:", error);
+      return null;
+    }
+  };
+
+  const tinhTamTinhSanPham = (saches) => {
+    if (!Array.isArray(saches)) return 0;
+    return saches.reduce((sum, sp) => {
+      const sl = sp?.DonHang_Sach?.soLuong || 0;
+      const gia = sp?.DonHang_Sach?.donGia || 0;
+      return sum + sl * gia;
+    }, 0);
+  };
   return (
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
       <Navigation />
-      <div className="max-w-5xl mx-auto py-10 px-4">
+      <div className="max-w-6xl mx-auto py-10 px-4">
         <Link
           to="/lichsumuahang"
           className="flex items-center gap-2 text-blue-600 hover:underline mb-6 font-semibold"
         >
           <FaArrowLeft /> Quay lại lịch sử đơn hàng
         </Link>
-        <div className="bg-white rounded-xl shadow-xl p-8 mb-8 relative">
-          {duLieuDonHang && duLieuDonHang.trangThai === "Chờ xác nhận" && (
-            <button
-              onClick={() => xuLyHuyDonHang(duLieuDonHang.donHangID, "Đã hủy")}
-              className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-blue-700 rounded-2xl"
-            >
-              Hủy đơn hàng
-            </button>
-          )}
-          <h1 className="text-2xl font-bold text-[#00809D] mb-4">
-            Chi Tiết Đơn Hàng #{duLieuDonHang ? duLieuDonHang.donHangID : ""}
-          </h1>
-          <div className="mb-2 text-gray-700">
-            Ngày đặt:{" "}
-            <span className="font-semibold">
-              {duLieuDonHang ? formatDate(duLieuDonHang.createdAt) : ""}
-            </span>
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8 border border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-sm text-slate-500">Mã đơn</p>
+              <h1 className="text-3xl font-bold text-sky-700">
+                #{duLieuDonHang ? duLieuDonHang.donHangID : ""}
+              </h1>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {duLieuDonHang && duLieuDonHang.trangThai === "Chờ xác nhận" && (
+                <button
+                  onClick={() =>
+                    xuLyHuyDonHang(duLieuDonHang.donHangID, "Đã hủy")
+                  }
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-slate-500 to-slate-600 text-white px-5 py-2 rounded-lg font-semibold shadow-md hover:from-slate-600 hover:to-slate-700 hover:shadow-lg active:scale-95 transition-all duration-150"
+                >
+                  Hủy đơn hàng
+                </button>
+              )}
+              {duLieuDonHang && duLieuDonHang.trangThai === "Hoàn thành" && (
+                <button
+                  onClick={() => setHienThiModalTraHang(true)}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2 rounded-lg font-semibold shadow-md hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg active:scale-95 transition-all duration-150"
+                >
+                  Trả Hàng
+                </button>
+              )}
+            </div>
           </div>
-          <div className="mb-2 text-gray-700">
-            Địa chỉ nhận hàng:{" "}
-            <span className="font-semibold">
-              {duLieuDonHang?.diaChiGiaoHang}
-            </span>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-slate-700">
+                <FaCalendarAlt className="text-slate-400" />
+                <div>
+                  <p className="text-sm text-slate-500">Ngày đặt</p>
+                  <p className="font-semibold">
+                    {duLieuDonHang
+                      ? formatDateTime(duLieuDonHang.createdAt)
+                      : ""}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-slate-700">
+                <FaMapMarkerAlt className="text-slate-400 mt-1" />
+                <div>
+                  <p className="text-sm text-slate-500">Địa chỉ nhận</p>
+                  <p className="font-semibold leading-snug">
+                    {duLieuDonHang?.diaChiGiaoHang}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <FaPhoneAlt className="text-slate-400" />
+                <div>
+                  <p className="text-sm text-slate-500">Số điện thoại</p>
+                  <p className="font-semibold">
+                    {duLieuDonHang?.soDienThoaiKH}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-slate-700">
+                <FaTruck className="text-slate-400" />
+                <div>
+                  <p className="text-sm text-slate-500">Trạng thái</p>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full border ${getStatusTone(
+                      duLieuDonHang?.trangThai
+                    )}`}
+                  >
+                    {duLieuDonHang?.trangThai || "Đang cập nhật"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <FaCreditCard className="text-slate-400" />
+                <div>
+                  <p className="text-sm text-slate-500">Thanh toán</p>
+                  <p className="font-semibold">
+                    {duLieuDonHang?.phuongThucThanhToan || "-"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <FaTruck className="text-slate-400" />
+                <div>
+                  <p className="text-sm text-slate-500">Phí vận chuyển</p>
+                  <p className="font-semibold">
+                    {formatMoney(
+                      duLieuDonHang?.PhuongThucGiaoHang?.phiGiaoHang || 0
+                    )}{" "}
+                    đ
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="mb-2 text-gray-700">
-            Trạng thái:{" "}
-            <span
-              className={
-                duLieuDonHang?.trangThai === "Đã giao hàng"
-                  ? "text-green-600 font-bold"
-                  : "text-yellow-600 font-bold"
-              }
-            >
-              {duLieuDonHang?.trangThai}
-            </span>
-          </div>
-          <div className="mb-2 text-gray-700">
-            Chi phí vận chuyển:{" "}
-            <span className="font-semibold">
-              {shippingMethods
-                ?.find(
-                  (m) =>
-                    m.phuongThucGiaoHangID ===
-                    duLieuDonHang?.phuongThucGiaoHangID
-                )
-                ?.phiGiaoHang.toLocaleString() + "đ"}
-            </span>
-          </div>
-          <div className="mb-2 text-gray-700">
-            Mã giảm giá:{" "}
-            <span className="font-semibold">
-              {duLieuDonHang?.tienGiam && duLieuDonHang?.tienGiam !== ""
-                ? "-" + duLieuDonHang.tienGiam.toLocaleString() + "đ"
-                : "Không sử dụng"}
-            </span>
-          </div>
-          <div className="mb-2 text-gray-700">
-            Tổng tiền:{" "}
-            <span className="font-bold text-[#00809D]">
-              {duLieuDonHang?.tongTien.toLocaleString()}đ
-            </span>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-xl p-8 mb-8">
-          <h2 className="text-xl font-bold text-[#00809D] mb-4">
-            Sản phẩm trong đơn hàng
-          </h2>
-          <table className="w-full text-left  text-black">
-            <thead>
-              <tr className="border-b text-black">
-                <th className="py-2">Sản phẩm</th>
-                <th className="py-2">Số lượng</th>
-                <th className="py-2">Đơn giá</th>
-                <th className="py-2">Tạm tính</th>
-                <th className="py-2">Bình luận</th>
-              </tr>
-            </thead>
-            <tbody>
-              {duLieuDonHang &&
-                duLieuDonHang.Saches.map((item, idx) => (
-                  <tr key={idx} className="border-b">
-                    <td className="py-3 font-semibold text-[#00809D]">
-                      {item.tenSach}
-                    </td>
-                    <td className="py-3">{item.DonHang_Sach.soLuong}</td>
-                    <td className="py-3">
-                      {item.DonHang_Sach.donGia.toLocaleString()}đ
-                    </td>
-                    <td className="py-3">
-                      {(
-                        item.DonHang_Sach.donGia * item.DonHang_Sach.soLuong
-                      ).toLocaleString()}
-                      đ
-                    </td>
-                    <td className="py-3">
-                      {duLieuDonHang?.trangThai === "Hoàn thành" ? (
-                        <button
-                          onClick={() => setSachIDDangBinhLuan(item.sachID)}
-                          className="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-[#00809D] hover:text-white transition"
-                        >
-                          Bình luận
-                        </button>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">
-                          Chưa hoàn thành mua hàng
+
+          {(() => {
+            const phiShip = duLieuDonHang?.PhuongThucGiaoHang?.phiGiaoHang || 0;
+            const giamGia = duLieuDonHang?.tienGiam || 0;
+            const tamTinhSP = tinhTamTinhSanPham(duLieuDonHang?.Saches);
+            const tongThanhToan =
+              duLieuDonHang?.tongTien ??
+              Math.max(tamTinhSP + phiShip - giamGia, 0);
+
+            return (
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {/* Tạm tính sản phẩm */}
+                <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-slate-600">
+                      Tạm tính sản phẩm
+                    </p>
+                    <svg
+                      className="w-4 h-4 text-slate-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M10.5 1.5H4.75A1.25 1.25 0 003.5 2.75v14.5A1.25 1.25 0 004.75 18.5h10.5a1.25 1.25 0 001.25-1.25V8m-4-6.5v6.5m-5-6.5v6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {formatMoney(tamTinhSP)} đ
+                  </p>
+                </div>
+
+                {/* Chi phí vận chuyển và giảm giá */}
+                <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-5 border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <FaTruck className="text-slate-400 text-sm" />
+                        <span className="text-sm font-medium text-slate-600">
+                          Phí vận chuyển
                         </span>
+                      </div>
+                      <span className="text-sm font-bold text-emerald-700">
+                        +{formatMoney(phiShip)} đ
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-slate-600">
+                        Giảm giá
+                      </span>
+                      <span className="text-sm font-bold text-rose-600">
+                        -{formatMoney(giamGia)} đ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tổng thanh toán */}
+                <div className="rounded-2xl bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 p-5 border-2 border-sky-200 shadow-sm hover:shadow-md transition ring-1 ring-sky-100">
+                  <p className="text-sm font-medium text-slate-600 mb-2">
+                    Tổng thanh toán
+                  </p>
+                  <p className="text-3xl font-black text-sky-700 mb-2">
+                    {formatMoney(tongThanhToan)} đ
+                  </p>
+                  <div className="pt-2 border-t border-sky-200">
+                    <p className="text-xs text-slate-500">
+                      ✓ Đã bao gồm phí vận chuyển và giảm giá
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8 border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-900">
+              Sản phẩm trong đơn
+            </h2>
+            <span className="text-sm text-slate-500">
+              {duLieuDonHang?.Saches?.length || 0} sản phẩm
+            </span>
+          </div>
+
+          <div className="divide-y divide-slate-200">
+            {duLieuDonHang?.Saches?.map((item, idx) => {
+              const img = getFirstImage(item?.hinhAnhs);
+              const soLuong = item.DonHang_Sach?.soLuong || 0;
+              const donGia = item.DonHang_Sach?.donGia || 0;
+              const tamTinh = soLuong * donGia;
+
+              return (
+                <div
+                  key={idx}
+                  className="py-4 flex flex-col sm:flex-row sm:items-center gap-4"
+                >
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={item.tenSach}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-slate-400 text-xs">No image</span>
                       )}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-slate-900 truncate">
+                        {item.tenSach}
+                      </p>
+                      <p className="text-sm text-slate-500 mt-1">
+                        Mã sách: {item.sachID}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-700">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
+                          SL: {soLuong}
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
+                          Đơn giá: {formatMoney(donGia)} đ
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-3">
+                    <div className="text-right px-4 py-3 rounded-xl ">
+                      <p className="text-xs font-semibold text-slate-600 mb-2">
+                        Tạm tính
+                      </p>
+                      <p className="text-2xl font-black text-emerald-700">
+                        {formatMoney(tamTinh)} đ
+                      </p>
+                    </div>
+                    {duLieuDonHang?.trangThai === "Hoàn thành" ? (
+                      <button
+                        onClick={() => setSachIDDangBinhLuan(item.sachID)}
+                        className="px-3 py-2 text-sm font-semibold text-slate-70 transition text-black border border-slate-300 rounded-lg hover:bg-slate-100 hover:border-slate-400"
+                      >
+                        Đánh giá sản phẩm
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">
+                        Đơn chưa giao hàng không thể bình luận
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
         {sachIDDangBinhLuan && (
           <FormBinhLuan
@@ -409,27 +595,14 @@ function ChiTietDonHang() {
             </span>
           </div>
         )}
-        {duLieuDonHang?.trangThai === "Hoàn thành" && (
-          <div className="flex items-center gap-3 bg-blue-100 text-blue-700 rounded-lg p-5 mb-8">
-            <span className="text-2xl">📦</span>
-            <div className="flex-1">
-              <p className="font-semibold">Đơn hàng đã hoàn thành</p>
-              <p className="text-sm">Bạn có thể trả hàng nếu có vấn đề gì không?</p>
-            </div>
-            <button
-              onClick={() => setHienThiModalTraHang(true)}
-              className="whitespace-nowrap px-5 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
-            >
-              Trả Hàng
-            </button>
-          </div>
-        )}
         {duLieuDonHang?.trangThai === "Đã trả hàng" && (
           <div className="flex items-center gap-3 bg-amber-100 text-amber-700 rounded-lg p-5 mb-8">
             <span className="text-2xl">✅</span>
             <div className="flex-1">
               <p className="font-semibold">Đã trả hàng thành công</p>
-              <p className="text-sm">Cảm ơn bạn, phiếu xuất đã được tạo và gửi về kho</p>
+              <p className="text-sm">
+                Cảm ơn bạn, phiếu xuất đã được tạo và gửi về kho
+              </p>
             </div>
           </div>
         )}

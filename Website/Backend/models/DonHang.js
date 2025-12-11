@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
 import Sach from "./Sach.js";
 import NguoiDung from "./NguoiDung.js";
+import PhuongThucGiaoHang from "./PhuongThucGiaoHang.js";
 // Định nghãi model DonHang
 const DonHang = sequelize.define(
   "DonHang",
@@ -121,5 +122,9 @@ Sach.belongsToMany(DonHang, { through: DonHang_Sach, foreignKey: "sachID" });
 // Tạo liên kết cho bảng DonHang với bảng NguoiDung
 DonHang.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
 NguoiDung.hasMany(DonHang, { foreignKey: "nguoiDungID" });
+
+// Tạo liên kết cho bảng DonHang với bảng PhuongThucGiaoHang
+DonHang.belongsTo(PhuongThucGiaoHang, { foreignKey: "phuongThucGiaoHangID" });
+PhuongThucGiaoHang.hasMany(DonHang, { foreignKey: "phuongThucGiaoHangID" });
 
 export default DonHang;
