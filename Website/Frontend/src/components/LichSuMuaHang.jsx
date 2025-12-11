@@ -19,6 +19,8 @@ import { nhanDonHangCuaMotNguoiDung } from "../lib/don-hang-apis.js";
 function LichSuMuaHang() {
   // Biến trạng thái để lưu trữ danh sách đơn hàng của người dùng
   const [userOrders, setUserOrders] = React.useState([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 5; // Số đơn hàng trên mỗi trang
 
   // Helper function định dạng ngày + giờ
   function formatDate(dateString) {
@@ -95,12 +97,19 @@ function LichSuMuaHang() {
         const donHang = await nhanDonHangCuaMotNguoiDung(nguoiDungID);
         console.log("Đơn hàng lấy từ server:", donHang);
         setUserOrders(donHang);
+        setCurrentPage(1); // Reset về trang 1 khi load dữ liệu mới
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu đơn hàng:", error);
       }
     }
     napDuLieuDonHangCuaNguoiDung();
   }, []);
+
+  // Tính toán phân trang
+  const totalPages = Math.ceil(userOrders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentOrders = userOrders.slice(startIndex, endIndex);
 
   // BẮT ĐẦU PHẦN SỬA ĐỔI GIAO DIỆN CHUYÊN NGHIỆP TRONG RETURN
   return (
@@ -162,7 +171,7 @@ function LichSuMuaHang() {
               </thead>
               {/* Body */}
               <tbody className="bg-white divide-y divide-gray-200">
-                {userOrders.map((order) => {
+                {currentOrders.map((order) => {
                   const status = getStatusStyle(order.trangThai);
                   return (
                     <tr
@@ -219,7 +228,7 @@ function LichSuMuaHang() {
 
             {/* Giao diện Card cho Mobile (md:hidden) */}
             <div className="space-y-4 p-4 md:hidden">
-              {userOrders.map((order) => {
+              {currentOrders.map((order) => {
                 const status = getStatusStyle(order.trangThai);
                 return (
                   <div
@@ -276,6 +285,49 @@ function LichSuMuaHang() {
                 );
               })}
             </div>
+
+            {/* // Phân trang cho danh sách đơn hàng */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 p-6 border-t border-gray-200">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  ← Trước
+                </button>
+
+                <div className="flex gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 rounded-lg font-semibold transition ${
+                          currentPage === page
+                            ? "bg-[#00809D] text-white"
+                            : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  Sau →
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
