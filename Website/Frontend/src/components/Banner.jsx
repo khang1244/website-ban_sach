@@ -85,22 +85,21 @@ function Banner() {
           </div>
         </div>
       </div>
-      <div className=" relative w-full overflow-hidden rounded-4xl">
-        {/* Dòng chạy thông báo */}
-        <div className="mb-4 w-full overflow-hidden rounded-full bg-white/10 border border-white/15 backdrop-blur-md">
-          <div
-            className="whitespace-nowrap text-white font-semibold text-sm py-2 px-4"
-            style={{
-              display: "inline-block",
-              animation: "marquee 18s linear infinite",
-            }}
-          >
-            Ưu đãi tuần này từ 11/12/2025 - 30/12/2025: Giảm 15% đơn &gt; 300k
-            với mã giảm già là SALE15 . Mọi người nhanh chóng săn sale kẻo hết
-            nhé số lượng có hạn!
-          </div>
+      {/* Dòng chạy thông báo */}
+      <div className="mb-4 w-full overflow-hidden rounded-s-lg bg-white/10 border border-white/15 backdrop-blur-md">
+        <div
+          className="whitespace-nowrap text-white font-semibold text-sm py-2 px-4 "
+          style={{
+            display: "inline-block",
+            animation: "marquee 18s linear infinite ",
+          }}
+        >
+          Ưu đãi tuần này từ 11/12/2025 - 30/12/2025: Giảm 15% đơn &gt; 300k với
+          mã giảm già là SALE15 . Mọi người nhanh chóng săn sale kẻo hết nhé số
+          lượng có hạn!
         </div>
-
+      </div>
+      <div className=" relative w-full overflow-hidden rounded-4xl">
         {/* Keyframes cho marquee */}
         <style>{`
           @keyframes marquee {
@@ -117,7 +116,7 @@ function Banner() {
           {bannerBooks.map((book) => (
             <div
               key={book.id}
-              className="w-full h-[400px] flex flex-shrink-0 flex-col items-center"
+              className="w-full h-[450px] flex flex-shrink-0 flex-col items-center"
             >
               <img
                 src={book.image}
