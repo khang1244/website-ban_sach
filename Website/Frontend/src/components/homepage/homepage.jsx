@@ -1,13 +1,13 @@
 import Navigation from "../Navigation";
 import Banner from "../Banner";
 import Footer from "../Footer";
-import sach4 from "../../assets/sach4.webp";
 import { CiHeart } from "react-icons/ci";
 import { FaFire } from "react-icons/fa";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import { FiGift, FiPhoneCall } from "react-icons/fi";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
@@ -226,15 +226,51 @@ function Homepage() {
                   </button>
                 ))}
 
-                {/* Phần Ảnh Quảng Cáo/Banner */}
-                {/* Đặt ảnh trong khung gọn gàng, không dùng border-4 thô */}
+                {/* Thẻ ưu đãi thay cho ảnh, gọn gàng và chuyên nghiệp */}
                 <div className="mt-7 w-full">
-                  <div className="rounded-lg overflow-hidden shadow-lg border border-gray-100">
-                    <img
-                      src={sach4}
-                      alt="Banner quảng cáo"
-                      className="w-full h-auto object-cover hover:scale-[1.03] transition-transform duration-500 ease-in-out"
-                    />
+                  <div className="rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white p-6 shadow-2xl border border-white/20 relative overflow-hidden group">
+                    {/* Decorative circles */}
+                    <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-all duration-300" />
+                    <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-all duration-300" />
+
+                    <div className="relative space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/80">
+                            💎 Đặc quyền VIP
+                          </p>
+                          <h5 className="text-2xl font-bold mt-1">
+                            Trở thành thành viên
+                          </h5>
+                        </div>
+                        <div className="text-4xl">🎁</div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 my-4">
+                        <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/25 transition-all">
+                          <div className="text-2xl mb-1">⚡</div>
+                          <p className="text-sm font-semibold">Giao nhanh 2h</p>
+                          <p className="text-xs text-white/70">Nội thành HCM</p>
+                        </div>
+                        <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/25 transition-all">
+                          <div className="text-2xl mb-1">💰</div>
+                          <p className="text-sm font-semibold">Tích điểm 5%</p>
+                          <p className="text-xs text-white/70">Mỗi đơn hàng</p>
+                        </div>
+                        <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/25 transition-all">
+                          <div className="text-2xl mb-1">🔄</div>
+                          <p className="text-sm font-semibold">
+                            Đổi trả 7 ngày
+                          </p>
+                          <p className="text-xs text-white/70">Không phí</p>
+                        </div>
+                        <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/25 transition-all">
+                          <div className="text-2xl mb-1">🎧</div>
+                          <p className="text-sm font-semibold">Hỗ trợ 24/7</p>
+                          <p className="text-xs text-white/70">Hotline riêng</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
