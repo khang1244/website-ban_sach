@@ -1,4 +1,4 @@
-import avatar from "../assets/avatar.jpg";
+import avatar from "../assets/logo.jpg";
 import { CiShoppingCart } from "react-icons/ci";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import SangToi from "./sangtoi";
@@ -34,7 +34,7 @@ function Navigation() {
   };
 
   return (
-    <nav className="bg-amber-900 px-6 py-6 flex justify-between items-center text-shadow-black border-b-[1px] border-b-[#abd1db] sticky top-0 z-50 shadow-lg">
+    <nav className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-4 flex justify-between items-center text-shadow-black border-b-[1px] border-b-pink-500 sticky top-0 z-50 shadow-xl">
       {/* Toast */}
       <ThongBaoChay
         show={toast.show}
@@ -47,38 +47,38 @@ function Navigation() {
       />
       {/* Logo + menu chính */}
       <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
-          <Link to="/">
-            <img
-              src={avatar}
-              alt="logo"
-              className="h-12 w-12 rounded-full border-2 border-white hover:scale-125 transition-transform"
-            />
-          </Link>
-          <div>
-            <h1 className="text-2xl italic text-amber-300 font-black">
-              <Link to="/">HOÀNG KHANG</Link>
-            </h1>
-          </div>
-        </div>
-        <ul className="flex space-x-4 justify-end items-center font-semibold">
-          <li className="hover:text-amber-400 cursor-pointer">Trang Chủ</li>
-          <li className="hover:text-amber-400 cursor-pointer">Giới Thiệu</li>
-          <li className="hover:text-amber-400 cursor-pointer">Dịch Vụ</li>
-          <li className="hover:text-amber-400 cursor-pointer">Liên Hệ</li>
+        <Link to="/" className="transition-all duration-200 hover:scale-105">
+          <img
+            src={avatar}
+            alt="Logo Nhà Sách Hoàng Khang"
+            className="h-16 w-auto object-contain rounded-xl shadow-lg border border-white/20 hover:border-white/50 transition-all"
+          />
+        </Link>
+        <ul className="hidden lg:flex space-x-6 items-center font-bold text-white drop-shadow-lg">
+          <li className="hover:text-yellow-300 cursor-pointer transition-colors text-base">
+            Trang Chủ
+          </li>
+          <li className="hover:text-yellow-300 cursor-pointer transition-colors text-base">
+            Giới Thiệu
+          </li>
+          <li className="hover:text-yellow-300 cursor-pointer transition-colors text-base">
+            Dịch Vụ
+          </li>
+          <li className="hover:text-yellow-300 cursor-pointer transition-colors text-base">
+            Liên Hệ
+          </li>
         </ul>
       </div>
       {/* Phần bên phải */}
       <div className="flex items-center space-x-4 relative">
-        <IoMdNotificationsOutline className="text-2xl hover:text-red-300 cursor-pointer hover:scale-125 transition-transform" />
-        <div className="border-l-2 border px-2 py-1 rounded-xl hover:scale-112 transition-transform bg-amber-300 text-black">
+        <IoMdNotificationsOutline className="text-2xl text-white hover:text-yellow-300 cursor-pointer hover:scale-125 transition-transform" />
+        <div className="border-l-2 border-yellow-300 px-2 py-1 rounded-xl hover:scale-105 transition-transform bg-gradient-to-r from-orange-400 to-rose-400 text-black font-semibold">
           <div className="flex gap-2">
-            <h1>Xám/xanh</h1>
             <SangToi />
           </div>
         </div>
         <Link to="/giohang" className="relative">
-          <CiShoppingCart className="text-2xl hover:text-red-400 cursor-pointer hover:scale-125 transition-transform" />
+          <CiShoppingCart className="text-2xl text-white hover:text-yellow-300 cursor-pointer hover:scale-125 transition-transform" />
           {cartCount > 0 && (
             <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
               {cartCount}

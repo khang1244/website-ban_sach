@@ -48,42 +48,26 @@ function Banner() {
 
   return (
     <div className="w-full px-5">
-      {/* tìm kiếm */}
-      <div className="flex justify-between items-center px-10 py-5.5 text-white">
-        <div className="flex items-center gap-3">
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-100 border-white text-black flex items-center justify-center font-bold text-xl">
-            H
-          </div>
-
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-200 border-white text-black flex items-center justify-center font-bold text-xl">
-            O
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-300 border-white text-black flex items-center justify-center font-bold text-xl">
-            À
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-400 border-white text-black flex items-center justify-center font-bold text-xl">
-            N
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-500 border-white text-black flex items-center justify-center font-bold text-xl">
-            G
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-600 border-white text-black flex items-center justify-center font-bold text-xl">
-            K
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-700 border-white text-black flex items-center justify-center font-bold text-xl">
-            H
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
-            A
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
-            N
-          </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 bg-amber-800 border-white text-black flex items-center justify-center font-bold text-xl">
-            G
-          </div>
+      {/* tìm kiếm + tagline/benefits */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-10 py-5.5 text-white">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-white/95">
+            Sách hay, giao nhanh, đổi trả 7 ngày
+          </span>
+          <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-teal-400 to-emerald-500 text-white font-semibold shadow-sm shadow-emerald-500/30">
+            Freeship
+          </span>
+          <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 text-white font-semibold shadow-sm shadow-pink-500/30">
+            Ưu đãi tuần này
+          </span>
+          <a
+            href="tel:1900xxxx"
+            className="px-4 py-1.5 rounded-full bg-white/10 border border-white/25 text-white/95 hover:bg-white/15 transition"
+          >
+            Hotline: 0762835400
+          </a>
         </div>
-        <div className="w-1/2 relative">
+        <div className="w-full md:w-1/2 relative">
           {/* Thanh tìm kiếm */}
           <input
             type="text"
@@ -102,6 +86,29 @@ function Banner() {
         </div>
       </div>
       <div className=" relative w-full overflow-hidden rounded-4xl">
+        {/* Dòng chạy thông báo */}
+        <div className="mb-4 w-full overflow-hidden rounded-full bg-white/10 border border-white/15 backdrop-blur-md">
+          <div
+            className="whitespace-nowrap text-white font-semibold text-sm py-2 px-4"
+            style={{
+              display: "inline-block",
+              animation: "marquee 18s linear infinite",
+            }}
+          >
+            Ưu đãi tuần này từ 11/12/2025 - 30/12/2025: Giảm 15% đơn &gt; 300k
+            với mã giảm già là SALE15 . Mọi người nhanh chóng săn sale kẻo hết
+            nhé số lượng có hạn!
+          </div>
+        </div>
+
+        {/* Keyframes cho marquee */}
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
+        `}</style>
+
         {/* Slides */}
         <div
           className="flex transition-transform ease-in-out duration-700"

@@ -1,21 +1,18 @@
 @import "tailwindcss";
 
 body {
-    font-family: "Roboto", sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .test {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 body {
-  @apply bg-blue-500 text-white ; /* màu chữ đậm vừa phải */
+  @apply bg-blue-900 text-white; /* màu chữ đậm vừa phải */
 }
 
 html.dark body {
-  @apply bg-gray-700  text-white ; /* font-weight giống nhau */
+  @apply bg-green-800 text-white; /* font-weight giống nhau */
 }
-
-
-
