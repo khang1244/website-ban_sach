@@ -8,7 +8,7 @@ import {
 import { useEffect } from "react";
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
-function QuanLiKhuyenMai() {
+function QuanLyKhuyenMai() {
   // thông báo chạy khi thêm, sửa, xóa
   const [toast, setToast] = useState({
     show: false,
@@ -25,7 +25,7 @@ function QuanLiKhuyenMai() {
   };
   // trạng thái danh sách mã khuyến mãi
   const [promos, setPromos] = useState([]);
-  // --- PHÂN TRANG giống QuanLiDonHang ---
+  // --- PHÂN TRANG giống QuanLyDonHang ---
   const promosMotTrang = 4; // số mục mỗi trang
   const [trangHienTai, setTrangHienTai] = useState(1);
   // trạng thái biểu mẫu
@@ -472,4 +472,4 @@ function QuanLiKhuyenMai() {
     </div>
   );
 }
-export default QuanLiKhuyenMai;
+export default QuanLyKhuyenMai;

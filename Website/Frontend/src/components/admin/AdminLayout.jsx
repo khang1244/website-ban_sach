@@ -5,7 +5,7 @@ import { UserContext } from "../../contexts/user-context";
 const sidebarLinks = [
   { label: "Quản lý chung", to: "/admin" },
   { label: "Quản lý sách", to: "/admin/sach" },
-  { label: "Danh mục sách", to: "/admin/danhmucsach" },
+  { label: "Quản lý danh mục", to: "/admin/danhmucsach" },
   { label: "Quản lý đơn hàng", to: "/admin/donhang" },
   { label: "Quản lý Người dùng", to: "/admin/nguoidung" },
   { label: "Quản lý Bình luận", to: "/admin/binhluan" },

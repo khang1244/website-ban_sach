@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { layThongKe } from "../../lib/thong-ke-apis";
 
-function QuanLiChung() {
+function QuanLyChung() {
   // Biến trạng thái để lưu trữ các thống kê chung
   const [thongKe, setThongKe] = useState({
     tongDoanhThu: 0,
@@ -112,4 +112,4 @@ function QuanLiChung() {
   );
 }
 
-export default QuanLiChung;
+export default QuanLyChung;

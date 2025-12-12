@@ -10,7 +10,7 @@ import { FaEdit } from "react-icons/fa";
 const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 
-function QuanLiSach() {
+function QuanLySach() {
   const [books, setBooks] = useState([]);
   const [form, setForm] = useState({
     sachID: null,
@@ -672,4 +672,4 @@ function QuanLiSach() {
   );
 }
 
-export default QuanLiSach;
+export default QuanLySach;

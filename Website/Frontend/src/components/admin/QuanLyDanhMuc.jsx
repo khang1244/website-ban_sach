@@ -15,7 +15,7 @@ import {
 } from "../../lib/danh-muc-sach-apis";
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
-function DanhMucSach() {
+function QuanLyDanhMuc() {
   // thông báo chạy khi thêm, sửa, xóa
   const [toast, setToast] = useState({
     show: false,
@@ -368,4 +368,4 @@ function DanhMucSach() {
   );
 }
 
-export default DanhMucSach;
+export default QuanLyDanhMuc;

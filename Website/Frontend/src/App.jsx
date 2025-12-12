@@ -15,15 +15,15 @@ import LichSuMuaHang from "./components/LichSuMuaHang";
 import ChiTietDonHang from "./components/ChiTietDonHang";
 import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
 import AdminLayout from "./components/admin/AdminLayout";
-import QuanLiChung from "./components/admin/QuanLiChung";
-import QuanLiSach from "./components/admin/QuanLiSach";
-import DanhMucSach from "./components/admin/DanhMucSach";
-import QuanLiKhuyenMai from "./components/admin/QuanLiKhuyenMai";
-import QuanLiPhuongThucGiaoHang from "./components/admin/QuanLiPhuongThucGiaoHang";
-import QuanLiDonHang from "./components/admin/QuanLiDonHang";
-import QuanLiNguoiDung from "./components/admin/QuanLiNguoiDung";
-import QuanLiBinhLuan from "./components/admin/QuanLiBinhLuan";
-import QuanLiTonKho from "./components/admin/QuanLiTonKho";
+import QuanLyChung from "./components/admin/QuanLyChung";
+import QuanLySach from "./components/admin/QuanLySach";
+import QuanLyDanhMuc from "./components/admin/QuanLyDanhMuc";
+import QuanLyKhuyenMai from "./components/admin/QuanLyKhuyenMai";
+import QuanLyPhuongThucGiaoHang from "./components/admin/QuanLyPhuongThucGiaoHang";
+import QuanLyDonHang from "./components/admin/QuanLyDonHang";
+import QuanLyNguoiDung from "./components/admin/QuanLyNguoiDung";
+import QuanLyBinhLuan from "./components/admin/QuanLyBinhLuan";
+import QuanLyTonKho from "./components/admin/QuanLyTonKho";
 
 function App() {
   return (
@@ -48,18 +48,18 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin/*" element={<AdminLayout />}>
-          <Route index element={<QuanLiChung />} />
-          <Route path="sach" element={<QuanLiSach />} />
-          <Route path="danhmucsach" element={<DanhMucSach />} />
-          <Route path="khuyenmai" element={<QuanLiKhuyenMai />} />
+          <Route index element={<QuanLyChung />} />
+          <Route path="sach" element={<QuanLySach />} />
+          <Route path="danhmucsach" element={<QuanLyDanhMuc />} />
+          <Route path="khuyenmai" element={<QuanLyKhuyenMai />} />
           <Route
             path="phuongthucgiaohang"
-            element={<QuanLiPhuongThucGiaoHang />}
+            element={<QuanLyPhuongThucGiaoHang />}
           />
-          <Route path="donhang" element={<QuanLiDonHang />} />
-          <Route path="nguoidung" element={<QuanLiNguoiDung />} />
-          <Route path="binhluan" element={<QuanLiBinhLuan />} />
-          <Route path="tonkho" element={<QuanLiTonKho />} />
+          <Route path="donhang" element={<QuanLyDonHang />} />
+          <Route path="nguoidung" element={<QuanLyNguoiDung />} />
+          <Route path="binhluan" element={<QuanLyBinhLuan />} />
+          <Route path="tonkho" element={<QuanLyTonKho />} />
         </Route>
       </Routes>
     </BrowserRouter>

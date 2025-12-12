@@ -27,7 +27,7 @@ import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường d�
  * Component quản lý phương thức giao hàng
  * Cho phép admin thêm, sửa, xóa và quản lý các phương thức giao hàng
  */
-function QuanLiPhuongThucGiaoHang() {
+function QuanLyPhuongThucGiaoHang() {
   // GIỮ NGUYÊN TẤT CẢ LOGIC VÀ STATE CỦA BẠN
   const [phuongThucGiaoHangs, setPhuongThucGiaoHangs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -730,4 +730,4 @@ function QuanLiPhuongThucGiaoHang() {
   );
 }
 
-export default QuanLiPhuongThucGiaoHang;
+export default QuanLyPhuongThucGiaoHang;

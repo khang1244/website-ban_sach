@@ -4,7 +4,7 @@ import { layTatCaPhieuNhap, taoPhieuNhap } from "../../lib/phieu-nhap-apis";
 import { layTatCaPhieuXuat } from "../../lib/phieu-xuat-apis";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 
-function QuanLiTonKho() {
+function QuanLyTonKho() {
   // State chung
   const [tabHienTai, setTabHienTai] = useState("tonkho"); // tonkho, phieunhap, phieuxuat
   const [danhSachSach, setDanhSachSach] = useState([]);
@@ -988,4 +988,4 @@ function QuanLiTonKho() {
   );
 }
 
-export default QuanLiTonKho;
+export default QuanLyTonKho;

@@ -6,7 +6,7 @@ import {
   duyetBinhLuanTheoID,
 } from "../../lib/binh-luan-apis";
 
-function QuanLiBinhLuan() {
+function QuanLyBinhLuan() {
   const [binhLuanXoa, setBinhLuanXoa] = useState([]); // Dữ liệu bình luận
   const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
   useEffect(() => {
@@ -266,4 +266,4 @@ function QuanLiBinhLuan() {
   );
 }
 
-export default QuanLiBinhLuan;
+export default QuanLyBinhLuan;

@@ -17,7 +17,7 @@ const STATUS_OPTIONS = [
   "Đã hủy",
 ];
 
-function QuanLiDonHang() {
+function QuanLyDonHang() {
   const [selectedOrder, setSelectedOrder] = useState(null); // Để mở modal khi nhấn vào "Xem"
   const [searchQuery, setSearchQuery] = useState(""); // Để lưu giá trị tìm kiếm
   const [userOrder, setUserOrder] = useState([]);
@@ -395,4 +395,4 @@ function QuanLiDonHang() {
   );
 }
 
-export default QuanLiDonHang;
+export default QuanLyDonHang;
