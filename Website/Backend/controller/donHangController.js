@@ -221,6 +221,14 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
 
     const trangThaiCu = donHang.trangThai;
 
+    // Nếu đơn hàng đã hủy hoặc đã trả hàng thì không cho phép cập nhật trạng thái nữa
+    if (trangThaiCu === "Đã hủy" || trangThaiCu === "Đã trả hàng") {
+      return res.status(400).json({
+        message:
+          "Không thể cập nhật trạng thái của đơn hàng đã hủy hoặc đã trả hàng",
+      });
+    }
+
     // Nếu trạng thái không thay đổi thì trả về ok
     if (trangThaiCu === trangThai) {
       return res

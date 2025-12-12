@@ -24,6 +24,7 @@ import QuanLyDonHang from "./components/admin/QuanLyDonHang";
 import QuanLyNguoiDung from "./components/admin/QuanLyNguoiDung";
 import QuanLyBinhLuan from "./components/admin/QuanLyBinhLuan";
 import QuanLyTonKho from "./components/admin/QuanLyTonKho";
+import BaoVeTuyenDuong from "./components/bao-ve/BaoVeTuyenDuong";
 
 function App() {
   return (
@@ -47,7 +48,14 @@ function App() {
         <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />
 
         {/* Admin Routes */}
-        <Route path="/admin/*" element={<AdminLayout />}>
+        <Route
+          path="/admin/*"
+          element={
+            <BaoVeTuyenDuong chiChoAdmin={true}>
+              <AdminLayout />
+            </BaoVeTuyenDuong>
+          }
+        >
           <Route index element={<QuanLyChung />} />
           <Route path="sach" element={<QuanLySach />} />
           <Route path="danhmucsach" element={<QuanLyDanhMuc />} />

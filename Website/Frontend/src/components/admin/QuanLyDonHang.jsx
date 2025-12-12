@@ -229,7 +229,16 @@ function QuanLyDonHang() {
                         onChange={(e) =>
                           handleStatusChange(order.donHangID, e.target.value)
                         }
-                        className="border border-gray-300 rounded-md p-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#004C61]"
+                        disabled={
+                          order.trangThai === "Đã hủy" ||
+                          order.trangThai === "Đã trả hàng"
+                        }
+                        className={`border border-gray-300 rounded-md p-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#004C61] ${
+                          order.trangThai === "Đã hủy" ||
+                          order.trangThai === "Đã trả hàng"
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
                       >
                         {STATUS_OPTIONS.map((status) => (
                           <option key={status} value={status}>
