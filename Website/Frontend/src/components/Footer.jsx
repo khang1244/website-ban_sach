@@ -4,27 +4,19 @@ import avatar from "../assets/logo.jpg";
 
 const Footer = () => {
   return (
-    <footer className="relative bg-[#0A0F1E] text-gray-300 pt-14 pb-10 px-6 md:px-12 mt-10">
+    <footer className="relative bg-emerald-900 text-gray-300 pt-14 pb-10 px-6 md:px-12 mt-10">
       {/* Hiệu ứng glassmorphism */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#101829] to-[#0A0F1E] opacity-90 pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-90 pointer-events-none"></div>
 
-      <div className="relative max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+      <div className="relative max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-35">
         {/* Column 1 */}
         <div>
           <div className="flex items-center gap-4">
             <img
               src={avatar}
               alt="Logo"
-              className="w-16 h-16 rounded-full shadow-lg ring-2 ring-white/10 hover:scale-105 transition"
+              className="w-70 h-20 shadow-lg ring-2 ring-white/10 hover:scale-105 transition rounded-2xl "
             />
-            <div>
-              <p className="text-xl text-white font-semibold tracking-wide">
-                ABC Books
-              </p>
-              <p className="text-[13px] text-gray-400 italic">
-                Chất lượng tạo nên thương hiệu
-              </p>
-            </div>
           </div>
 
           <p className="mt-5 text-sm text-gray-400 max-w-xs leading-relaxed">
@@ -102,8 +94,8 @@ const Footer = () => {
       </div>
 
       {/* bottom */}
-      <div className="relative mt-12 border-t border-gray-800 pt-4 text-center text-xs text-gray-500 tracking-wide">
-        © 2025 Hoàng Khang — All Rights Reserved.
+      <div className="relative mt-12 border-t border-gray-800 pt-4 text-center text-white text-gray-500 tracking-wide">
+        © 2025 Hoàng Khang — Tri thức bất tận
       </div>
     </footer>
   );

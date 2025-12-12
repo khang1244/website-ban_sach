@@ -1,6 +1,6 @@
-import sach3 from "../assets/logo.jpg";
-import sach1 from "../assets/sang.png";
-import sach5 from "../assets/toi.png";
+import sach3 from "../assets/banner1.png";
+import sach1 from "../assets/banner2.png";
+import sach5 from "../assets/banner3.png";
 export const bannerBooks = [
   {
     id: 9,
