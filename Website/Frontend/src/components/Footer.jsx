@@ -1,6 +1,6 @@
 import React from "react";
 import { FaFacebook, FaTiktok, FaTwitter } from "react-icons/fa6";
-import avatar from "../assets/avatar.jpg";
+import avatar from "../assets/logo.jpg";
 
 const Footer = () => {
   return (

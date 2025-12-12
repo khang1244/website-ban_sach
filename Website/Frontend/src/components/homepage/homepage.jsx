@@ -285,7 +285,21 @@ function Homepage() {
                   key={product.maSP}
                   className="rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer "
                 >
-                  <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                  <div className="relative w-full h-70 flex items-center justify-center px-1 py-1">
+                    {/* Badge phần trăm giảm giá */}
+                    {product.giaBan &&
+                      product.giaGiam &&
+                      product.giaBan > 0 && (
+                        <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow">
+                          -
+                          {Math.round(
+                            ((product.giaBan - product.giaGiam) /
+                              product.giaBan) *
+                              100
+                          )}
+                          %
+                        </span>
+                      )}
                     <img
                       src={product.images[0]?.url}
                       alt={product.tenSP}
@@ -444,7 +458,21 @@ function Homepage() {
                   key={product.maSP}
                   className="min-w-[200px] sm:min-w-[220px] md:min-w-[260px] rounded-md bg-white shadow-md hover:scale-105 overflow-hidden cursor-pointer"
                 >
-                  <div className="w-full h-70 flex items-center justify-center px-1 py-1">
+                  <div className="relative w-full h-70 flex items-center justify-center px-1 py-1">
+                    {/* Badge phần trăm giảm giá */}
+                    {product.giaBan &&
+                      product.giaGiam &&
+                      product.giaBan > 0 && (
+                        <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow">
+                          -
+                          {Math.round(
+                            ((product.giaBan - product.giaGiam) /
+                              product.giaBan) *
+                              100
+                          )}
+                          %
+                        </span>
+                      )}
                     <img
                       src={product.images[0]?.url}
                       alt={product.tenSP}

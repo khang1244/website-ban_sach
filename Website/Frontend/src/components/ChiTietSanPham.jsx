@@ -7,21 +7,24 @@ import {
   FaPlus,
   FaEye,
   FaFire,
-} from "react-icons/fa";
-import { RiShoppingCartLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
-import Footer from "./Footer";
+} from "react-icons/fa"; // import các icon cần thiết
+import { RiShoppingCartLine } from "react-icons/ri"; // icon giỏ hàng
+import { BsFire } from "react-icons/bs"; // icon sắp hết hàng
+import { SlPlane } from "react-icons/sl"; // icon vận chuyển
+import { MdWarning } from "react-icons/md"; // icon cảnh báo
+import { Link } from "react-router-dom"; // import Link từ react-router-dom
+import Footer from "./Footer"; // import Footer
 import {
   layChiTietSach,
   tangLuotXem,
   nhanTatCaCacQuyenSach,
-} from "../lib/sach-apis";
-import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis";
-import { nhanTatCaDanhMucSach } from "../lib/danh-muc-sach-apis";
-import { useParams } from "react-router-dom";
-import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis";
-import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis";
-import { UserContext } from "../contexts/user-context";
+} from "../lib/sach-apis"; // import các API liên quan đến sách
+import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis"; // import API lấy tồn kho
+import { nhanTatCaDanhMucSach } from "../lib/danh-muc-sach-apis"; // import API lấy danh mục sách
+import { useParams } from "react-router-dom"; // import useParams để lấy tham số từ URL
+import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis"; // import API thêm sản phẩm vào giỏ hàng
+import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis"; // import API lấy bình luận
+import { UserContext } from "../contexts/user-context"; // import UserContext để sử dụng context người dùng
 function ChiTietSanPham() {
   const [anhIndex, setAnhIndex] = useState(0);
   const [soLuong, setSoLuong] = useState(1);
@@ -277,9 +280,9 @@ function ChiTietSanPham() {
       <div className="max-w-6xl mx-auto mt-7 text-white py-1 text-2xl italic ml-38">
         Trang chủ / Chi tiết sản phẩm
       </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 ">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
         {/* Hình ảnh sản phẩm */}
-        <div className="flex flex-col items-center border p-4 rounded-xl shadow-lg   ">
+        <div className="flex flex-col items-center border p-4 rounded-xl shadow-lg h-full justify-center">
           <div className="w-[350px] h-[500px] rounded-xl overflow-hidden shadow-lg mb-4 bg-white flex items-center justify-center">
             <img
               src={chiTietSanPham.images[anhIndex].url}
@@ -305,72 +308,47 @@ function ChiTietSanPham() {
         </div>
 
         {/* Thông tin sản phẩm */}
-        <div className="relative bg-amber-100 rounded-xl shadow-lg p-8 flex flex-col gap-5">
-          <h2 className="text-3xl font-bold text-[#00809D] mb-3">
-            {chiTietSanPham.tenSach}
-          </h2>
-
-          {/* Badge trạng thái tồn kho - Chỉ hiển thị khi đã có tonKho */}
-          {tonKho !== undefined && tonKho !== null && (
-            <>
-              {tonKho <= 0 ? (
-                <div className="w-full flex items-center gap-2 bg-red-100 border-l-4 border-red-500 px-4 py-3 rounded text-red-700 font-semibold">
-                  <span className="text-xl">⚠️</span>
-                  <span>Hết hàng</span>
-                </div>
-              ) : tonKho < 10 ? (
-                <div className="w-full flex items-center gap-2 bg-orange-100 border-l-4 border-orange-600 px-4 py-3 rounded text-orange-700 font-semibold">
-                  <span className="text-xl">⚠️</span>
-                  <span>Sắp hết hàng - Chỉ còn {tonKho} cuốn</span>
-                </div>
-              ) : null}
-            </>
-          )}
-          {/* // Thông số chi tiết 1 quyển sách */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-base">
-            <div>
-              <span className="font-semibold">Tác giả:</span>{" "}
-              {chiTietSanPham.tacGia}
-            </div>
-            <div>
-              <span className="font-semibold">Nhà xuất bản:</span>{" "}
-              {chiTietSanPham.nhaXuatBan}
-            </div>
-            <div>
-              <span className="font-semibold">Ngày xuất bản:</span>{" "}
-              {formatDate(chiTietSanPham.ngayXuatBan)}
-            </div>
-            <div>
-              <span className="font-semibold">Ngôn ngữ:</span>{" "}
-              {chiTietSanPham.ngonNgu}
-            </div>
-            <div>
-              <span className="font-semibold">Danh mục sách:</span>{" "}
-              {tenDanhMuc || chiTietSanPham.danhMucSachID}
-            </div>
-            <div>
-              <span className="font-semibold">Số trang:</span>{" "}
-              {chiTietSanPham.soTrang}
-            </div>
-            <div>
-              <span className="font-semibold">Định dạng:</span>{" "}
-              {chiTietSanPham.dinhDang}
-            </div>
-            <div>
-              <span className="font-semibold">Số lượng còn lại:</span> {tonKho}
-            </div>
+        <div className="bg-white rounded-xl shadow-lg p-7 border border-gray-100 h-full flex flex-col">
+          {/* Tiêu đề & Badge */}
+          <div className="mb-5">
+            <h2 className="text-3xl font-bold text-[#00809D] mb-3 leading-tight">
+              {chiTietSanPham.tenSach}
+            </h2>
+            {tonKho !== undefined && tonKho !== null && (
+              <div>
+                {tonKho <= 0 ? (
+                  <span className="inline-flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                    <MdWarning /> Hết hàng
+                  </span>
+                ) : tonKho < 10 ? (
+                  <span className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                    <BsFire /> Sắp hết ({tonKho})
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                    <SlPlane /> Còn hàng
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Giá tiền */}
-          <div className="py-4 border-b border-gray-200">
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-emerald-600">
-                {chiTietSanPham.giaGiam.toLocaleString()} VNĐ
+          {/* Giá tiền - Hero Section */}
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 mb-6 border border-emerald-100">
+            <p className="text-xs text-emerald-700 font-bold uppercase tracking-wide mb-2">
+              Giá bán
+            </p>
+            <div className="flex items-baseline gap-3 mb-3">
+              <span className="text-5xl font-black text-emerald-600">
+                {chiTietSanPham.giaGiam.toLocaleString()}
               </span>
-              <span className="text-lg text-gray-500 line-through">
+              <span className="text-sm font-bold text-emerald-700">VNĐ</span>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-sm text-gray-500 line-through">
                 {chiTietSanPham.giaBan.toLocaleString()} VNĐ
               </span>
-              <span className="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded">
+              <span className="bg-red-500 text-white px-3 py-1 rounded-full font-bold text-sm">
                 -
                 {Math.round(
                   ((chiTietSanPham.giaBan - chiTietSanPham.giaGiam) /
@@ -382,23 +360,104 @@ function ChiTietSanPham() {
             </div>
           </div>
 
+          {/* Thông tin chi tiết sách */}
+          <div className="mb-6 flex-1 bg-gray-50 rounded-lg p-5">
+            <p className="text-xl text-black font-bold uppercase tracking-wide mb-4">
+              Thông tin sách
+            </p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-start pb-3 border-b border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Tác giả
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {chiTietSanPham.tacGia}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Nhà xuất bản
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {chiTietSanPham.nhaXuatBan}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-between items-start pb-3 border-b border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Ngày xuất bản
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {formatDate(chiTietSanPham.ngayXuatBan)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Ngôn ngữ
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {chiTietSanPham.ngonNgu}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-between items-start pb-3 border-b border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Danh mục
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {tenDanhMuc || chiTietSanPham.danhMucSachID}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Số trang
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {chiTietSanPham.soTrang}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-between items-start pt-1">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Định dạng
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {chiTietSanPham.dinhDang}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 font-semibold mb-1">
+                    Tồn kho
+                  </p>
+                  <p className="font-bold text-emerald-600 text-lg">
+                    {tonKho} cuốn
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Chọn số lượng và nút mua */}
-          <div className="flex items-center gap-4 mt-6 pt-4">
-            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-2 py-2.5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center border-2 border-gray-300 rounded-lg px-2 py-2 bg-white">
               <button
                 onClick={giamSoLuong}
-                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600"
+                className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-700 font-bold"
               >
-                <FaMinus size={14} />
+                <FaMinus size={13} />
               </button>
-              <span className="w-8 text-center font-semibold text-gray-800">
+              <span className="w-8 text-center font-bold text-gray-800 text-sm">
                 {soLuong}
               </span>
               <button
                 onClick={tangSoLuong}
-                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600"
+                className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-700 font-bold"
               >
-                <FaPlus size={14} />
+                <FaPlus size={13} />
               </button>
             </div>
 
@@ -415,12 +474,12 @@ function ChiTietSanPham() {
                 soLuong > tonKho ||
                 chiTietSanPham.stockStatus === "out"
               }
-              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-bold text-base transition-all shadow-lg ${
                 soLuong < 1 ||
                 soLuong > tonKho ||
                 chiTietSanPham.stockStatus === "out"
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg hover:shadow-xl"
+                  : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 shadow-lg hover:shadow-xl hover:scale-105"
               }`}
               title={
                 chiTietSanPham.stockStatus === "out"
@@ -434,13 +493,22 @@ function ChiTietSanPham() {
             </button>
           </div>
 
-          {/* Lượt xem - góc dưới phải */}
-          <div className="flex justify-end items-center gap-2 pt-18 text-gray-600">
-            <FaEye size={16} />
-            <span className="text-sm font-semibold text-gray-800">
-              {chiTietSanPham.luotXem?.toLocaleString() || 0}
-            </span>
-            <span className="text-sm">lượt xem</span>
+          {/* Lượt xem + Footer stats */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 p-2.5 rounded-lg">
+                <FaEye size={14} className="text-blue-600" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">
+                  {chiTietSanPham.luotXem?.toLocaleString() || 0}
+                </p>
+                <p className="text-xs text-gray-500">lượt xem</p>
+              </div>
+            </div>
+            <button className="flex items-center gap-2 bg-emerald-100 text-emerald-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-emerald-200 transition-colors">
+              💚 Yêu thích
+            </button>
           </div>
         </div>
       </div>
