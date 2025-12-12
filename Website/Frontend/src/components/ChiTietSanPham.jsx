@@ -443,7 +443,7 @@ function ChiTietSanPham() {
 
           {/* Chọn số lượng và nút mua */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center border-2 border-gray-300 rounded-lg px-2 py-2 bg-white">
+            <div className="flex items-center border-2 border-gray-300 rounded-lg px-2 py-3.5 bg-white">
               <button
                 onClick={giamSoLuong}
                 className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-700 font-bold"
@@ -507,7 +507,7 @@ function ChiTietSanPham() {
               </div>
             </div>
             <button className="flex items-center gap-2 bg-emerald-100 text-emerald-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-emerald-200 transition-colors">
-              💚 Yêu thích
+              Yêu thích
             </button>
           </div>
         </div>
@@ -609,7 +609,10 @@ function ChiTietSanPham() {
             <div className="space-y-3">
               {(showAllComments ? binhLuan : binhLuan.slice(0, 3)).map(
                 (c, idx) => (
-                  <div key={idx} className="bg-white rounded-lg p-3 text-sm">
+                  <div
+                    key={idx}
+                    className="bg-white rounded-lg p-3 text-sm shadow border border-gray-200"
+                  >
                     {/* Gmail + ngày đánh giá */}
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-[#00809D]">
@@ -641,7 +644,6 @@ function ChiTietSanPham() {
                   </div>
                 )
               )}
-
               {Array.isArray(binhLuan) && binhLuan.length > 3 && (
                 <div className="flex justify-center mt-2">
                   <button

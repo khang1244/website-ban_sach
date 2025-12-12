@@ -9,12 +9,16 @@ import {
 function QuanLyBinhLuan() {
   const [binhLuanXoa, setBinhLuanXoa] = useState([]); // Dữ liệu bình luận
   const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
+  const [trangHienTai, setTrangHienTai] = useState(1); // Trang hiện tại
+  const [soItemMoiTrang] = useState(5); // Số item mỗi trang
+
   useEffect(() => {
     // Gọi API để lấy danh sách bình luận từ server
     const napDuLieuBinhLuan = async () => {
       const phanHoiTuSever = await layTatCaBinhLuan();
       if (phanHoiTuSever && phanHoiTuSever.success) {
         setBinhLuanXoa(phanHoiTuSever.data); // Cập nhật danh sách bình luận từ server
+        setTrangHienTai(1); // Reset về trang 1
       } else {
         console.error("Lỗi khi tải bình luận:", phanHoiTuSever.message);
       }
@@ -36,6 +40,7 @@ function QuanLyBinhLuan() {
 
       // CẬP NHẬT STATE binhLuan → UI đổi ngay, không cần F5
       setBinhLuanXoa((prev) => prev.filter((bl) => bl.binhLuanID !== id));
+      setTrangHienTai(1); // Reset về trang 1
 
       alert("Bình luận đã được xóa.");
     } catch (error) {
@@ -64,6 +69,27 @@ function QuanLyBinhLuan() {
     }
   };
 
+  // Lọc bình luận
+  const binhLuanLoc = binhLuanXoa.filter((c) =>
+    loctheodanhgia ? c.danhGia === loctheodanhgia : true
+  );
+
+  // Tính toán phân trang
+  const tongSoBinhLuan = binhLuanLoc.length;
+  const tongSoTrang = Math.ceil(tongSoBinhLuan / soItemMoiTrang);
+  const viTriBatDau = (trangHienTai - 1) * soItemMoiTrang;
+  const binhLuanTrongTrang = binhLuanLoc.slice(
+    viTriBatDau,
+    viTriBatDau + soItemMoiTrang
+  );
+
+  // Xử lý chuyển trang
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) {
+      setTrangHienTai(trang);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
@@ -81,7 +107,7 @@ function QuanLyBinhLuan() {
       {/* Card */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         {/* Card header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-[#00809D]/5 to-[#00B3A8]/5">
+        <div className="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-[#00809D]/5 to-[#00B3A8]/5">
           <div>
             <h2 className="text-lg font-semibold text-[#00809D]">
               Danh sách bình luận
@@ -146,107 +172,103 @@ function QuanLyBinhLuan() {
               </tr>
             </thead>
             <tbody>
-              {binhLuanXoa &&
-                // Lọc bình luận theo đánh giá nếu có
-                (binhLuanXoa.length > 0
-                  ? binhLuanXoa.filter((c) =>
-                      loctheodanhgia ? c.danhGia === loctheodanhgia : true
-                    )
-                  : []
-                ).map((c, idx) => (
-                  <tr
-                    key={c.binhLuanID}
-                    className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="py-3 px-4 text-gray-500 text-xs sm:text-sm">
-                      {idx + 1}
-                    </td>
+              {binhLuanTrongTrang &&
+                (binhLuanTrongTrang.length > 0 ? binhLuanTrongTrang : []).map(
+                  (c, idx) => (
+                    <tr
+                      key={c.binhLuanID}
+                      className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="py-3 px-4 text-gray-500 text-xs sm:text-sm">
+                        {viTriBatDau + idx + 1}
+                      </td>
 
-                    {/* Tên sách */}
-                    <td className="py-3 px-4">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-gray-800">
-                          {c.sachID}
-                        </span>
-                      </div>
-                    </td>
+                      {/* Tên sách */}
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-800">
+                            {c.sachID}
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* Người dùng */}
-                    <td className="py-3 px-4">
-                      <div className="flex flex-col">
-                        <span className="text-gray-800 text-sm">
-                          {c.nguoiDungID}
-                        </span>
-                      </div>
-                    </td>
+                      {/* Người dùng */}
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-800 text-sm">
+                            {c.nguoiDungID}
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* Đánh giá */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <FaStar
-                            key={i}
-                            className={
-                              i < c.danhGia
-                                ? "text-yellow-400"
-                                : "text-gray-300"
-                            }
-                            size={14}
-                          />
-                        ))}
-                        <span className="ml-1 text-xs text-gray-500">
-                          {c.danhGia}/5
-                        </span>
-                      </div>
-                    </td>
+                      {/* Đánh giá */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar
+                              key={i}
+                              className={
+                                i < c.danhGia
+                                  ? "text-yellow-400"
+                                  : "text-gray-300"
+                              }
+                              size={14}
+                            />
+                          ))}
+                          <span className="ml-1 text-xs text-gray-500">
+                            {c.danhGia}/5
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* Nội dung bình luận */}
-                    <td className="py-3 px-4 max-w-xs">
-                      <p className="text-gray-700 text-sm line-clamp-2">
-                        {c.noiDung}
-                      </p>
-                    </td>
+                      {/* Nội dung bình luận */}
+                      <td className="py-3 px-4 max-w-xs">
+                        <p className="text-gray-700 text-sm line-clamp-2">
+                          {c.noiDung}
+                        </p>
+                      </td>
 
-                    {/* Ngày */}
-                    <td className="py-3 px-4 text-gray-500 text-xs sm:text-sm whitespace-nowrap">
-                      {new Date(c.createdAt).toLocaleDateString()}
-                    </td>
+                      {/* Ngày */}
+                      <td className="py-3 px-4 text-gray-500 text-xs sm:text-sm whitespace-nowrap">
+                        {new Date(c.createdAt).toLocaleDateString()}
+                      </td>
 
-                    {/* Nút Xóa */}
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {/* Duyệt / Trạng thái */}
-                        {c.duyet ? (
+                      {/* Nút Xóa */}
+                      <td className="py-3 px-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {/* Duyệt / Trạng thái */}
+                          {c.duyet ? (
+                            <button
+                              onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
+                              type="button"
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 transition-colors"
+                            >
+                              Đã duyệt
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
+                              type="button"
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-800 hover:bg-yellow-100 border border-yellow-100 transition-colors"
+                            >
+                              Duyệt
+                            </button>
+                          )}
+
                           <button
-                            onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
+                            onClick={() => deletebl(c.binhLuanID)}
                             type="button"
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 transition-colors"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-colors"
                           >
-                            Đã duyệt
+                            <FaTrash size={12} />
+                            <span>Xóa</span>
                           </button>
-                        ) : (
-                          <button
-                            onClick={() => toggleDuyet(c.binhLuanID, c.duyet)}
-                            type="button"
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-800 hover:bg-yellow-100 border border-yellow-100 transition-colors"
-                          >
-                            Duyệt
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => deletebl(c.binhLuanID)}
-                          type="button"
-                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-colors"
-                        >
-                          <FaTrash size={12} />
-                          <span>Xóa</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              {binhLuanXoa.filter((c) =>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
+              {binhLuanLoc.filter((c) =>
                 loctheodanhgia ? c.danhGia === loctheodanhgia : true
               ).length === 0 && (
                 <tr>
@@ -261,6 +283,96 @@ function QuanLyBinhLuan() {
             </tbody>
           </table>
         </div>
+
+        {/* Phân trang */}
+        {tongSoTrang > 1 && (
+          <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-center gap-4 bg-gray-50">
+            {/* Nút phân trang */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Nút Trước */}
+              <button
+                onClick={() => chuyenTrang(trangHienTai - 1)}
+                disabled={trangHienTai === 1}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  trangHienTai === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
+                }`}
+              >
+                ← Trước
+              </button>
+
+              {/* Số trang */}
+              {Array.from({ length: tongSoTrang }, (_, i) => i + 1).map(
+                (trang) => {
+                  // Hiển thị các trang xung quanh trang hiện tại
+                  const trangHienTaiLocal = trangHienTai;
+                  const hienThi =
+                    trang === 1 ||
+                    trang === tongSoTrang ||
+                    (trang >= trangHienTaiLocal - 1 &&
+                      trang <= trangHienTaiLocal + 1);
+
+                  if (!hienThi && trang !== 2 && trang !== tongSoTrang - 1) {
+                    return null;
+                  }
+
+                  // Thêm dấu "..." giữa các trang
+                  if (trang === 2 && trangHienTaiLocal > 3) {
+                    return (
+                      <span
+                        key={`dots-${trang}`}
+                        className="px-2 text-gray-500"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+                  if (
+                    trang === tongSoTrang - 1 &&
+                    trangHienTaiLocal < tongSoTrang - 2
+                  ) {
+                    return (
+                      <span
+                        key={`dots-${trang}`}
+                        className="px-2 text-gray-500"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={trang}
+                      onClick={() => chuyenTrang(trang)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                        trang === trangHienTai
+                          ? "bg-[#00809D] text-white"
+                          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      {trang}
+                    </button>
+                  );
+                }
+              )}
+
+              {/* Nút Sau */}
+              <button
+                onClick={() => chuyenTrang(trangHienTai + 1)}
+                disabled={trangHienTai === tongSoTrang}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  trangHienTai === tongSoTrang
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
+                }`}
+              >
+                Sau →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
