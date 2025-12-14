@@ -6,7 +6,6 @@ import {
   xoaDonHangTheoID,
   layDonHangTheoID,
 } from "../../lib/don-hang-apis";
-import { layTatCaPhuongThucGiaoHang } from "../../lib/phuong-thuc-giao-hang-apis.js";
 
 const STATUS_OPTIONS = [
   "Chờ xác nhận",
@@ -24,8 +23,6 @@ function QuanLyDonHang() {
   // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
   const [duLieuDonHang, setDuLieuDonHang] = useState(null);
 
-  // Tạo biến trạng thái lưu danh sách phương thức giao hàng
-  const [shippingMethods, setShippingMethods] = useState([]);
   // --- CẤU HÌNH PHÂN TRANG ---
   // Số đơn hàng hiển thị mỗi trang (theo yêu cầu: 4)
   const donHangMotTrang = 4; // 4 đơn hàng/trang
@@ -88,19 +85,6 @@ function QuanLyDonHang() {
     napDonHang();
   }, [selectedOrder]);
 
-  // Nạp danh sách phương thức giao hàng từ server
-  useEffect(() => {
-    const napPhuongThucGiaoHang = async () => {
-      // Giả sử gọi API để lấy danh sách phương thức giao hàng
-      const response = await layTatCaPhuongThucGiaoHang();
-      if (response && response.success) {
-        console.log("Danh sách phương thức giao hàng:", response.data);
-
-        setShippingMethods(response.data);
-      }
-    };
-    napPhuongThucGiaoHang();
-  }, []);
   // Mở modal chi tiết đơn hàng
   const handleViewDetails = (order) => {
     setSelectedOrder(order); // Lưu đơn hàng đã chọn để hiển thị trong modal
@@ -152,6 +136,10 @@ function QuanLyDonHang() {
     alert("Đơn hàng đã được xóa.");
     xoaDonHangTheoID(id);
   };
+  const formatMoney = (value) =>
+    typeof value === "number"
+      ? value.toLocaleString("vi-VN", { minimumFractionDigits: 0 })
+      : "-";
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-[#f7f9fc]">
@@ -355,16 +343,13 @@ function QuanLyDonHang() {
               <strong> Phương thức thanh toán: </strong>
               <span className="">{duLieuDonHang?.phuongThucThanhToan}</span>
             </div>
-            <div className="mb-3">
-              <strong> Chi phí vận chuyển: </strong>
-              <span className="">
-                {shippingMethods
-                  ?.find(
-                    (m) =>
-                      m.phuongThucGiaoHangID ===
-                      duLieuDonHang?.phuongThucGiaoHangID
-                  )
-                  ?.phiGiaoHang.toLocaleString() + "đ"}
+            <div className="mb-4 text-black">
+              <strong className="">Phí vận chuyển: </strong>
+              <span>
+                {formatMoney(
+                  duLieuDonHang?.PhuongThucGiaoHang?.phiGiaoHang || 0
+                )}{" "}
+                đ
               </span>
             </div>
             <div className="mb-4">
