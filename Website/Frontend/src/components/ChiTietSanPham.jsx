@@ -22,7 +22,10 @@ import {
 import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis"; // import API lấy tồn kho
 import { nhanTatCaDanhMucSach } from "../lib/danh-muc-sach-apis"; // import API lấy danh mục sách
 import { useParams } from "react-router-dom"; // import useParams để lấy tham số từ URL
-import { themSanPhamVaoGioHang } from "../lib/gio-hang-apis"; // import API thêm sản phẩm vào giỏ hàng
+import {
+  layGioHangTheoNguoiDung,
+  themSanPhamVaoGioHang,
+} from "../lib/gio-hang-apis"; // import API thêm sản phẩm vào giỏ hàng
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis"; // import API lấy bình luận
 import { UserContext } from "../contexts/user-context"; // import UserContext để sử dụng context người dùng
 function ChiTietSanPham() {
@@ -74,6 +77,23 @@ function ChiTietSanPham() {
     }
     const user = JSON.parse(storedUser);
     const nguoiDungID = user.nguoiDungID;
+
+    // Không thêm trùng sản phẩm, yêu cầu người dùng vào giỏ để tự tăng số lượng
+    try {
+      const gioHangResp = await layGioHangTheoNguoiDung(nguoiDungID);
+      const items = gioHangResp?.gioHang?.ChiTietGioHangs || [];
+      const existed = items.some(
+        (item) => String(item.sachID) === String(sachID)
+      );
+      if (existed) {
+        alert(
+          "Sản phẩm đã có trong giỏ hàng. Vui lòng vào giỏ để tăng số lượng nếu cần."
+        );
+        return;
+      }
+    } catch (error) {
+      console.error("Không kiểm tra được giỏ hàng hiện tại:", error);
+    }
 
     const phanHoiTuSever = await themSanPhamVaoGioHang(
       nguoiDungID,

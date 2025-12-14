@@ -10,7 +10,10 @@ import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { FiGift, FiPhoneCall } from "react-icons/fi";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
-import { themSanPhamVaoGioHang } from "../../lib/gio-hang-apis";
+import {
+  layGioHangTheoNguoiDung,
+  themSanPhamVaoGioHang,
+} from "../../lib/gio-hang-apis";
 import { UserContext } from "../../contexts/user-context";
 
 // const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
@@ -142,6 +145,23 @@ function Homepage() {
     }
     const user = JSON.parse(storedUser);
     const nguoiDungID = user.nguoiDungID;
+
+    // Không thêm trùng sản phẩm, yêu cầu người dùng vào giỏ để tự tăng số lượng
+    try {
+      const gioHangResp = await layGioHangTheoNguoiDung(nguoiDungID);
+      const items = gioHangResp?.gioHang?.ChiTietGioHangs || [];
+      const existed = items.some(
+        (item) => String(item.sachID) === String(sachID)
+      );
+      if (existed) {
+        alert(
+          "Sản phẩm đã có trong giỏ hàng. Vui lòng vào giỏ để tăng số lượng nếu cần."
+        );
+        return;
+      }
+    } catch (error) {
+      console.error("Không kiểm tra được giỏ hàng hiện tại:", error);
+    }
 
     const phanHoiTuSever = await themSanPhamVaoGioHang(
       nguoiDungID,
