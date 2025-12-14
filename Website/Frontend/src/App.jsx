@@ -17,6 +17,7 @@ import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
 import AdminLayout from "./components/admin/AdminLayout";
 import QuanLyChung from "./components/admin/QuanLyChung";
 import QuanLySach from "./components/admin/QuanLySach";
+import QuanLyDiaChi from "./components/QuanLyDiaChi";
 import QuanLyDanhMuc from "./components/admin/QuanLyDanhMuc";
 import QuanLyKhuyenMai from "./components/admin/QuanLyKhuyenMai";
 import QuanLyPhuongThucGiaoHang from "./components/admin/QuanLyPhuongThucGiaoHang";
@@ -44,6 +45,7 @@ function App() {
         <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/doimatkhau" element={<DoiMatKhau />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
+        <Route path="/quanlydiachi" element={<QuanLyDiaChi />} />
         <Route path="/chitietdonhang/:id" element={<ChiTietDonHang />} />
         <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />
 

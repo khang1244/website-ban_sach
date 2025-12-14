@@ -28,7 +28,6 @@ import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 import {
   layDiaChiTheoNguoiDung,
   taoDiaChi,
-  xoaDiaChi,
   datMacDinhDiaChi,
 } from "../lib/dia-chi-apis";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
@@ -368,21 +367,6 @@ function ThanhToan() {
       console.error("Lỗi khi tải lại địa chỉ:", err);
     }
   };
-  // Xóa địa chỉ
-  const xoaDiaChiDaLuu = async (id) => {
-    if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
-    try {
-      await xoaDiaChi(id);
-      if (diaChiDuocChonId === id) {
-        setDiaChiDuocChonId(null);
-        setShipping((s) => ({ ...s, diaChiCuThe: "" }));
-      }
-      await taiLaiDiaChiDaLuu();
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi khi xóa địa chỉ");
-    }
-  };
 
   // Đặt mặc định
   const datMacDinhDiaChiLocal = async (diaChiID) => {
@@ -624,7 +608,7 @@ function ThanhToan() {
                               d="M6 18L18 6M6 6l12 12"
                             />
                           </svg>
-                          Đóng quản lý
+                          Đóng địa chỉ đã lưu
                         </>
                       ) : (
                         <>
@@ -641,7 +625,7 @@ function ThanhToan() {
                               d="M15 10l4.55 4.55L15 19m-6-9l-4.55 4.55L9 19m10-4.55a4.5 4.5 0 00-9 0m-6 0a4.5 4.5 0 00-9 0"
                             />
                           </svg>
-                          Quản lý địa chỉ
+                          Chọn địa chỉ đã lưu
                         </>
                       )}
                     </button>
@@ -694,87 +678,91 @@ function ThanhToan() {
 
                   {/* Full list (expanded) */}
                   {hienDanhSachDiaChi && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {diaChiDaLuu.map((a) => (
-                        <div
-                          key={a.diaChiID}
-                          className="p-4 bg-white border rounded-xl shadow-md flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-start gap-3">
-                              <input
-                                type="radio"
-                                name="savedAddress"
-                                checked={diaChiDuocChonId === a.diaChiID}
-                                onChange={() => {
-                                  setDiaChiDuocChonId(a.diaChiID);
-                                  setShipping((s) => ({
-                                    ...s,
-                                    diaChiCuThe: a.diaChi,
-                                  }));
-                                }}
-                                className="accent-[#00809D] mt-1"
-                              />
-                              <div className="flex-1">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {a.diaChi}
-                                </div>
-                                <div className="mt-2 text-xs text-gray-500">
-                                  {a.ghiChu || ""}
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {diaChiDaLuu.map((a) => (
+                          <div
+                            key={a.diaChiID}
+                            className="p-4 bg-white border rounded-xl shadow-md flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="flex items-start gap-3">
+                                <input
+                                  type="radio"
+                                  name="savedAddress"
+                                  checked={diaChiDuocChonId === a.diaChiID}
+                                  onChange={() => {
+                                    setDiaChiDuocChonId(a.diaChiID);
+                                    setShipping((s) => ({
+                                      ...s,
+                                      diaChiCuThe: a.diaChi,
+                                    }));
+                                  }}
+                                  className="accent-[#00809D] mt-1"
+                                />
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {a.diaChi}
+                                  </div>
+                                  <div className="mt-2 text-xs text-gray-500">
+                                    {a.ghiChu || ""}
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="mt-4 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDiaChiDuocChonId(a.diaChiID);
-                                  setShipping((s) => ({
-                                    ...s,
-                                    diaChiCuThe: a.diaChi,
-                                  }));
-                                  setHienDanhSachDiaChi(false);
-                                }}
-                                className="text-sm px-3 py-1 bg-[#00809D] text-white rounded flex items-center gap-2"
-                              >
-                                Sử dụng
-                              </button>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {!a.macDinh ? (
+                            <div className="mt-4 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    datMacDinhDiaChiLocal(a.diaChiID)
-                                  }
-                                  className="text-sm px-3 py-1 bg-blue-600 text-white rounded"
+                                  onClick={() => {
+                                    setDiaChiDuocChonId(a.diaChiID);
+                                    setShipping((s) => ({
+                                      ...s,
+                                      diaChiCuThe: a.diaChi,
+                                    }));
+                                    setHienDanhSachDiaChi(false);
+                                  }}
+                                  className="text-sm px-3 py-1 bg-[#00809D] text-white rounded flex items-center gap-2"
                                 >
-                                  Đặt mặc định
+                                  Sử dụng
                                 </button>
-                              ) : (
-                                <div className="text-xs text-green-700 flex items-center gap-1">
-                                  <FaCheckCircle /> Mặc định
-                                </div>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => xoaDiaChiDaLuu(a.diaChiID)}
-                                className="text-sm px-3 py-1 border rounded text-red-600"
-                              >
-                                <FaTrash />
-                              </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {!a.macDinh ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      datMacDinhDiaChiLocal(a.diaChiID)
+                                    }
+                                    className="text-sm px-3 py-1 bg-blue-600 text-white rounded"
+                                  >
+                                    Đặt mặc định
+                                  </button>
+                                ) : (
+                                  <div className="text-xs text-green-700 flex items-center gap-1">
+                                    <FaCheckCircle /> Mặc định
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-3">
+                        Muốn chỉnh sửa hoặc xóa địa chỉ, vui lòng mở menu tài
+                        khoản →
+                        <Link
+                          to="/quanlydiachi"
+                          className="text-[#00809D] font-semibold ml-1"
+                        >
+                          Quản lý địa chỉ
+                        </Link>
+                        .
+                      </div>
+                    </>
                   )}
                 </div>
               )}
-
-              {/* Inline add address form */}
             </div>
 
             {/* Radio chip: phương thức giao hàng */}

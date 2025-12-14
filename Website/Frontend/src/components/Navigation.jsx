@@ -172,6 +172,16 @@ function Navigation() {
                       >
                         Lịch sử mua hàng
                       </Link>
+                      <Link
+                        to="/quanlydiachi"
+                        className="block px-6 py-2 hover:bg-amber-100"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setShowAccountMenu(false);
+                        }}
+                      >
+                        Quản lý địa chỉ
+                      </Link>
                     </div>
                   )}
                 </div>
