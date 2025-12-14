@@ -36,6 +36,14 @@ function QuanLyDonHang() {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
+
+  // Lấy ảnh đầu tiên của sách trong đơn
+  const getFirstImage = (hinhAnhs) => {
+    if (Array.isArray(hinhAnhs) && hinhAnhs.length > 0) {
+      return hinhAnhs[0]?.url || null;
+    }
+    return null;
+  };
   // Update order status
   const handleStatusChange = async (donHangID, newStatus) => {
     const updatedOrders = userOrder.map((order) => {
@@ -343,6 +351,10 @@ function QuanLyDonHang() {
                   : "Không sử dụng"}
               </span>
             </div>
+            <div className="mb-4 text-black">
+              <strong> Phương thức thanh toán: </strong>
+              <span className="">{duLieuDonHang?.phuongThucThanhToan}</span>
+            </div>
             <div className="mb-3">
               <strong> Chi phí vận chuyển: </strong>
               <span className="">
@@ -359,6 +371,7 @@ function QuanLyDonHang() {
               <table className="w-full text-left  text-black">
                 <thead>
                   <tr className="border-b text-black">
+                    <th className="py-2">Ảnh</th>
                     <th className="py-2">Sản phẩm</th>
                     <th className="py-2">Số lượng</th>
                     <th className="py-2">Đơn giá</th>
@@ -369,6 +382,21 @@ function QuanLyDonHang() {
                   {duLieuDonHang &&
                     duLieuDonHang.Saches.map((item, idx) => (
                       <tr key={idx} className="border-b">
+                        <td className="py-3 w-16">
+                          <div className="w-13 h-15 rounded-lg overflow-hidden bg-gray-100 border flex items-center justify-center">
+                            {getFirstImage(item.hinhAnhs) ? (
+                              <img
+                                src={getFirstImage(item.hinhAnhs)}
+                                alt={item.tenSach}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xs text-gray-400">
+                                No image
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="py-3 font-semibold text-[#00809D]">
                           {item.tenSach}
                         </td>
