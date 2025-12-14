@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { dangNhapTaiKhoan, capNhatMatKhau } from "../lib/nguoi-dung-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/user-context";
 
 function passwordStrength(password) {
   let score = 0;
@@ -20,6 +21,7 @@ function passwordStrength(password) {
 }
 
 export default function DoiMatKhau() {
+  const { setUser } = useContext(UserContext);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -77,8 +79,9 @@ export default function DoiMatKhau() {
       const res = await capNhatMatKhau(user.nguoiDungID, newPassword);
       if (res.status) {
         showToast("success", "Thành công", "Đổi mật khẩu thành công");
-        // log out to force re-login
+        // Bắt buộc đăng xuất để đăng nhập lại
         localStorage.removeItem("user");
+        setUser(null);
         setTimeout(() => navigate("/dangnhap"), 800);
       } else {
         showToast("info", "Thất bại", res.message || "Đổi mật khẩu thất bại");
