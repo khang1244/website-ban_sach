@@ -18,7 +18,7 @@ const STATUS_OPTIONS = [
 
 function QuanLyDonHang() {
   const [selectedOrder, setSelectedOrder] = useState(null); // Để mở modal khi nhấn vào "Xem"
-  const [searchQuery, setSearchQuery] = useState(""); // Để lưu giá trị tìm kiếm
+  const [filterStatus, setFilterStatus] = useState(""); // Để lưu trạng thái lọc
   const [userOrder, setUserOrder] = useState([]);
   // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
   const [duLieuDonHang, setDuLieuDonHang] = useState(null);
@@ -104,10 +104,8 @@ function QuanLyDonHang() {
   };
 
   const filteredOrders = userOrder.filter((order) => {
-    const q = searchQuery.trim();
-    if (!q) return true; // không nhập gì -> hiện tất cả
-    return String(order.donHangID) === q; // tìm chính xác mã
-    // Nếu muốn tìm "chứa" thay vì "chính xác": dùng includes(q)
+    if (!filterStatus) return true; // không lọc -> hiện tất cả
+    return order.trangThai === filterStatus; // lọc theo trạng thái
   });
 
   // --- Tính phân trang từ filteredOrders ---
@@ -119,8 +117,8 @@ function QuanLyDonHang() {
 
   // Nếu bộ lọc thay đổi, reset về trang 1 để tránh trang vượt quá tổng
   useEffect(() => {
-    setTrangHienTai(1); // Khi tìm kiếm thay đổi, quay về trang 1
-  }, [searchQuery]);
+    setTrangHienTai(1); // Khi lọc thay đổi, quay về trang 1
+  }, [filterStatus]);
 
   // Lấy danh sách đơn hàng hiển thị cho trang hiện tại
   const donHangHienThi = filteredOrders.slice(
@@ -147,15 +145,31 @@ function QuanLyDonHang() {
         Quản lý đơn hàng
       </h1>
 
-      {/* Tìm kiếm */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Tìm kiếm đơn hàng (Tên hoặc SĐT)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-[#004C61] text-black"
-        />
+      {/* Bộ lọc theo trạng thái */}
+      <div className="mb-6 flex items-center gap-3">
+        <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Lọc theo:</span>
+        <div className="flex-1 flex items-center gap-3">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-[#004C61] text-black bg-white font-medium transition-all duration-200 hover:border-gray-300"
+          >
+            <option value="">Tất cả trạng thái</option>
+            {STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          {filterStatus && (
+            <button
+              onClick={() => setFilterStatus("")}
+              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap"
+            >
+              ✕ Xóa
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-xl p-6">
@@ -196,8 +210,7 @@ function QuanLyDonHang() {
               </tr>
             </thead>
             <tbody>
-              {userOrder &&
-                userOrder.length > 0 &&
+              {donHangHienThi && donHangHienThi.length > 0 ? (
                 // Duyệt các đơn hàng đã được cắt theo trang
                 donHangHienThi.map((order, idx) => (
                   <tr
@@ -260,7 +273,14 @@ function QuanLyDonHang() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="py-8 px-5 text-center text-gray-500">
+                    Không có đơn hàng
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
