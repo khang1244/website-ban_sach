@@ -6,12 +6,17 @@ import { useEffect, useState } from "react";
 import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
 import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import { layDiaChiTheoNguoiDung } from "../lib/dia-chi-apis";
 
 function HoSoNguoiDung() {
   // State cho phép chỉnh sửa thông tin
   const [edit, setEdit] = useState(false);
   // State lưu thông tin người dùng
   const [user, setUser] = useState({});
+
+  // Địa chỉ mặc định (hiển thị, chỉnh sửa ở trang quản lý địa chỉ)
+  const [defaultAddress, setDefaultAddress] = useState("");
+  const [addrLoading, setAddrLoading] = useState(false);
 
   //hình ảnh mã hóa để hiển thị ảnh cho người dùng xem trước
   const [hinhAnhMaHoa, setHinhAnhMaHoa] = useState(null);
@@ -100,6 +105,30 @@ function HoSoNguoiDung() {
       });
     }
   }, []);
+
+  // Lấy địa chỉ mặc định từ server
+  useEffect(() => {
+    const fetchDefaultAddress = async () => {
+      if (!user?.nguoiDungID) return;
+      try {
+        setAddrLoading(true);
+        const list = await layDiaChiTheoNguoiDung(user.nguoiDungID);
+        if (Array.isArray(list) && list.length > 0) {
+          const def = list.find((a) => a.macDinh) || list[0];
+          setDefaultAddress(def?.diaChi || "");
+        } else {
+          setDefaultAddress("");
+        }
+      } catch (err) {
+        console.error("Không lấy được địa chỉ mặc định:", err);
+        setDefaultAddress("");
+      } finally {
+        setAddrLoading(false);
+      }
+    };
+
+    fetchDefaultAddress();
+  }, [user?.nguoiDungID]);
   return (
     <div className="bg-gradient-to-br  min-h-screen w-full">
       <Navigation />
@@ -194,13 +223,22 @@ function HoSoNguoiDung() {
               />
             </div>
             <div className="flex flex-col gap-2 text-black">
-              <label className="font-semibold">Địa chỉ</label>
-              <input
-                className="border rounded px-4 py-2"
-                value={user.diaChi}
-                disabled={!edit}
-                onChange={(e) => setUser({ ...user, diaChi: e.target.value })}
-              />
+              <div className="flex items-center justify-between">
+                <label className="font-semibold">
+                  Địa chỉ giao hàng mặc định
+                </label>
+                <Link
+                  to="/quanlydiachi"
+                  className="text-sm text-[#00809D] font-semibold hover:underline"
+                >
+                  Quản lý địa chỉ
+                </Link>
+              </div>
+              <div className="border rounded px-4 py-3 bg-gray-50 text-sm text-black min-h-[48px]">
+                {addrLoading
+                  ? "Đang tải..."
+                  : defaultAddress || "Chưa có địa chỉ mặc định"}
+              </div>
             </div>
             <div className="flex gap-4 mt-4">
               {edit ? (

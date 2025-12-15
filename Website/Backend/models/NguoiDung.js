@@ -46,10 +46,6 @@ const NguoiDung = sequelize.define(
       allowNull: false,
       defaultValue: true, // Mặc định tài khoản là hoạt động
     },
-    diaChi: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     maOTP: {
       type: DataTypes.STRING,
       allowNull: true,
