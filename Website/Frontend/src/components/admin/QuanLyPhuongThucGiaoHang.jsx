@@ -204,8 +204,6 @@ function QuanLyPhuongThucGiaoHang() {
     }
   };
 
-
-
   /**
    * Lọc danh sách phương thức giao hàng theo từ khóa tìm kiếm và trạng thái
    */
