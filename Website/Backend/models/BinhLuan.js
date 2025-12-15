@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
 import Sach from "./Sach.js";
-import NguoiDung from "./NguoiDung.js";
+import KhachHang from "./KhachHang.js";
 const BinhLuan = sequelize.define(
   "BinhLuan",
   {
@@ -18,13 +18,13 @@ const BinhLuan = sequelize.define(
         key: "sachID",
       },
     },
-    nguoiDungID: {
+    khachHangID: {
       type: DataTypes.INTEGER,
       allowNull: false,
       // Tham chiếu đến bảng Người Dùng nếu có
       references: {
-        model: "nguoi_dung",
-        key: "nguoiDungID",
+        model: "khach_hang",
+        key: "khachHangID",
       },
     },
     danhGia: {
@@ -54,5 +54,5 @@ BinhLuan.belongsTo(Sach, { foreignKey: "sachID" });
 Sach.hasMany(BinhLuan, { foreignKey: "sachID" });
 
 // Liên kết với bảng Người Dùng
-BinhLuan.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
-NguoiDung.hasMany(BinhLuan, { foreignKey: "nguoiDungID" });
+BinhLuan.belongsTo(KhachHang, { foreignKey: "khachHangID" });
+KhachHang.hasMany(BinhLuan, { foreignKey: "khachHangID" });

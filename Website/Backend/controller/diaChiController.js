@@ -2,11 +2,11 @@ import DiaChi from "../models/DiaChi.js";
 
 // Lấy danh sách địa chỉ theo người dùng
 // params: userId
-export const layDiaChiTheoNguoiDung = async (req, res) => {
+export const layDiaChiTheoKhachHang = async (req, res) => {
   try {
-    const { nguoiDungID } = req.params;
+    const { khachHangID } = req.params;
     const danhSachDiaChi = await DiaChi.findAll({
-      where: { nguoiDungID },
+      where: { khachHangID },
     });
     return res.json({ ok: true, addresses: danhSachDiaChi });
   } catch (err) {
@@ -15,16 +15,16 @@ export const layDiaChiTheoNguoiDung = async (req, res) => {
 };
 
 // Tạo địa chỉ mới cho người dùng
-// body: { nguoiDungID, diaChi, macDinh }
+// body: { khachHangID, diaChi, macDinh }
 export const taoDiaChi = async (req, res) => {
   try {
-    const { nguoiDungID, diaChi, macDinh } = req.body;
+    const { khachHangID, diaChi, macDinh } = req.body;
     // Nếu đánh dấu là mặc định, bỏ cờ mặc định cho các địa chỉ khác
     if (macDinh) {
-      await DiaChi.update({ macDinh: false }, { where: { nguoiDungID } });
+      await DiaChi.update({ macDinh: false }, { where: { khachHangID } });
     }
     const diaChiMoi = await DiaChi.create({
-      nguoiDungID,
+      khachHangID,
       diaChi,
       macDinh: !!macDinh,
     });
@@ -59,7 +59,7 @@ export const datDiaChiMacDinh = async (req, res) => {
         .json({ ok: false, message: "Không tìm thấy địa chỉ" });
     await DiaChi.update(
       { macDinh: false },
-      { where: { nguoiDungID: diaChi.nguoiDungID } }
+      { where: { khachHangID: diaChi.khachHangID } }
     );
     diaChi.macDinh = true;
     await diaChi.save();

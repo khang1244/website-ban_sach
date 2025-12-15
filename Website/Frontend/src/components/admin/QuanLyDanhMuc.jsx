@@ -76,12 +76,17 @@ function QuanLyDanhMuc() {
     if (!confirmDelete) return;
 
     const tenDanhMuc = getCatName(categories[idx]);
+    const danhMucID = categories[idx]?.danhMucSachID;
 
-    // Cập nhật UI ngay (optimistic)
-    setCategories(categories.filter((_, i) => i !== idx));
+    console.log("Đang xóa danh mục:", { idx, danhMucID, tenDanhMuc });
 
     try {
-      await xoaDanhMucSach(categories[idx]?.danhMucSachID);
+      // Gọi API xóa TRƯỚC
+      await xoaDanhMucSach(danhMucID);
+
+      // Sau khi xóa thành công, cập nhật UI
+      setCategories(categories.filter((_, i) => i !== idx));
+
       showToast(
         "success",
         "Thành công",
@@ -89,7 +94,11 @@ function QuanLyDanhMuc() {
       );
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
-      alert("Xóa danh mục thất bại. Vui lòng thử lại!");
+      showToast(
+        "error",
+        "Lỗi",
+        "Không thể xóa danh mục này vì có sách thuộc danh mục này. Vui lòng xóa các sách liên quan trước"
+      );
     }
   };
 
@@ -110,25 +119,33 @@ function QuanLyDanhMuc() {
     const value = editValue.trim();
     if (!value) return;
 
-    // Cập nhật ngay trên giao diện
-    const danhMucDaDuocSua = categories.map((cat, i) =>
-      i === editIndex ? { ...cat, tenDanhMuc: value } : cat
-    );
-    setCategories(danhMucDaDuocSua);
+    const danhMucID = categories[editIndex]?.danhMucSachID;
 
     try {
-      await capNhatDanhMucSach(categories[editIndex]?.danhMucSachID, {
+      // Gọi API cập nhật TRƯỚC
+      await capNhatDanhMucSach(danhMucID, {
         tenDanhMuc: value,
       });
+
+      // Sau khi cập nhật thành công, cập nhật UI
+      const danhMucDaDuocSua = categories.map((cat, i) =>
+        i === editIndex ? { ...cat, tenDanhMuc: value } : cat
+      );
+      setCategories(danhMucDaDuocSua);
+
       showToast("success", "Thành công", "Cập nhật danh mục thành công!");
+
+      // Đóng chế độ sửa
+      setEditIndex(null);
+      setEditValue("");
     } catch (err) {
       console.error("Lỗi khi cập nhật danh mục:", err);
-      alert("Cập nhật danh mục thất bại, vui lòng thử lại!");
+      showToast(
+        "error",
+        "Lỗi",
+        "Cập nhật danh mục thất bại, vui lòng thử lại!"
+      );
     }
-
-    // Đóng chế độ sửa
-    setEditIndex(null);
-    setEditValue("");
   };
 
   // Load tất cả danh mục khi component mount

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { kiemTraMaOTP } from "../lib/nguoi-dung-apis";
+import { kiemTraMaOTP } from "../lib/khach-hang-apis";
 
 function NhapMaOTP() {
   const [otp, setOtp] = useState("");

@@ -1,14 +1,14 @@
-import Navigation from "./Navigation";
-import Footer from "./Footer";
+import Navigation from "./Navigation.jsx";
+import Footer from "./Footer.jsx";
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
+import { capNhatThongTinKhachHang } from "../lib/khach-hang-apis.js";
 import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
-import { layDiaChiTheoNguoiDung } from "../lib/dia-chi-apis";
+import { layDiaChiTheoKhachHang } from "../lib/dia-chi-apis.js";
 
-function HoSoNguoiDung() {
+function HoSoKhachHang() {
   // State cho phép chỉnh sửa thông tin
   const [edit, setEdit] = useState(false);
   // State lưu thông tin người dùng
@@ -51,8 +51,8 @@ function HoSoNguoiDung() {
     }
 
     // Lưu thông tin người dùng mới sửa vào trong database
-    const duLieuNguoiDungMoi = {
-      tenNguoiDung: user.tenNguoiDung,
+    const duLieuKhachHangMoi = {
+      tenKhachHang: user.tenKhachHang,
       email: user.email,
       soDienThoai: user.soDienThoai,
       diaChi: user.diaChi,
@@ -64,9 +64,9 @@ function HoSoNguoiDung() {
         : JSON.stringify(user.avatar), // Nếu có hình ảnh mới thì lấy hình ảnh mới, không thì lấy hình ảnh cũ
     };
 
-    const { status } = await capNhatThongTinNguoiDung(
-      user.nguoiDungID,
-      duLieuNguoiDungMoi
+    const { status } = await capNhatThongTinKhachHang(
+      user.khachHangID,
+      duLieuKhachHangMoi
     );
     if (status) {
       showToast("info", "Thành công", "Cập nhật hồ sơ thành công!");
@@ -75,13 +75,13 @@ function HoSoNguoiDung() {
     }
 
     // Cập nhật thông tin người dùng trong localStorage để có thể hiển thị thông tin mới nhất (thực tế phải thay đổi giá trị biến trong context hoặc redux)
-    const duLieuNguoiDungMoiDeLuuVaoLocalStorage = {
+    const duLieuKhachHangMoiDeLuuVaoLocalStorage = {
       ...user,
-      ...duLieuNguoiDungMoi,
+      ...duLieuKhachHangMoi,
     };
     localStorage.setItem(
       "user",
-      JSON.stringify(duLieuNguoiDungMoiDeLuuVaoLocalStorage)
+      JSON.stringify(duLieuKhachHangMoiDeLuuVaoLocalStorage)
     );
   };
 
@@ -91,16 +91,16 @@ function HoSoNguoiDung() {
     if (storedUser) {
       // Kiểm tra xem có dữ liệu user trong localStorage không
 
-      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+      const duLieuKhachHang = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
 
       // Vì avatar vẫn đang là một chuỗi JSON nên mình phỉa chuyển nó thành dạng Object để sử dụng để hiển thị avatar của người dùng
-      const avatarDuocBienDoiThanhObject = duLieuNguoiDung.avatar
-        ? JSON.parse(duLieuNguoiDung.avatar)
+      const avatarDuocBienDoiThanhObject = duLieuKhachHang.avatar
+        ? JSON.parse(duLieuKhachHang.avatar)
         : null;
 
       setUser({
         // Thay đổi biến trạng thái user để hiển thị dữ liệu người dùng ra form
-        ...duLieuNguoiDung,
+        ...duLieuKhachHang,
         avatar: avatarDuocBienDoiThanhObject, // Chuyển chuỗi JSON thành object
       });
     }
@@ -109,10 +109,10 @@ function HoSoNguoiDung() {
   // Lấy địa chỉ mặc định từ server
   useEffect(() => {
     const fetchDefaultAddress = async () => {
-      if (!user?.nguoiDungID) return;
+      if (!user?.khachHangID) return;
       try {
         setAddrLoading(true);
-        const list = await layDiaChiTheoNguoiDung(user.nguoiDungID);
+        const list = await layDiaChiTheoKhachHang(user.khachHangID);
         if (Array.isArray(list) && list.length > 0) {
           const def = list.find((a) => a.macDinh) || list[0];
           setDefaultAddress(def?.diaChi || "");
@@ -128,7 +128,7 @@ function HoSoNguoiDung() {
     };
 
     fetchDefaultAddress();
-  }, [user?.nguoiDungID]);
+  }, [user?.khachHangID]);
   return (
     <div className="bg-gradient-to-br  min-h-screen w-full">
       <Navigation />
@@ -195,10 +195,10 @@ function HoSoNguoiDung() {
               <label className="font-semibold">Tên người dùng</label>
               <input
                 className="border rounded px-4 py-2"
-                value={user.tenNguoiDung}
+                value={user.tenKhachHang}
                 disabled={!edit}
                 onChange={
-                  (e) => setUser({ ...user, tenNguoiDung: e.target.value }) // spread operator
+                  (e) => setUser({ ...user, tenKhachHang: e.target.value }) // spread operator
                 }
               />
             </div>
@@ -281,4 +281,4 @@ function HoSoNguoiDung() {
   );
 }
 
-export default HoSoNguoiDung;
+export default HoSoKhachHang;

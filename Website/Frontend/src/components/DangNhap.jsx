@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { dangNhapTaiKhoan, dangNhapGoogle } from "../lib/nguoi-dung-apis";
+import { dangNhapTaiKhoan, dangNhapGoogle } from "../lib/khach-hang-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 import { UserContext } from "../contexts/user-context";
 
@@ -69,7 +69,7 @@ function DangNhap() {
 
       // Tạo đối tượng user từ thông tin Google
       const googleUser = {
-        tenNguoiDung: decoded.name,
+        tenKhachHang: decoded.name,
         email: decoded.email,
         avatar: decoded.picture,
         googleId: decoded.sub,

@@ -204,9 +204,9 @@ function QuanLyDonHang() {
                     key={idx}
                     className="border-b hover:bg-[#F9FAFB] transition-colors duration-300 text-black"
                   >
-                    <td className="py-3 px-5 text-sm font-medium">
+                    <td className="py-3 px-5 w-16 text-sm font-medium">
                       {/* Mã đơn hàng hiển thị theo thứ tự tổng, không chỉ index trong trang */}
-                      MĐH {(trangHienTai - 1) * donHangMotTrang + idx + 1}
+                      # {order.donHangID}
                     </td>
                     <td className="py-3 px-5 text-sm">{order.tenKhachHang}</td>
                     <td className="py-3 px-5 text-sm">{order.soDienThoaiKH}</td>

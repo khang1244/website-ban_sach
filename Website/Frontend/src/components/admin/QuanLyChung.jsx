@@ -5,9 +5,9 @@ function QuanLyChung() {
   // Biến trạng thái để lưu trữ các thống kê chung
   const [thongKe, setThongKe] = useState({
     tongDoanhThu: 0,
-    soLuongNguoiDung: 0,
+    soLuongKhachHang: 0,
     soLuongDonHang: 0,
-    topNguoiDung: [],
+    topKhachHang: [],
   });
 
   useEffect(() => {
@@ -23,9 +23,9 @@ function QuanLyChung() {
         );
         setThongKe({
           tongDoanhThu: 0,
-          soLuongNguoiDung: 0,
+          soLuongKhachHang: 0,
           soLuongDonHang: 0,
-          topNguoiDung: [],
+          topKhachHang: [],
         });
       }
     }
@@ -46,7 +46,7 @@ function QuanLyChung() {
 
         <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-xl shadow-lg p-6 flex flex-col items-center transition-transform transform hover:scale-105">
           <span className="text-lg mb-2">Số lượng tài khoản</span>
-          <span className="text-2xl font-bold">{thongKe.soLuongNguoiDung}</span>
+          <span className="text-2xl font-bold">{thongKe.soLuongKhachHang}</span>
         </div>
 
         <div className="bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl shadow-lg p-6 flex flex-col items-center transition-transform transform hover:scale-105">
@@ -72,26 +72,26 @@ function QuanLyChung() {
               </tr>
             </thead>
             <tbody>
-              {thongKe.topNguoiDung.length > 0 ? (
-                thongKe.topNguoiDung.map((user, idx) => (
+              {thongKe.topKhachHang.length > 0 ? (
+                thongKe.topKhachHang.map((user, idx) => (
                   <tr
-                    key={user.NguoiDung.email}
+                    key={user.KhachHang.email}
                     className="border-b hover:bg-gray-50 transition-colors text-black"
                   >
                     <td className="py-3 px-4 font-medium">{idx + 1}</td>
                     <td className="py-3 px-4">
                       <img
                         src={
-                          user.NguoiDung.avatar
-                            ? JSON.parse(user.NguoiDung.avatar)?.url
+                          user.KhachHang.avatar
+                            ? JSON.parse(user.KhachHang.avatar)?.url
                             : ""
                         }
-                        alt={user.NguoiDung.tenNguoiDung}
+                        alt={user.KhachHang.tenKhachHang}
                         className="w-10 h-10 rounded-full object-cover border"
                       />
                     </td>
-                    <td className="py-3 px-4">{user.NguoiDung.tenNguoiDung}</td>
-                    <td className="py-3 px-4">{user.NguoiDung.email}</td>
+                    <td className="py-3 px-4">{user.KhachHang.tenKhachHang}</td>
+                    <td className="py-3 px-4">{user.KhachHang.email}</td>
                     <td className="py-3 px-4 font-semibold text-gray-800">
                       {user.soLuongDonHang}
                     </td>

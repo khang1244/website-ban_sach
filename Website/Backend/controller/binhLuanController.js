@@ -1,5 +1,5 @@
 import BinhLuan from "../models/BinhLuan.js";
-import NguoiDung from "../models/NguoiDung.js";
+import KhachHang from "../models/KhachHang.js";
 
 // Nhận tất cả các bình luận
 export const nhanTatCaBinhLuan = async (req, res) => {
@@ -20,16 +20,16 @@ export const nhanBinhLuanTheoSachID = async (req, res) => {
       where: { sachID, duyet: true },
       include: [
         {
-          model: NguoiDung,
+          model: KhachHang,
           attributes: ["email"], // chỉ lấy email
         },
       ],
       order: [["createdAt", "DESC"]],
     });
-    // Chuyển đổi dữ liệu để bao gồm email từ bảng NguoiDung
+    // Chuyển đổi dữ liệu để bao gồm email từ bảng KhachHang
     const data = binhLuans.map((bl) => ({
       ...bl.toJSON(),
-      email: bl.NguoiDung?.email || null,
+      email: bl.KhachHang?.email || null,
     }));
 
     return res.status(200).json(data);
@@ -40,11 +40,11 @@ export const nhanBinhLuanTheoSachID = async (req, res) => {
 
 // Tạo bình luận mới
 export const taoBinhLuan = async (req, res) => {
-  const { sachID, nguoiDungID, noiDung, danhGia } = req.body;
+  const { sachID, khachHangID, noiDung, danhGia } = req.body;
   try {
     const binhLuan = await BinhLuan.create({
       sachID,
-      nguoiDungID,
+      khachHangID,
       noiDung,
       danhGia,
       // Mặc định khi người dùng tạo bình luận chưa được duyệt

@@ -2,15 +2,15 @@ import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
 
 // Định nghĩa model NguoiDung
-const NguoiDung = sequelize.define(
-  "NguoiDung",
+const KhachHang = sequelize.define(
+  "KhachHang",
   {
-    nguoiDungID: {
+    khachHangID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    tenNguoiDung: {
+    tenKhachHang: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -55,7 +55,7 @@ const NguoiDung = sequelize.define(
       allowNull: true,
     },
   },
-  { timestamps: true, tableName: "nguoi_dung" }
+  { timestamps: true, tableName: "khach_hang" }
 );
 
-export default NguoiDung;
+export default KhachHang;

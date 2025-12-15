@@ -84,7 +84,7 @@ function QuanLyTonKho() {
         ngayNhap: new Date(),
         ghiChu: ghiChuNhap,
         chiTietPhieuNhaps: chiTietHopLe,
-        nguoiDungID: user?.nguoiDungID || null,
+        khachHangID: user?.khachHangID || null,
       };
 
       await taoPhieuNhap(payload);
@@ -480,7 +480,7 @@ function QuanLyTonKho() {
                                     .replace(",", "")}
                                 </td>
                                 <td className="border p-2 text-center font-semibold text-blue-600">
-                                  {item.phieu.nguoiDung?.tenNguoiDung ||
+                                  {item.phieu.khachHang?.tenKhachHang ||
                                     "Chưa xác định"}
                                 </td>
                                 <td className="border p-7">

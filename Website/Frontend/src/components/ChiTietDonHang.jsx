@@ -28,7 +28,7 @@ function FormBinhLuan({ sachID, dongFormBinhLuan }) {
 
     const duLieuBinhLuan = {
       sachID: sachID,
-      nguoiDungID: JSON.parse(localStorage.getItem("user")).nguoiDungID,
+      khachHangID: JSON.parse(localStorage.getItem("user")).khachHangID,
       noiDung: noiDung,
       danhGia: danhGia,
     };

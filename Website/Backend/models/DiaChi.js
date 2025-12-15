@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
-import NguoiDung from "./NguoiDung.js";
+import KhachHang from "./KhachHang.js";
 
 const DiaChi = sequelize.define(
   "DiaChi",
@@ -10,10 +10,10 @@ const DiaChi = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    nguoiDungID: {
+    khachHangID: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: "nguoi_dung", key: "nguoiDungID" },
+      references: { model: "khach_hang", key: "khachHangID" },
     },
     diaChi: {
       type: DataTypes.TEXT,
@@ -28,7 +28,7 @@ const DiaChi = sequelize.define(
   { timestamps: true, tableName: "dia_chi" }
 );
 
-DiaChi.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
-NguoiDung.hasMany(DiaChi, { foreignKey: "nguoiDungID" });
+DiaChi.belongsTo(KhachHang, { foreignKey: "khachHangID" });
+KhachHang.hasMany(DiaChi, { foreignKey: "khachHangID" });
 
 export default DiaChi;

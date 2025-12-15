@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from "react";
 import {
-  layTatCaNguoiDung,
-  xoaNguoiDungTheoID,
-  thayDoiTrangThaiNguoiDung,
-} from "../../lib/nguoi-dung-apis";
+  layTatCaKhachHang,
+  xoaKhachHangTheoID,
+  thayDoiTrangThaiKhachHang,
+} from "../../lib/khach-hang-apis";
 
-function QuanLyNguoiDung() {
+function QuanLyKhachHang() {
   const [users, setUsers] = useState([]); // Danh sách người dùng
   const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
 
   // --- PHÂN TRANG ---
   // Số người dùng hiển thị mỗi trang (yêu cầu: 4)
-  const nguoiDungMotTrang = 4; // 4 người/trang
+  const khachHangMotTrang = 4; // 4 người/trang
   // Trang hiện tại cho danh sách người dùng (1-based)
-  const [trangNguoiHienTai, setTrangNguoiHienTai] = useState(1);
+  const [trangKhachHangHienTai, setTrangKhachHangHienTai] = useState(1);
 
-  const xuLyXoaTaiKhoan = async (nguoiDungID) => {
+  const xuLyXoaTaiKhoan = async (khachHangID) => {
     const confirmDelete = window.confirm(
-      `Bạn có chắc chắn muốn XÓA người dùng có ID: ${nguoiDungID} không? Hành động này không thể hoàn tác.`
+      `Bạn có chắc chắn muốn XÓA người dùng có ID: ${khachHangID} không? Hành động này không thể hoàn tác.`
     );
 
     if (!confirmDelete) return;
 
-    const res = await xoaNguoiDungTheoID(nguoiDungID);
+    const res = await xoaKhachHangTheoID(khachHangID);
 
     if (res.ok) {
       setUsers((prev) =>
-        prev.filter((user) => user.nguoiDungID !== nguoiDungID)
+        prev.filter((user) => user.khachHangID !== khachHangID)
       );
       alert("Đã xóa tài khoản người dùng thành công.");
     } else {
@@ -35,9 +35,9 @@ function QuanLyNguoiDung() {
   };
 
   // Xử lý Khóa / Mở khóa tài khoản (toggle)
-  const xuLyKhoaTaiKhoan = async (nguoiDungID) => {
+  const xuLyKhoaTaiKhoan = async (khachHangID) => {
     // Tìm trạng thái hiện tại từ state
-    const user = users.find((u) => u.nguoiDungID === nguoiDungID);
+    const user = users.find((u) => u.khachHangID === khachHangID);
     if (!user) return;
 
     const isActive =
@@ -49,12 +49,12 @@ function QuanLyNguoiDung() {
 
     // Gọi API để cập nhật trạng thái
     try {
-      const res = await thayDoiTrangThaiNguoiDung(nguoiDungID, newTrangThai);
+      const res = await thayDoiTrangThaiKhachHang(khachHangID, newTrangThai);
       if (res.ok) {
         // Cập nhật local state khi server trả về thành công
         setUsers((prev) =>
           prev.map((u) =>
-            u.nguoiDungID === nguoiDungID
+            u.khachHangID === khachHangID
               ? { ...u, trangThaiTaiKhoan: newTrangThai }
               : u
           )
@@ -71,39 +71,39 @@ function QuanLyNguoiDung() {
   const filteredUsers = users.filter((user) => {
     const keyword = searchTerm.toLowerCase();
     return (
-      user.tenNguoiDung.toLowerCase().includes(keyword) ||
+      user.tenKhachHang.toLowerCase().includes(keyword) ||
       user.email.toLowerCase().includes(keyword)
     );
   });
 
   // Tổng số trang dựa trên filteredUsers
-  const tongTrangNguoi = Math.max(
+  const tongTrangKhachHang = Math.max(
     1,
-    Math.ceil(filteredUsers.length / nguoiDungMotTrang)
+    Math.ceil(filteredUsers.length / khachHangMotTrang)
   );
 
   // Nếu tìm kiếm thay đổi, quay về trang 1 để tránh trang không hợp lệ
   useEffect(() => {
-    setTrangNguoiHienTai(1);
+    setTrangKhachHangHienTai(1);
   }, [searchTerm]);
 
   // Nếu số trang giảm (ví dụ sau khi xóa hoặc lọc), điều chỉnh trang hiện tại cho hợp lệ
   useEffect(() => {
-    if (trangNguoiHienTai > tongTrangNguoi) {
-      setTrangNguoiHienTai(tongTrangNguoi);
+    if (trangKhachHangHienTai > tongTrangKhachHang) {
+      setTrangKhachHangHienTai(tongTrangKhachHang);
     }
-  }, [tongTrangNguoi, trangNguoiHienTai]);
+  }, [tongTrangKhachHang, trangKhachHangHienTai]);
 
   // Mảng người dùng thực tế sẽ hiển thị cho trang hiện tại
   const nguoiHienThi = filteredUsers.slice(
-    (trangNguoiHienTai - 1) * nguoiDungMotTrang,
-    trangNguoiHienTai * nguoiDungMotTrang
+    (trangKhachHangHienTai - 1) * khachHangMotTrang,
+    trangKhachHangHienTai * khachHangMotTrang
   );
 
   // Lấy tất cả người dùng khi component mount
   useEffect(() => {
     const fetchAll = async () => {
-      const list = await layTatCaNguoiDung(); // trả về mảng
+      const list = await layTatCaKhachHang(); // trả về mảng
       setUsers(Array.isArray(list) ? list : []);
     };
     fetchAll();
@@ -185,14 +185,14 @@ function QuanLyNguoiDung() {
 
                 return (
                   <tr
-                    key={user.nguoiDungID}
+                    key={user.khachHangID}
                     className="hover:bg-gray-50 transition duration-100"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {user.nguoiDungID}
+                      {user.khachHangID}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {user.tenNguoiDung}
+                      {user.tenKhachHang}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.email}
@@ -222,7 +222,7 @@ function QuanLyNguoiDung() {
                     {/* Hành động */}
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                       <button
-                        onClick={() => xuLyKhoaTaiKhoan(user.nguoiDungID)}
+                        onClick={() => xuLyKhoaTaiKhoan(user.khachHangID)}
                         className={`mr-3 py-1 px-3 rounded-lg text-white font-semibold transition duration-150 shadow-md ${
                           isActive
                             ? "bg-yellow-500 hover:bg-yellow-600"
@@ -236,7 +236,7 @@ function QuanLyNguoiDung() {
                       </button>
 
                       <button
-                        onClick={() => xuLyXoaTaiKhoan(user.nguoiDungID)}
+                        onClick={() => xuLyXoaTaiKhoan(user.khachHangID)}
                         className="py-1 px-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition duration-150 shadow-md"
                         title="Xóa Tài Khoản Vĩnh Viễn"
                       >
@@ -262,28 +262,28 @@ function QuanLyNguoiDung() {
       {/* PHÂN TRANG: Hiển thị controls nếu có nhiều hơn 1 trang */}
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Trang {trangNguoiHienTai} / {tongTrangNguoi}
+          Trang {trangKhachHangHienTai} / {tongTrangKhachHang}
         </div>
         <div className="flex items-center gap-2 text-black">
           <button
             onClick={() =>
-              setTrangNguoiHienTai(Math.max(1, trangNguoiHienTai - 1))
+              setTrangKhachHangHienTai(Math.max(1, trangKhachHangHienTai - 1))
             }
-            disabled={trangNguoiHienTai === 1}
+            disabled={trangKhachHangHienTai === 1}
             className={`px-3 py-1 rounded-md border ${
-              trangNguoiHienTai === 1
+              trangKhachHangHienTai === 1
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}
           >
             Trước
           </button>
-          {Array.from({ length: tongTrangNguoi }).map((_, i) => (
+          {Array.from({ length: tongTrangKhachHang }).map((_, i) => (
             <button
               key={i}
-              onClick={() => setTrangNguoiHienTai(i + 1)}
+              onClick={() => setTrangKhachHangHienTai(i + 1)}
               className={`px-3 py-1 rounded-md border ${
-                trangNguoiHienTai === i + 1
+                trangKhachHangHienTai === i + 1
                   ? "bg-indigo-600 text-white"
                   : "hover:bg-gray-100"
               }`}
@@ -293,13 +293,13 @@ function QuanLyNguoiDung() {
           ))}
           <button
             onClick={() =>
-              setTrangNguoiHienTai(
-                Math.min(tongTrangNguoi, trangNguoiHienTai + 1)
+              setTrangKhachHangHienTai(
+                Math.min(tongTrangKhachHang, trangKhachHangHienTai + 1)
               )
             }
-            disabled={trangNguoiHienTai === tongTrangNguoi}
+            disabled={trangKhachHangHienTai === tongTrangKhachHang}
             className={`px-3 py-1 rounded-md border ${
-              trangNguoiHienTai === tongTrangNguoi
+              trangKhachHangHienTai === tongTrangKhachHang
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}
@@ -312,4 +312,4 @@ function QuanLyNguoiDung() {
   );
 }
 
-export default QuanLyNguoiDung;
+export default QuanLyKhachHang;

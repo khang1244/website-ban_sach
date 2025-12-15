@@ -1,13 +1,13 @@
-import NguoiDung from "../models/NguoiDung.js";
+import KhachHang from "../models/KhachHang.js";
 import bcrypt from "bcryptjs"; // Thư viện để mã hóa mật khẩu
 import { sendEmail } from "../utils/sendEmail.js";
 
 // Hàm để lấy tất cả người dùng
-export const layTatCaNguoiDung = async (req, res) => {
+export const layTatCaKhachHang = async (req, res) => {
   try {
-    const users = await NguoiDung.findAll({
+    const users = await KhachHang.findAll({
       attributes: { exclude: ["matKhau"] }, // Giấu mật khẩu cho an toàn
-      order: [["nguoiDungID", "DESC"]], // Sắp xếp từ mới đến cũ (tuỳ bạn)
+      order: [["khachHangID", "DESC"]], // Sắp xếp từ mới đến cũ (tuỳ bạn)
     });
 
     res.status(200).json({
@@ -21,10 +21,10 @@ export const layTatCaNguoiDung = async (req, res) => {
 };
 // Hàm để đăng ký người dùng mới
 export const dangKy = async (req, res) => {
-  const { tenNguoiDung, email, matKhau, soDienThoai } = req.body; // Lấy thông tin từ body của request
+  const { tenKhachHang, email, matKhau, soDienThoai } = req.body; // Lấy thông tin từ body của request
   try {
     // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
-    const existingUser = await NguoiDung.findOne({ where: { email } });
+    const existingUser = await KhachHang.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Email đã được sử dụng" });
     }
@@ -32,8 +32,8 @@ export const dangKy = async (req, res) => {
     // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
     const hashedPassword = await bcrypt.hash(matKhau, 10); // Sử dụng bcrypt để mã hóa mật khẩu
     // Tạo người dùng mới trong cơ sở dữ liệu
-    const newUser = await NguoiDung.create({
-      tenNguoiDung,
+    const newUser = await KhachHang.create({
+      tenKhachHang,
       email,
       matKhau: hashedPassword, // Lưu mật khẩu đã mã hóa
       soDienThoai,
@@ -50,8 +50,8 @@ export const dangNhap = async (req, res) => {
   const { email, matKhau } = req.body; // Lấy thông tin từ body của request
   try {
     // Tìm người dùng trong cơ sở dữ liệu theo email
-    const user = await NguoiDung.findOne({ where: { email } });
-    // User tồn tại => { tenNguoiDung: ...,...}
+    const user = await KhachHang.findOne({ where: { email } });
+    // User tồn tại => { tenKhachHang: ...,...}
     if (!user) {
       return res.status(400).json({ message: "Email không tồn tại" });
     }
@@ -80,12 +80,12 @@ export const dangNhap = async (req, res) => {
 
 // Hàm để thay đổi trạng thái tài khoản người dùng (active/inactive)
 export const thayDoiTrangThaiTaiKhoan = async (req, res) => {
-  const { nguoiDungID } = req.params;
+  const { khachHangID } = req.params;
   const { trangThai } = req.body; // trạng thái mới
 
   try {
     // Tìm người dùng theo ID
-    const user = await NguoiDung.findByPk(nguoiDungID);
+    const user = await KhachHang.findByPk(khachHangID);
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
@@ -118,12 +118,12 @@ export const thayDoiTrangThaiTaiKhoan = async (req, res) => {
 };
 
 // Hàm để lấy thông tin người dùng theo ID
-export const layThongTinNguoiDung = async (req, res) => {
-  const { id } = req.params;
+export const layThongTinKhachHang = async (req, res) => {
+  const { khachHangID } = req.params;
 
   try {
     // Tìm người dùng theo ID
-    const user = await NguoiDung.findByPk(id);
+    const user = await KhachHang.findByPk(khachHangID);
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
@@ -138,23 +138,22 @@ export const layThongTinNguoiDung = async (req, res) => {
 };
 
 // Hàm để cập nhật thông tin người dùng
-export const capNhatThongTinNguoiDung = async (req, res) => {
-  const { id } = req.params;
-  const { tenNguoiDung, email, soDienThoai, avatar, diaChi } = req.body; // Thông tin mới cần cập nhật
+export const capNhatThongTinKhachHang = async (req, res) => {
+  const { khachHangID } = req.params;
+  const { tenKhachHang, email, soDienThoai, avatar } = req.body; // Thông tin mới cần cập nhật
 
   try {
     // Tìm người dùng theo ID
-    const user = await NguoiDung.findByPk(id);
+    const user = await KhachHang.findByPk(khachHangID);
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
 
     // Cập nhật thông tin người dùng
-    user.tenNguoiDung = tenNguoiDung;
+    user.tenKhachHang = tenKhachHang;
     user.email = email;
     user.soDienThoai = soDienThoai;
     user.avatar = avatar;
-    user.diaChi = diaChi;
     await user.save();
 
     res
@@ -168,13 +167,13 @@ export const capNhatThongTinNguoiDung = async (req, res) => {
 
 // Hàm để cập nhật mật khẩu người dùng
 export const capNhatMatKhau = async (req, res) => {
-  const { id } = req.params;
+  const { khachHangID } = req.params;
   const { matKhauMoi } = req.body; // Mật khẩu mới
   try {
-    // Tìm người dùng theo ID
-    const user = await NguoiDung.findByPk(id);
+    // Tìm khách hàng theo ID
+    const user = await KhachHang.findByPk(khachHangID);
     if (!user) {
-      return res.status(404).json({ message: "Người dùng không tồn tại" });
+      return res.status(404).json({ message: "Khách hàng không tồn tại" });
     }
 
     // Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
@@ -189,11 +188,11 @@ export const capNhatMatKhau = async (req, res) => {
 };
 
 // Hàm để xóa tài khoản người dùng
-export const xoaTaiKhoanNguoiDung = async (req, res) => {
-  const { id } = req.params;
+export const xoaTaiKhoanKhachHang = async (req, res) => {
+  const { khachHangID } = req.params;
   try {
     // Tìm người dùng theo ID
-    const user = await NguoiDung.findByPk(id);
+    const user = await KhachHang.findByPk(khachHangID);
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
@@ -211,7 +210,7 @@ export const xoaTaiKhoanNguoiDung = async (req, res) => {
 export const kiemTraEmailTonTai = async (req, res) => {
   const { email } = req.body;
   try {
-    const user = await NguoiDung.findOne({ where: { email } });
+    const user = await KhachHang.findOne({ where: { email } });
     if (user) {
       console.log("Email đã tồn tại:", email); // Debugging line
       return res.status(400).json({ message: "Email này đã được đăng ký!" });
@@ -225,10 +224,10 @@ export const kiemTraEmailTonTai = async (req, res) => {
 };
 // Hàm để xử lý đăng nhập bằng Google
 export const dangNhapGoogle = async (req, res) => {
-  const { tenNguoiDung, email, avatar, googleId } = req.body;
+  const { tenKhachHang, email, avatar, googleId } = req.body;
   try {
     // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
-    let user = await NguoiDung.findOne({ where: { email } });
+    let user = await KhachHang.findOne({ where: { email } });
 
     if (user) {
       // Kiểm tra trạng thái tài khoản
@@ -251,8 +250,8 @@ export const dangNhapGoogle = async (req, res) => {
       const randomPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-      user = await NguoiDung.create({
-        tenNguoiDung,
+      user = await KhachHang.create({
+        tenKhachHang,
         email,
         matKhau: hashedPassword,
         avatar: JSON.stringify({ url: avatar, public_id: null }),
@@ -264,8 +263,8 @@ export const dangNhapGoogle = async (req, res) => {
     res.status(200).json({
       message: "Đăng nhập Google thành công",
       user: {
-        nguoiDungID: user.nguoiDungID,
-        tenNguoiDung: user.tenNguoiDung,
+        khachHangID: user.khachHangID,
+        tenKhachHang: user.tenKhachHang,
         email: user.email,
         avatar: user.avatar,
         googleId: user.googleId,
@@ -283,7 +282,7 @@ export const yeuCauNhanOTPCapNhatMatKhau = async (req, res) => {
   const { email } = req.body;
   try {
     // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
-    const user = await NguoiDung.findOne({ where: { email } });
+    const user = await KhachHang.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: "Email không tồn tại" });
     }
@@ -371,7 +370,7 @@ export const kiemTraMaOTP = async (req, res) => {
   const { email, otp } = req.body;
   try {
     // Tìm người dùng theo email
-    const user = await NguoiDung.findOne({ where: { email } });
+    const user = await KhachHang.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: "Email không tồn tại" });
     }
@@ -388,7 +387,7 @@ export const kiemTraMaOTP = async (req, res) => {
     await user.save();
     return res
       .status(200)
-      .json({ message: "Mã OTP hợp lệ", userID: user.nguoiDungID });
+      .json({ message: "Mã OTP hợp lệ", userID: user.khachHangID });
   } catch (error) {
     console.error("Lỗi khi kiểm tra mã OTP:", error);
     res.status(500).json({ message: "Lỗi máy chủ" });

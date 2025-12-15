@@ -7,7 +7,7 @@ const sidebarLinks = [
   { label: "Quản lý sách", to: "/admin/sach" },
   { label: "Quản lý danh mục", to: "/admin/danhmucsach" },
   { label: "Quản lý đơn hàng", to: "/admin/donhang" },
-  { label: "Quản lý Người dùng", to: "/admin/nguoidung" },
+  { label: "Quản lý khách hàng", to: "/admin/khachhang" },
   { label: "Quản lý Bình luận", to: "/admin/binhluan" },
   { label: "Quản lý Khuyến mãi", to: "/admin/khuyenmai" },
   { label: "Quản lý Tồn kho", to: "/admin/tonkho" },
@@ -150,7 +150,7 @@ function AdminLayout() {
                       />
                       <div className="text-right">
                         <div className="text-sm font-medium text-slate-800">
-                          {user?.tenNguoiDung || user?.hoTen || "Admin"}
+                          {user?.tenKhachHang || user?.hoTen || "Admin"}
                         </div>
                         <LogoutButton />
                       </div>

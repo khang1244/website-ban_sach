@@ -1,7 +1,7 @@
 import express from "express";
 import {
   capNhatSoLuongSanPham,
-  layGioHangTheoNguoiDung,
+  layGioHangTheoKhachHang,
   themSanPhamVaoGioHang,
   xoaSanPhamKhoiGioHang,
   xoaToanBoGioHang,
@@ -9,9 +9,9 @@ import {
 } from "../controller/gioHangController.js";
 const router = express.Router();
 
-router.get("/:nguoiDungID", layGioHangTheoNguoiDung);
+router.get("/:khachHangID", layGioHangTheoKhachHang);
 
-router.get("/dem-so-luong/:nguoiDungID", layGioHangTheoNguoiDung);
+router.get("/dem-so-luong/:khachHangID", demSoLuongSanPhamTrongGioHang);
 
 router.post("/", themSanPhamVaoGioHang);
 
@@ -19,8 +19,8 @@ router.put("/:chiTietGioHangID", capNhatSoLuongSanPham);
 
 router.delete("/:chiTietGioHangID", xoaSanPhamKhoiGioHang);
 
-router.delete("/toan-bo/:nguoiDungID", xoaToanBoGioHang);
+router.delete("/toan-bo/:khachHangID", xoaToanBoGioHang);
 
-router.get("/dem-so-luong/:nguoiDungID", demSoLuongSanPhamTrongGioHang);
+router.get("/dem-so-luong/:khachHangID", demSoLuongSanPhamTrongGioHang);
 
 export default router;

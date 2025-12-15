@@ -23,7 +23,7 @@ import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis"; // import API lấy 
 import { nhanTatCaDanhMucSach } from "../lib/danh-muc-sach-apis"; // import API lấy danh mục sách
 import { useParams } from "react-router-dom"; // import useParams để lấy tham số từ URL
 import {
-  layGioHangTheoNguoiDung,
+  layGioHangTheoKhachHang,
   themSanPhamVaoGioHang,
 } from "../lib/gio-hang-apis"; // import API thêm sản phẩm vào giỏ hàng
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis"; // import API lấy bình luận
@@ -76,11 +76,11 @@ function ChiTietSanPham() {
       return;
     }
     const user = JSON.parse(storedUser);
-    const nguoiDungID = user.nguoiDungID;
+    const khachHangID = user.khachHangID;
 
     // Không thêm trùng sản phẩm, yêu cầu người dùng vào giỏ để tự tăng số lượng
     try {
-      const gioHangResp = await layGioHangTheoNguoiDung(nguoiDungID);
+      const gioHangResp = await layGioHangTheoKhachHang(khachHangID);
       const items = gioHangResp?.gioHang?.ChiTietGioHangs || [];
       const existed = items.some(
         (item) => String(item.sachID) === String(sachID)
@@ -96,7 +96,7 @@ function ChiTietSanPham() {
     }
 
     const phanHoiTuSever = await themSanPhamVaoGioHang(
-      nguoiDungID,
+      khachHangID,
       sachID,
       soLuong,
       giaLucThem

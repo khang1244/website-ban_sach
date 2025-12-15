@@ -36,9 +36,9 @@ export const taoDanhMucSachMoi = async (danhMucSach) => {
 };
 
 // 3. Cập nhật danh mục sách
-export const capNhatDanhMucSach = async (id, tenDanhMuc) => {
+export const capNhatDanhMucSach = async (danhMucSachID, tenDanhMuc) => {
   try {
-    const response = await fetch(`${BASE_URL}/danhMucSach/${id}`, {
+    const response = await fetch(`${BASE_URL}/danhMucSach/${danhMucSachID}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -54,9 +54,9 @@ export const capNhatDanhMucSach = async (id, tenDanhMuc) => {
 };
 
 // 4. Xóa danh mục sách
-export const xoaDanhMucSach = async (id) => {
+export const xoaDanhMucSach = async (danhMucSachID) => {
   try {
-    const response = await fetch(`${BASE_URL}/danhMucSach/${id}`, {
+    const response = await fetch(`${BASE_URL}/danhMucSach/${danhMucSachID}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

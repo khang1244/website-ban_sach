@@ -121,7 +121,7 @@ function Navigation() {
 
               <div className="text-left hidden md:block">
                 <p className="text-white font-semibold leading-tight">
-                  {user?.tenNguoiDung || "Chưa đăng nhập"}
+                  {user?.tenKhachHang || "Chưa đăng nhập"}
                 </p>
               </div>
             </button>
@@ -143,7 +143,7 @@ function Navigation() {
                   {showAccountMenu && (
                     <div className="bg-white border-t border-gray-100">
                       <Link
-                        to="/hosonguoidung"
+                        to="/hosokhachhang"
                         className="block px-6 py-2 hover:bg-amber-100"
                         onClick={() => {
                           setIsOpen(false);

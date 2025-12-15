@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import {
   demSoLuongSanPhamTrongGioHang,
-  layGioHangTheoNguoiDung,
+  layGioHangTheoKhachHang,
 } from "../lib/gio-hang-apis";
 
 // Tạo UserContext để quản lý thông tin người dùng toàn cục
@@ -40,8 +40,8 @@ const UserProvider = ({ children }) => {
         return;
       }
       const parsedUser = JSON.parse(storedUser);
-      console.log("refreshCartCount - nguoiDungID:", parsedUser.nguoiDungID);
-      const data = await demSoLuongSanPhamTrongGioHang(parsedUser.nguoiDungID);
+      console.log("refreshCartCount - khachHangID:", parsedUser.khachHangID);
+      const data = await demSoLuongSanPhamTrongGioHang(parsedUser.khachHangID);
       console.log("refreshCartCount - response:", data);
 
       // Nếu endpoint trả về số hoặc object chứa count/soLuong thì dùng trực tiếp
@@ -55,7 +55,7 @@ const UserProvider = ({ children }) => {
       // Nếu không lấy được count từ endpoint, fallback: lấy toàn bộ giỏ hàng và đếm số mặt hàng distinct
       if (count === null) {
         try {
-          const full = await layGioHangTheoNguoiDung(parsedUser.nguoiDungID);
+          const full = await layGioHangTheoKhachHang(parsedUser.khachHangID);
           console.log("refreshCartCount - fallback full cart:", full);
           if (
             full &&

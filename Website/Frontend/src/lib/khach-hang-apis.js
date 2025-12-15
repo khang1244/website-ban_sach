@@ -2,9 +2,9 @@
 import { BASE_URL } from "./baseUrl.js";
 
 // 1. Nhận tất cả danh mục sách
-export const layTatCaNguoiDung = async () => {
+export const layTatCaKhachHang = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung`, {
+    const response = await fetch(`${BASE_URL}/khachHang`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -27,14 +27,14 @@ export const layTatCaNguoiDung = async () => {
 };
 
 // Hàm đăng ký tài khoản người dùng
-export const dangKyTaiKhoan = async (nguoiDung) => {
+export const dangKyTaiKhoan = async (khachHang) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/dang-ky`, {
+    const response = await fetch(`${BASE_URL}/khachHang/dang-ky`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(nguoiDung),
+      body: JSON.stringify(khachHang),
     });
 
     return await response.json();
@@ -46,7 +46,7 @@ export const dangKyTaiKhoan = async (nguoiDung) => {
 // 2. Tạo hàm đăng nhập
 export const dangNhapTaiKhoan = async (email, matKhau) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/dang-nhap`, {
+    const response = await fetch(`${BASE_URL}/khachHang/dang-nhap`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export const dangNhapTaiKhoan = async (email, matKhau) => {
 // 3. Tạo hàm kiểm tra email tồn tại
 export const kiemTraEmailTonTai = async (email) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/kiemTraEmail`, {
+    const response = await fetch(`${BASE_URL}/khachHang/kiemTraEmail`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -82,9 +82,9 @@ export const kiemTraEmailTonTai = async (email) => {
   }
 };
 // 4. Tạo hàm để cập nhật thông tin người dùng
-export const capNhatThongTinNguoiDung = async (nguoiDungID, thongTinMoi) => {
+export const capNhatThongTinKhachHang = async (khachHangID, thongTinMoi) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/${nguoiDungID}`, {
+    const response = await fetch(`${BASE_URL}/khachHang/${khachHangID}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -108,10 +108,10 @@ export const capNhatThongTinNguoiDung = async (nguoiDungID, thongTinMoi) => {
 };
 
 // 5. Cập nhật mật khẩu người dùng
-export const capNhatMatKhau = async (nguoiDungID, matKhauMoi) => {
+export const capNhatMatKhau = async (khachHangID, matKhauMoi) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/nguoiDung/cap-nhat-mat-khau/${nguoiDungID}`,
+      `${BASE_URL}/khachHang/cap-nhat-mat-khau/${khachHangID}`,
       {
         method: "PUT",
         headers: {
@@ -130,7 +130,7 @@ export const capNhatMatKhau = async (nguoiDungID, matKhauMoi) => {
 // 4. Tạo hàm để cập nhật mật khẩu người dùng
 export const yeuCauNhanOTPCapNhatMatKhau = async (email) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/nhan-otp`, {
+    const response = await fetch(`${BASE_URL}/khachHang/nhan-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export const yeuCauNhanOTPCapNhatMatKhau = async (email) => {
 // 5. Tạo hàm để kiểm tra mã OTP
 export const kiemTraMaOTP = async (email, maOTP) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/kiem-tra-otp`, {
+    const response = await fetch(`${BASE_URL}/khachHang/kiem-tra-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -177,7 +177,7 @@ export const kiemTraMaOTP = async (email, maOTP) => {
 export const datLaiMatKhau = async (userID, matKhauMoi) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/nguoiDung/cap-nhat-mat-khau/${userID}`,
+      `${BASE_URL}/khachHang/cap-nhat-mat-khau/${userID}`,
       {
         method: "PUT",
         headers: {
@@ -200,7 +200,7 @@ export const datLaiMatKhau = async (userID, matKhauMoi) => {
 // Hàm đăng nhập bằng Google
 export const dangNhapGoogle = async (googleUser) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/dang-nhap-google`, {
+    const response = await fetch(`${BASE_URL}/khachHang/dang-nhap-google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -220,9 +220,9 @@ export const dangNhapGoogle = async (googleUser) => {
   }
 };
 // 4. Xóa danh mục sách
-export const xoaNguoiDungTheoID = async (id) => {
+export const xoaKhachHangTheoID = async (id) => {
   try {
-    const response = await fetch(`${BASE_URL}/nguoiDung/${id}`, {
+    const response = await fetch(`${BASE_URL}/khachHang/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -245,10 +245,10 @@ export const xoaNguoiDungTheoID = async (id) => {
   }
 };
 // Thay đổi trạng thái tài khoản (khóa / mở khóa)
-export const thayDoiTrangThaiNguoiDung = async (nguoiDungID, trangThai) => {
+export const thayDoiTrangThaiKhachHang = async (khachHangID, trangThai) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/nguoiDung/thay-doi-trang-thai/${nguoiDungID}`,
+      `${BASE_URL}/khachHang/thay-doi-trang-thai/${khachHangID}`,
       {
         method: "POST",
         headers: {

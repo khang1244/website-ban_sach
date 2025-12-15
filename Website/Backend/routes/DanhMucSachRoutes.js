@@ -14,9 +14,9 @@ router.get("/", nhanTatCaDanhMucSach);
 router.post("/", taoDanhMucSachMoi);
 
 // Cập nhật một danh mục sách dựa trên ID
-router.put("/:id", capNhatDanhMucSach); // PUT /api/danhMucSach/:id
+router.put("/:danhMucSachID", capNhatDanhMucSach); // PUT /api/danhMucSach/:id
 
 // Xóa một danh mục sách dựa trên ID
-router.delete("/:id", xoaDanhMucSach); // DELETE /api/danhMucSach/:id
+router.delete("/:danhMucSachID", xoaDanhMucSach); // DELETE /api/danhMucSach/:id
 
 export default router;

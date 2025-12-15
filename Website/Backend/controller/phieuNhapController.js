@@ -1,7 +1,7 @@
 import PhieuNhap from "../models/PhieuNhap.js";
 import ChiTietPhieuNhap from "../models/ChiTietPhieuNhap.js";
 import Sach from "../models/Sach.js";
-import NguoiDung from "../models/NguoiDung.js";
+import KhachHang from "../models/KhachHang.js";
 import sequelize from "../config/mysql_config.js";
 
 // Lấy tất cả phiếu nhập
@@ -10,9 +10,9 @@ export const layTatCaPhieuNhap = async (req, res) => {
     const danhSachPhieuNhap = await PhieuNhap.findAll({
       include: [
         {
-          model: NguoiDung,
-          as: "nguoiDung",
-          attributes: ["nguoiDungID", "tenNguoiDung", "email"],
+          model: KhachHang,
+          as: "khachHang",
+          attributes: ["khachHangID", "tenKhachHang", "email"],
         },
         {
           model: ChiTietPhieuNhap,
@@ -68,7 +68,7 @@ export const layPhieuNhapTheoID = async (req, res) => {
 // Tạo phiếu nhập mới
 export const taoPhieuNhap = async (req, res) => {
   try {
-    const { ngayNhap, ghiChu, chiTietPhieuNhaps, nguoiDungID } = req.body;
+    const { ngayNhap, ghiChu, chiTietPhieuNhaps, khachHangID } = req.body;
 
     // Kiểm tra dữ liệu đầu vào
     if (!chiTietPhieuNhaps || chiTietPhieuNhaps.length === 0) {
@@ -83,7 +83,7 @@ export const taoPhieuNhap = async (req, res) => {
       // Tạo phiếu nhập
       const phieuNhapMoi = await PhieuNhap.create(
         {
-          nguoiDungID: nguoiDungID || null,
+          khachHangID: khachHangID || null,
           ngayNhap: ngayNhap || new Date(),
           ghiChu: ghiChu || null,
         },

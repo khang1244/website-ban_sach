@@ -26,9 +26,9 @@ export const taoDanhMucSachMoi = async (req, res) => {
 // Cập nhật một danh mục sách dựa trên ID
 export const capNhatDanhMucSach = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { danhMucSachID } = req.params;
     const { tenDanhMuc } = req.body;
-    const danhMucSach = await DanhMucSach.findByPk(id); // danhMucSach = {dsadfsdfd} => true, danhMucSach = null || "" => false
+    const danhMucSach = await DanhMucSach.findByPk(danhMucSachID); // danhMucSach = {dsadfsdfd} => true, danhMucSach = null || "" => false
     if (!danhMucSach) {
       return res.status(404).json({ error: "Danh mục sách không tồn tại." });
     }
@@ -46,8 +46,8 @@ export const capNhatDanhMucSach = async (req, res) => {
 // Xóa một danh mục sách dựa trên ID
 export const xoaDanhMucSach = async (req, res) => {
   try {
-    const { id } = req.params;
-    const danhMucSach = await DanhMucSach.findByPk(id);
+    const { danhMucSachID } = req.params;
+    const danhMucSach = await DanhMucSach.findByPk(danhMucSachID);
     if (!danhMucSach) {
       return res.status(404).json({ error: "Danh mục sách không tồn tại." });
     }

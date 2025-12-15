@@ -11,7 +11,7 @@ import { FiGift, FiPhoneCall } from "react-icons/fi";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import {
-  layGioHangTheoNguoiDung,
+  layGioHangTheoKhachHang,
   themSanPhamVaoGioHang,
 } from "../../lib/gio-hang-apis";
 import { UserContext } from "../../contexts/user-context";
@@ -144,11 +144,11 @@ function Homepage() {
       return;
     }
     const user = JSON.parse(storedUser);
-    const nguoiDungID = user.nguoiDungID;
+    const khachHangID = user.khachHangID;
 
     // Không thêm trùng sản phẩm, yêu cầu người dùng vào giỏ để tự tăng số lượng
     try {
-      const gioHangResp = await layGioHangTheoNguoiDung(nguoiDungID);
+      const gioHangResp = await layGioHangTheoKhachHang(khachHangID);
       const items = gioHangResp?.gioHang?.ChiTietGioHangs || [];
       const existed = items.some(
         (item) => String(item.sachID) === String(sachID)
@@ -164,7 +164,7 @@ function Homepage() {
     }
 
     const phanHoiTuSever = await themSanPhamVaoGioHang(
-      nguoiDungID,
+      khachHangID,
       sachID,
       soLuong,
       giaLucThem

@@ -28,7 +28,7 @@ export const nhanTatCaDonHang = async (req, res) => {
 export const taoDonHangMoi = async (req, res) => {
   try {
     const {
-      nguoiDungID,
+      khachHangID,
       tenKhachHang,
       soDienThoaiKH,
       ngayDat,
@@ -100,7 +100,7 @@ export const taoDonHangMoi = async (req, res) => {
       // Tạo đơn hàng mới
       const donHangMoi = await DonHang.create(
         {
-          nguoiDungID,
+          khachHangID,
           tenKhachHang,
           soDienThoaiKH,
           ngayDat,
@@ -257,7 +257,7 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
           const phieuXuatMoi = await PhieuXuat.create(
             {
               donHangID: donHang.donHangID,
-              nguoiDungID: donHang.nguoiDungID,
+              khachHangID: donHang.khachHangID,
               tenKhachHang: donHang.tenKhachHang,
               ngayXuat: new Date(),
               loaiXuat: "bán hàng",
@@ -321,11 +321,11 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
   }
 };
 // Nhận đơn hàng theo tài khoản người dùng
-export const nhanDonHangCuaNguoiDung = async (req, res) => {
+export const nhanDonHangCuaKhachHang = async (req, res) => {
   try {
-    const { nguoiDungID } = req.params;
+    const { khachHangID } = req.params;
     const donHangs = await DonHang.findAll({
-      where: { nguoiDungID },
+      where: { khachHangID },
       include: [
         {
           model: Sach,
@@ -415,7 +415,7 @@ export const traHang = async (req, res) => {
       const phieuXuatMoi = await PhieuXuat.create(
         {
           donHangID: donHangID,
-          nguoiDungID: donHang.nguoiDungID,
+          khachHangID: donHang.khachHangID,
           tenKhachHang: donHang.tenKhachHang,
           ngayXuat: new Date(),
           loaiXuat: "Khách trả hàng",

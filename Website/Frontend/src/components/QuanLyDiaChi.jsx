@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import {
-  layDiaChiTheoNguoiDung,
+  layDiaChiTheoKhachHang,
   taoDiaChi,
   xoaDiaChi,
   datMacDinhDiaChi,
@@ -49,7 +49,7 @@ function QuanLyDiaChi() {
     if (!user) return;
     try {
       setLoading(true);
-      const list = await layDiaChiTheoNguoiDung(user.nguoiDungID);
+      const list = await layDiaChiTheoKhachHang(user.khachHangID);
       setAddresses(list || []);
       const def = (list || []).find((a) => a.macDinh);
       setSelectedId(def?.diaChiID || list?.[0]?.diaChiID || null);
@@ -105,7 +105,7 @@ function QuanLyDiaChi() {
 
     try {
       const res = await taoDiaChi({
-        nguoiDungID: user.nguoiDungID,
+        khachHangID: user.khachHangID,
         diaChi: diaChiText,
         macDinh: shouldBeDefault,
       });

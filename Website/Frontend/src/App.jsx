@@ -9,7 +9,7 @@ import ChiTietSanPham from "./components/ChiTietSanPham";
 import ThanhToan from "./components/ThanhToan";
 import XacNhanDonHang from "./components/XacNhanDonHang";
 import GioHang from "./components/GioHang";
-import HoSoNguoiDung from "./components/HoSoNguoiDung";
+import HoSoKhachHang from "./components/HoSoKhachHang";
 import DoiMatKhau from "./components/DoiMatKhau";
 import LichSuMuaHang from "./components/LichSuMuaHang";
 import ChiTietDonHang from "./components/ChiTietDonHang";
@@ -22,7 +22,7 @@ import QuanLyDanhMuc from "./components/admin/QuanLyDanhMuc";
 import QuanLyKhuyenMai from "./components/admin/QuanLyKhuyenMai";
 import QuanLyPhuongThucGiaoHang from "./components/admin/QuanLyPhuongThucGiaoHang";
 import QuanLyDonHang from "./components/admin/QuanLyDonHang";
-import QuanLyNguoiDung from "./components/admin/QuanLyNguoiDung";
+import QuanLyKhachHang from "./components/admin/QuanLyKhachHang";
 import QuanLyBinhLuan from "./components/admin/QuanLyBinhLuan";
 import QuanLyTonKho from "./components/admin/QuanLyTonKho";
 import BaoVeTuyenDuong from "./components/bao-ve/BaoVeTuyenDuong";
@@ -42,7 +42,7 @@ function App() {
         <Route path="/thanhtoan" element={<ThanhToan />} />
         <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
         <Route path="/giohang" element={<GioHang />} />
-        <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
+        <Route path="/hosokhachhang" element={<HoSoKhachHang />} />
         <Route path="/doimatkhau" element={<DoiMatKhau />} />
         <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
         <Route path="/quanlydiachi" element={<QuanLyDiaChi />} />
@@ -67,7 +67,7 @@ function App() {
             element={<QuanLyPhuongThucGiaoHang />}
           />
           <Route path="donhang" element={<QuanLyDonHang />} />
-          <Route path="nguoidung" element={<QuanLyNguoiDung />} />
+          <Route path="khachhang" element={<QuanLyKhachHang />} />
           <Route path="binhluan" element={<QuanLyBinhLuan />} />
           <Route path="tonkho" element={<QuanLyTonKho />} />
         </Route>

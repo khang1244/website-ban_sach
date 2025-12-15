@@ -29,14 +29,17 @@ export const layTatCaDonHang = async () => {
   }
 };
 // Nhận đơn hàng của một người dùng cụ thể
-export const nhanDonHangCuaMotNguoiDung = async (nguoiDungID) => {
+export const nhanDonHangCuaMotKhachHang = async (khachHangID) => {
   try {
-    const response = await fetch(`${BASE_URL}/donHang/user/${nguoiDungID}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/donHang/khachHang/${khachHangID}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
