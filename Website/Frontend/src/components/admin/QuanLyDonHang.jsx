@@ -147,7 +147,9 @@ function QuanLyDonHang() {
 
       {/* Bộ lọc theo trạng thái */}
       <div className="mb-6 flex items-center gap-3">
-        <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Lọc theo:</span>
+        <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+          Lọc theo:
+        </span>
         <div className="flex-1 flex items-center gap-3">
           <select
             value={filterStatus}
@@ -276,7 +278,10 @@ function QuanLyDonHang() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" className="py-8 px-5 text-center text-gray-500">
+                  <td
+                    colSpan="9"
+                    className="py-8 px-5 text-center text-gray-500"
+                  >
                     Không có đơn hàng
                   </td>
                 </tr>
