@@ -5,8 +5,6 @@ import {
   FaTrash,
   FaCheck,
   FaTimes,
-  FaToggleOn,
-  FaToggleOff,
   FaShippingFast, // Icon chính cho giao hàng
   FaLayerGroup, // Icon cho trạng thái mặc định
   FaSearch, // Icon tìm kiếm
@@ -17,8 +15,6 @@ import {
   layTatCaPhuongThucGiaoHang,
   taoPhuongThucGiaoHang,
   capNhatPhuongThucGiaoHang,
-  xoaPhuongThucGiaoHang,
-  kichHoatPhuongThucGiaoHang,
   xoaVinhVienPhuongThucGiaoHang,
 } from "../../lib/phuong-thuc-giao-hang-apis"; // Giữ nguyên imports API
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
@@ -208,46 +204,7 @@ function QuanLyPhuongThucGiaoHang() {
     }
   };
 
-  /* Xử lý kích hoạt/vô hiệu hóa phương thức giao hàng*/
-  const handleToggleStatus = async (item) => {
-    try {
-      setLoading(true);
-      let response;
 
-      if (item.trangThai === "active") {
-        // Vô hiệu hóa
-        response = await xoaPhuongThucGiaoHang(item.phuongThucGiaoHangID);
-      } else {
-        // Kích hoạt lại
-        response = await kichHoatPhuongThucGiaoHang(item.phuongThucGiaoHangID);
-      }
-
-      if (response.success) {
-        setSuccessMessage(
-          item.trangThai === "active"
-            ? showToast(
-                "success",
-                "Thành công",
-                "Đã vô hiệu hóa phương thức giao hàng!"
-              )
-            : showToast(
-                "success",
-                "Thành công",
-                "Đã kích hoạt phương thức giao hàng!"
-              )
-        );
-        await loadPhuongThucGiaoHangs();
-        setTimeout(() => setSuccessMessage(""), 3000);
-      } else {
-        setError(response.message || "Có lỗi xảy ra khi thay đổi trạng thái");
-      }
-    } catch (err) {
-      console.error("Lỗi khi thay đổi trạng thái:", err);
-      setError("Có lỗi xảy ra khi thay đổi trạng thái");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /**
    * Lọc danh sách phương thức giao hàng theo từ khóa tìm kiếm và trạng thái
@@ -488,27 +445,6 @@ function QuanLyPhuongThucGiaoHang() {
                           title="Chỉnh sửa"
                         >
                           <FaEdit className="text-lg" />
-                        </button>
-
-                        {/* Nút bật/tắt trạng thái */}
-                        <button
-                          onClick={() => handleToggleStatus(item)}
-                          className={`p-2 rounded-full transition duration-150 ${
-                            item.trangThai === "active"
-                              ? "text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200"
-                              : "text-green-600 hover:text-green-800 bg-green-100 hover:bg-green-200"
-                          }`}
-                          title={
-                            item.trangThai === "active"
-                              ? "Vô hiệu hóa"
-                              : "Kích hoạt"
-                          }
-                        >
-                          {item.trangThai === "active" ? (
-                            <FaToggleOn className="text-lg" />
-                          ) : (
-                            <FaToggleOff className="text-lg" />
-                          )}
                         </button>
 
                         {/* Nút xóa vĩnh viễn */}
