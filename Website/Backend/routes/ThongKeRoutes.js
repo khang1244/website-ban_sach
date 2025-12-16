@@ -1,5 +1,8 @@
 import express from "express";
-import { thongKe, thongKeDoanhThuTheoThang } from "../controller/thongKeController.js";
+import {
+  thongKe,
+  thongKeDoanhThuTheoThang,
+} from "../controller/thongKeController.js";
 
 const router = express.Router();
 

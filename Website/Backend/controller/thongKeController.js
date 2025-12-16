@@ -69,7 +69,10 @@ export const thongKeDoanhThuTheoThang = async (req, res) => {
     const doanhThu = await DonHang.findAll({
       attributes: [
         [DonHang.sequelize.fn("YEAR", DonHang.sequelize.col("ngayDat")), "nam"],
-        [DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")), "thang"],
+        [
+          DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")),
+          "thang",
+        ],
         [
           DonHang.sequelize.fn(
             "SUM",
@@ -89,7 +92,10 @@ export const thongKeDoanhThuTheoThang = async (req, res) => {
       ],
       order: [
         [DonHang.sequelize.fn("YEAR", DonHang.sequelize.col("ngayDat")), "ASC"],
-        [DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")), "ASC"],
+        [
+          DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")),
+          "ASC",
+        ],
       ],
       raw: true,
     });
