@@ -128,6 +128,11 @@ function QuanLyDonHang() {
 
   // Xóa đơn hàng
   const handleDeleteOrder = (id) => {
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa danh mục này?"
+    );
+    if (!confirmDelete) return;
+
     const updatedOrders = userOrder.filter((order) => order.donHangID !== id);
     setUserOrder(updatedOrders);
     // Gọi API để xóa đơn hàng trên server nếu cần thiết

@@ -178,11 +178,7 @@ function QuanLyPhuongThucGiaoHang() {
 
   //Xử lí xóa vĩnh viễn phương thức giao hàng khỏi database
   const handleDeleteXoaVinhVien = async (id) => {
-    if (
-      !window.confirm(
-        "Xóa vĩnh viễn phương thức giao hàng này sẽ không thể khôi phục lại. Bạn có chắc chắn muốn tiếp tục?"
-      )
-    )
+    if (!window.confirm("Bạn có chắc chắn muốn xóa phương thức giao hàng này?"))
       return;
     try {
       setLoading(true);

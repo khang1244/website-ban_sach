@@ -50,6 +50,12 @@ function QuanLyBinhLuan() {
   };
 
   const toggleDuyet = async (id, current) => {
+    const thongBao = current
+      ? "Bạn có chắc chắn muốn hủy duyệt bình luận này?"
+      : "Bạn có chắc chắn muốn duyệt bình luận này?";
+
+    if (!window.confirm(thongBao)) return;
+
     try {
       const phanHoi = await duyetBinhLuanTheoID(id, !current);
       if (!phanHoi || phanHoi.success === false) {
@@ -63,6 +69,11 @@ function QuanLyBinhLuan() {
           bl.binhLuanID === id ? { ...bl, duyet: phanHoi.data.duyet } : bl
         )
       );
+
+      const thongBaoThanhCong = !current
+        ? "Duyệt bình luận thành công!"
+        : "Hủy duyệt bình luận thành công!";
+      alert(thongBaoThanhCong);
     } catch (error) {
       console.error(error);
       alert("Có lỗi khi cập nhật trạng thái duyệt.");

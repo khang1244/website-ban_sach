@@ -98,11 +98,12 @@ function QuanLyKhuyenMai() {
 
   // Xóa mã khuyến mãi
   const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa khuyến mãi này?")) return;
     setPromos(promos.filter((p) => p.khuyenMaiID !== id)); // Cập nhật giao diện ngay lập tức
     // Gọi API để xóa mã khuyến mãi
     await xoaKhuyenMai(id);
     setPromos(promos.filter((p) => p.khuyenMaiID !== id));
-    showToast("info", "Đã xóa", "Khuyến mãi đã được xóa!");
+    showToast("success", "Thành công", "Khuyến mãi đã được xóa!");
   };
 
   // lấy tất cả mã khuyến mãi trong bảng khuyến mãi

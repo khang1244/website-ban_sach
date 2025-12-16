@@ -17,13 +17,11 @@ function QuanLyKhachHang() {
 
   const xuLyXoaTaiKhoan = async (khachHangID) => {
     const confirmDelete = window.confirm(
-      `Bạn có chắc chắn muốn XÓA người dùng có ID: ${khachHangID} không? Hành động này không thể hoàn tác.`
+      "Bạn có chắc chắn muốn xóa danh mục này?"
     );
-
     if (!confirmDelete) return;
 
     const res = await xoaKhachHangTheoID(khachHangID);
-
     if (res.ok) {
       setUsers((prev) =>
         prev.filter((user) => user.khachHangID !== khachHangID)
@@ -45,6 +43,13 @@ function QuanLyKhachHang() {
       user.trangThaiTaiKhoan === true ||
       user.trangThaiTaiKhoan === "1";
 
+    const thongBao = isActive
+      ? "Bạn có chắc chắn muốn khóa tài khoản này?"
+      : "Bạn có chắc chắn muốn mở khóa tài khoản này?";
+
+    const confirmDelete = window.confirm(thongBao);
+    if (!confirmDelete) return;
+
     const newTrangThai = isActive ? 0 : 1;
 
     // Gọi API để cập nhật trạng thái
@@ -59,6 +64,10 @@ function QuanLyKhachHang() {
               : u
           )
         );
+        const thongBaoThanhCong = isActive
+          ? "Khóa tài khoản thành công!"
+          : "Mở khóa tài khoản thành công!";
+        alert(thongBaoThanhCong);
       } else {
         alert(res.data?.message || "Cập nhật trạng thái thất bại.");
       }
