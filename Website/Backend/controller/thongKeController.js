@@ -3,10 +3,25 @@ import KhachHang from "../models/KhachHang.js";
 
 export const thongKe = async (req, res) => {
   try {
-    // Thống kê tổng doanh thu từ các đơn hàng đã hoàn thành (trạng thái 'Hoàn thành')
-    const tongDoanhThu = await DonHang.sum("tongTien", {
+    // Thống kê tổng doanh thu (chỉ tiền hàng, bỏ khuyến mãi/vận chuyển)
+    const tongDoanhThuRaw = await DonHang.findAll({
+      attributes: [
+        [
+          DonHang.sequelize.fn(
+            "SUM",
+            DonHang.sequelize.fn(
+              "COALESCE",
+              DonHang.sequelize.col("tongTienBanDau"),
+              DonHang.sequelize.col("tongTien")
+            )
+          ),
+          "tongDoanhThu",
+        ],
+      ],
       where: { trangThai: "Hoàn thành" },
+      raw: true,
     });
+    const tongDoanhThu = Number(tongDoanhThuRaw?.[0]?.tongDoanhThu) || 0;
     // Thống kê số lượng tài khoản người dùng đã đăng ký
     const soLuongKhachHang = await KhachHang.count();
 
@@ -45,5 +60,51 @@ export const thongKe = async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi thống kê dữ liệu:", error);
     res.status(500).json({ error: "Đã xảy ra lỗi khi thống kê dữ liệu." });
+  }
+};
+
+// Doanh thu theo tháng: chỉ tính tiền hàng (ưu tiên tongTienBanDau nếu có), bỏ qua mã khuyến mãi và phí vận chuyển
+export const thongKeDoanhThuTheoThang = async (req, res) => {
+  try {
+    const doanhThu = await DonHang.findAll({
+      attributes: [
+        [DonHang.sequelize.fn("YEAR", DonHang.sequelize.col("ngayDat")), "nam"],
+        [DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")), "thang"],
+        [
+          DonHang.sequelize.fn(
+            "SUM",
+            DonHang.sequelize.fn(
+              "COALESCE",
+              DonHang.sequelize.col("tongTienBanDau"),
+              DonHang.sequelize.col("tongTien")
+            )
+          ),
+          "doanhThu",
+        ],
+      ],
+      where: { trangThai: "Hoàn thành" },
+      group: [
+        DonHang.sequelize.fn("YEAR", DonHang.sequelize.col("ngayDat")),
+        DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")),
+      ],
+      order: [
+        [DonHang.sequelize.fn("YEAR", DonHang.sequelize.col("ngayDat")), "ASC"],
+        [DonHang.sequelize.fn("MONTH", DonHang.sequelize.col("ngayDat")), "ASC"],
+      ],
+      raw: true,
+    });
+
+    const data = doanhThu.map((item) => ({
+      thang: `Tháng ${item.thang}/${item.nam}`,
+      doanhThu: Number(item.doanhThu) || 0,
+    }));
+
+    return res.json({ success: true, data });
+  } catch (error) {
+    console.error("Lỗi khi thống kê doanh thu theo tháng:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi thống kê doanh thu theo tháng.",
+    });
   }
 };

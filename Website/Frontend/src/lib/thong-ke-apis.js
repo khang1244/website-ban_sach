@@ -26,3 +26,31 @@ export const layThongKe = async () => {
     };
   }
 };
+
+// Lấy doanh thu theo tháng (chỉ tiền hàng, không tính mã khuyến mãi hay vận chuyển)
+export const layDoanhThuTheoThang = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/thong-ke/doanh-thu-theo-thang`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return {
+      success: data.success,
+      data: data.data || [],
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy doanh thu theo tháng:", error);
+    return {
+      success: false,
+      message: "Không thể tải doanh thu theo tháng",
+      data: [],
+      error: error.message,
+    };
+  }
+};

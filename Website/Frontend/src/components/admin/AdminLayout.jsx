@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/user-context";
 
 const sidebarLinks = [
-  { label: "Quản lý chung", to: "/admin" },
+  { label: "Quản lý báo cáo thống kê", to: "/admin" },
   { label: "Quản lý sách", to: "/admin/sach" },
   { label: "Quản lý danh mục", to: "/admin/danhmucsach" },
   { label: "Quản lý đơn hàng", to: "/admin/donhang" },
