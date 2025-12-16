@@ -247,6 +247,9 @@ function ChiTietDonHang() {
 
   // Xử lý hủy đơn hàng
   const xuLyHuyDonHang = async (donHangID, trangThaiMoi) => {
+    const xacNhan = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?");
+    if (!xacNhan) return;
+
     const phanHoiTuSever = await capNhatTrangThaiDonHang(
       donHangID,
       trangThaiMoi
