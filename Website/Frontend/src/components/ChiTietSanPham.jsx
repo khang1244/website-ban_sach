@@ -35,6 +35,7 @@ function ChiTietSanPham() {
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);
   const [tonKho, setTonKho] = useState(0); // Tồn kho từ hệ thống quản lý
+  const [chuaNhapKho, setChuaNhapKho] = useState(false); // Chưa nhập kho?
   const [binhLuan, setBinhLuan] = useState([]);
   const [sachLienQuan, setSachLienQuan] = useState([]); // danh sách sách liên quan cùng danh mục
   const [showAllComments, setShowAllComments] = useState(false); // trạng thái hiển thị tất cả bình luận hay không
@@ -55,6 +56,10 @@ function ChiTietSanPham() {
   };
 
   const tangSoLuong = () => {
+    if (chuaNhapKho) {
+      alert("Admin chưa nhập kho vui lòng quay lại sau. Xin cảm ơn");
+      return;
+    }
     if (tonKho <= 0) {
       alert("Sản phẩm đã hết hàng.");
       return;
@@ -157,11 +162,14 @@ function ChiTietSanPham() {
         const data = await layTonKhoTheoSach(sachID);
         const newTonKho = data.tonKho || 0;
         setTonKho(newTonKho);
+        setChuaNhapKho((data?.soLuongNhap ?? 0) === 0);
 
         // Cập nhật stockStatus ngay sau khi có tonKho
         const LOW_STOCK_THRESHOLD = 10;
         const newStatus =
-          newTonKho <= 0
+          (data?.soLuongNhap ?? 0) === 0
+            ? "not-imported"
+            : newTonKho <= 0
             ? "out"
             : newTonKho < LOW_STOCK_THRESHOLD
             ? "low"
@@ -336,7 +344,11 @@ function ChiTietSanPham() {
             </h2>
             {tonKho !== undefined && tonKho !== null && (
               <div>
-                {tonKho <= 0 ? (
+                {chuaNhapKho ? (
+                  <span className="inline-flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                    <MdWarning /> Chưa nhập kho
+                  </span>
+                ) : tonKho <= 0 ? (
                   <span className="inline-flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
                     <MdWarning /> Hết hàng
                   </span>
@@ -453,9 +465,15 @@ function ChiTietSanPham() {
                   <p className="text-xs text-gray-500 font-semibold mb-1">
                     Tồn kho
                   </p>
-                  <p className="font-bold text-emerald-600 text-lg">
-                    {tonKho} cuốn
-                  </p>
+                  {chuaNhapKho ? (
+                    <p className="font-bold text-gray-600 text-lg">
+                      Chưa nhập kho
+                    </p>
+                  ) : (
+                    <p className="font-bold text-emerald-600 text-lg">
+                      {tonKho} cuốn
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -492,17 +510,21 @@ function ChiTietSanPham() {
               disabled={
                 soLuong < 1 ||
                 soLuong > tonKho ||
-                chiTietSanPham.stockStatus === "out"
+                chiTietSanPham.stockStatus === "out" ||
+                chiTietSanPham.stockStatus === "not-imported"
               }
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-bold text-base transition-all shadow-lg ${
                 soLuong < 1 ||
                 soLuong > tonKho ||
-                chiTietSanPham.stockStatus === "out"
+                chiTietSanPham.stockStatus === "out" ||
+                chiTietSanPham.stockStatus === "not-imported"
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 shadow-lg hover:shadow-xl hover:scale-105"
               }`}
               title={
-                chiTietSanPham.stockStatus === "out"
+                chiTietSanPham.stockStatus === "not-imported"
+                  ? "Sản phẩm chưa nhập kho"
+                  : chiTietSanPham.stockStatus === "out"
                   ? "Sản phẩm đã hết hàng"
                   : soLuong > tonKho
                   ? `Chỉ còn ${tonKho} sản phẩm`
