@@ -421,7 +421,8 @@ function ChiTietDonHang() {
                     đ
                     {duLieuDonHang?.PhuongThucGiaoHang?.tenPhuongThuc && (
                       <span className="text-slate-600">
-                        {" "}({duLieuDonHang.PhuongThucGiaoHang.tenPhuongThuc})
+                        {" "}
+                        ({duLieuDonHang.PhuongThucGiaoHang.tenPhuongThuc})
                       </span>
                     )}
                   </p>

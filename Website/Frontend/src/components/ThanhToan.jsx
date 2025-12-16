@@ -295,13 +295,15 @@ function ThanhToan() {
         console.log("Danh sách phương thức giao hàng:", response.data);
 
         setShippingMethods(response.data);
-        
+
         // Tự động chọn phương thức mặc định
-        const defaultMethod = response.data.find(m => m.macDinh && m.trangThai === 'active');
+        const defaultMethod = response.data.find(
+          (m) => m.macDinh && m.trangThai === "active"
+        );
         if (defaultMethod) {
-          setShipping(prev => ({
+          setShipping((prev) => ({
             ...prev,
-            phuongThucGiaoHang: defaultMethod.phuongThucGiaoHangID
+            phuongThucGiaoHang: defaultMethod.phuongThucGiaoHangID,
           }));
         }
       }
@@ -783,56 +785,60 @@ function ThanhToan() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {shippingMethods.length > 0 &&
                   shippingMethods
-                    .filter(m => m.trangThai === 'active') // Chỉ hiển thị các phương thức hoạt động
+                    .filter((m) => m.trangThai === "active") // Chỉ hiển thị các phương thức hoạt động
                     .map((m) => {
-                    const active =
-                      shipping.phuongThucGiaoHang === m.phuongThucGiaoHangID;
-                    return (
-                      <label
-                        key={m.phuongThucGiaoHangID}
-                        className={`cursor-pointer rounded-xl border px-4 py-3 text-sm flex flex-col gap-0.5 transition
+                      const active =
+                        shipping.phuongThucGiaoHang === m.phuongThucGiaoHangID;
+                      return (
+                        <label
+                          key={m.phuongThucGiaoHangID}
+                          className={`cursor-pointer rounded-xl border px-4 py-3 text-sm flex flex-col gap-0.5 transition
                       ${
                         active
                           ? "border-[#00a2c7] bg-[#f0fbff] shadow-sm"
                           : "border-[#cfdef3] bg-white hover:bg-[#f7fbff]"
                       }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="shipping"
-                            value={m.phuongThucGiaoHangID}
-                            checked={active}
-                            className="accent-[#00809D]"
-                            onChange={() =>
-                              setShipping({
-                                ...shipping,
-                                phuongThucGiaoHang: m.phuongThucGiaoHangID,
-                              })
-                            }
-                          />
-                          <span className="font-semibold text-[#0b3b4c] leading-tight">
-                            {m.tenPhuongThuc}
-                            {m.macDinh && <span className="ml-1 text-xs text-green-600">(Mặc định)</span>}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          Thời gian: {m.thoiGianGiaoHang} ngày
-                        </span>
-                        <span
-                          className={`text-xs ${
-                            m.phiGiaoHang === 0
-                              ? "text-green-700"
-                              : "text-gray-600"
-                          }`}
                         >
-                          {m.phiGiaoHang === 0
-                            ? "Miễn phí"
-                            : `Phí +${m.phiGiaoHang.toLocaleString()}đ`}
-                        </span>
-                      </label>
-                    );
-                  })}
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value={m.phuongThucGiaoHangID}
+                              checked={active}
+                              className="accent-[#00809D]"
+                              onChange={() =>
+                                setShipping({
+                                  ...shipping,
+                                  phuongThucGiaoHang: m.phuongThucGiaoHangID,
+                                })
+                              }
+                            />
+                            <span className="font-semibold text-[#0b3b4c] leading-tight">
+                              {m.tenPhuongThuc}
+                              {m.macDinh && (
+                                <span className="ml-1 text-xs text-green-600">
+                                  (Mặc định)
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            Thời gian: {m.thoiGianGiaoHang} ngày
+                          </span>
+                          <span
+                            className={`text-xs ${
+                              m.phiGiaoHang === 0
+                                ? "text-green-700"
+                                : "text-gray-600"
+                            }`}
+                          >
+                            {m.phiGiaoHang === 0
+                              ? "Miễn phí"
+                              : `Phí +${m.phiGiaoHang.toLocaleString()}đ`}
+                          </span>
+                        </label>
+                      );
+                    })}
               </div>
             </div>
           </section>
