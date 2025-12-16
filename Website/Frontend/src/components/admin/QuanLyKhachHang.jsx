@@ -128,7 +128,7 @@ function QuanLyKhachHang() {
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20v-2a3 3 0 00-5.356-1.857M9 20V10m7 10v-4m-7 4h14a2 2 0 002-2V8a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2zm7-14v2m-7-2v2"
             ></path>
           </svg>
-          Quản Lý Người Dùng
+          Quản Lý Khách Hàng
         </h1>
         <div className="text-gray-600 font-medium">
           Tổng số:{" "}

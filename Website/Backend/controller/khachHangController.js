@@ -197,6 +197,14 @@ export const xoaTaiKhoanKhachHang = async (req, res) => {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
 
+    // Kiểm tra nếu người dùng là admin thì không cho phép xóa
+    const isAdmin = (user.vaiTro || "").toString().toLowerCase() === "admin";
+    if (isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Không thể xóa tài khoản quản trị viên." });
+    }
+
     // Xóa người dùng
     await user.destroy();
     res.status(200).json({ message: "Xóa tài khoản người dùng thành công" });
