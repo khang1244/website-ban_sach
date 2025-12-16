@@ -54,7 +54,12 @@ function DangNhap() {
 
       // Delay chuyển hướng sau 3s (3000ms)
       setTimeout(() => {
-        router("/"); // Chuyển hướng về trang chủ
+        // Kiểm tra vai trò và chuyển hướng phù hợp
+        if (user && user.vaiTro === "admin") {
+          router("/admin");
+        } else {
+          router("/");
+        }
       }, 3000);
     } else {
       showToast("error", "Đăng nhập thất bại", message);
