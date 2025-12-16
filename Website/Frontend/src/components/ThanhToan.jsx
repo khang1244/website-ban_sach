@@ -295,6 +295,15 @@ function ThanhToan() {
         console.log("Danh sách phương thức giao hàng:", response.data);
 
         setShippingMethods(response.data);
+        
+        // Tự động chọn phương thức mặc định
+        const defaultMethod = response.data.find(m => m.macDinh && m.trangThai === 'active');
+        if (defaultMethod) {
+          setShipping(prev => ({
+            ...prev,
+            phuongThucGiaoHang: defaultMethod.phuongThucGiaoHangID
+          }));
+        }
       }
     };
     napPhuongThucGiaoHang();
@@ -773,7 +782,9 @@ function ThanhToan() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {shippingMethods.length > 0 &&
-                  shippingMethods.map((m) => {
+                  shippingMethods
+                    .filter(m => m.trangThai === 'active') // Chỉ hiển thị các phương thức hoạt động
+                    .map((m) => {
                     const active =
                       shipping.phuongThucGiaoHang === m.phuongThucGiaoHangID;
                     return (
@@ -791,6 +802,7 @@ function ThanhToan() {
                             type="radio"
                             name="shipping"
                             value={m.phuongThucGiaoHangID}
+                            checked={active}
                             className="accent-[#00809D]"
                             onChange={() =>
                               setShipping({
@@ -801,8 +813,12 @@ function ThanhToan() {
                           />
                           <span className="font-semibold text-[#0b3b4c] leading-tight">
                             {m.tenPhuongThuc}
+                            {m.macDinh && <span className="ml-1 text-xs text-green-600">(Mặc định)</span>}
                           </span>
                         </div>
+                        <span className="text-xs text-gray-500">
+                          Thời gian: {m.thoiGianGiaoHang} ngày
+                        </span>
                         <span
                           className={`text-xs ${
                             m.phiGiaoHang === 0

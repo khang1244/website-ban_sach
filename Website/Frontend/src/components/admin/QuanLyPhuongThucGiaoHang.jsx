@@ -404,7 +404,7 @@ function QuanLyPhuongThucGiaoHang() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600 italic">
-                        {item.thoiGianGiaoHang}
+                        {item.thoiGianGiaoHang} ngày
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">

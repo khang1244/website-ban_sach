@@ -419,6 +419,11 @@ function ChiTietDonHang() {
                       duLieuDonHang?.PhuongThucGiaoHang?.phiGiaoHang || 0
                     )}{" "}
                     đ
+                    {duLieuDonHang?.PhuongThucGiaoHang?.tenPhuongThuc && (
+                      <span className="text-slate-600">
+                        {" "}({duLieuDonHang.PhuongThucGiaoHang.tenPhuongThuc})
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -471,9 +476,16 @@ function ChiTietDonHang() {
                           Phí vận chuyển
                         </span>
                       </div>
-                      <span className="text-sm font-bold text-emerald-700">
-                        +{formatMoney(phiShip)} đ
-                      </span>
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-emerald-700">
+                          +{formatMoney(phiShip)} đ
+                        </span>
+                        {duLieuDonHang?.PhuongThucGiaoHang?.tenPhuongThuc && (
+                          <div className="text-xs text-slate-500">
+                            ({duLieuDonHang.PhuongThucGiaoHang.tenPhuongThuc})
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-slate-600">

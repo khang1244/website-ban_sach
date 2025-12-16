@@ -380,6 +380,11 @@ function QuanLyDonHang() {
                   duLieuDonHang?.PhuongThucGiaoHang?.phiGiaoHang || 0
                 )}{" "}
                 đ
+                {duLieuDonHang?.PhuongThucGiaoHang?.tenPhuongThuc && (
+                  <span className="text-gray-600">
+                    {" "}({duLieuDonHang.PhuongThucGiaoHang.tenPhuongThuc})
+                  </span>
+                )}
               </span>
             </div>
             <div className="mb-4">

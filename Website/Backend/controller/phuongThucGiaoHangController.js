@@ -36,6 +36,14 @@ export const taoPhuongThucGiaoHang = async (req, res) => {
       });
     }
 
+    // Nếu đặt làm mặc định, bỏ mặc định của các phương thức khác
+    if (macDinh) {
+      await PhuongThucGiaoHang.update(
+        { macDinh: false },
+        { where: { macDinh: true } }
+      );
+    }
+
     const phuongThucGiaoHangMoi = await PhuongThucGiaoHang.create({
       tenPhuongThuc,
       phiGiaoHang: parseFloat(phiGiaoHang),
@@ -89,6 +97,14 @@ export const capNhatPhuongThucGiaoHang = async (req, res) => {
           message: "Tên phương thức giao hàng đã tồn tại",
         });
       }
+    }
+
+    // Nếu đặt làm mặc định, bỏ mặc định của các phương thức khác
+    if (macDinh) {
+      await PhuongThucGiaoHang.update(
+        { macDinh: false },
+        { where: { macDinh: true, phuongThucGiaoHangID: { [Op.ne]: id } } }
+      );
     }
 
     await phuongThucGiaoHang.update({
