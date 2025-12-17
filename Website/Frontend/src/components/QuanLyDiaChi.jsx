@@ -7,6 +7,7 @@ import {
   taoDiaChi,
   xoaDiaChi,
   datMacDinhDiaChi,
+  capNhatDiaChi,
 } from "../lib/dia-chi-apis";
 import { FaPlus, FaCheckCircle, FaTrash, FaEdit, FaHome } from "react-icons/fa";
 import tinhTP from "../lib/du-Lieu-TinhTP";
@@ -104,20 +105,19 @@ function QuanLyDiaChi() {
       form.macDinh || addresses.length === 0 || !!old?.macDinh;
 
     try {
-      const res = await taoDiaChi({
-        khachHangID: user.khachHangID,
-        diaChi: diaChiText,
-        macDinh: shouldBeDefault,
-      });
-
-      const newId = res?.address?.diaChiID;
-      if (shouldBeDefault && newId) {
-        await datMacDinhDiaChi(newId);
-      }
-
-      // Nếu là thao tác "sửa", xóa địa chỉ cũ sau khi đã thêm địa chỉ mới
       if (editingId) {
-        await xoaDiaChi(editingId);
+        // Cập nhật địa chỉ hiện tại
+        await capNhatDiaChi(editingId, {
+          diaChi: diaChiText,
+          macDinh: shouldBeDefault,
+        });
+      } else {
+        // Tạo địa chỉ mới
+        await taoDiaChi({
+          khachHangID: user.khachHangID,
+          diaChi: diaChiText,
+          macDinh: shouldBeDefault,
+        });
       }
 
       await loadAddresses();

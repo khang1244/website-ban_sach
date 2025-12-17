@@ -35,6 +35,23 @@ export const taoDiaChi = async (duLieuDiaChi) => {
     throw err;
   }
 };
+
+// Cập nhật địa chỉ theo ID
+// Tham số: diaChiID (số), duLieuDiaChi = { diaChi, macDinh }
+export const capNhatDiaChi = async (diaChiID, duLieuDiaChi) => {
+  try {
+    const phanHoi = await fetch(`${BASE_URL}/diaChi/${diaChiID}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(duLieuDiaChi),
+    });
+    return await phanHoi.json();
+  } catch (err) {
+    console.error("Lỗi khi cập nhật địa chỉ:", err);
+    throw err;
+  }
+};
+
 // Xóa địa chỉ theo ID
 export const xoaDiaChi = async (diaChiID) => {
   try {

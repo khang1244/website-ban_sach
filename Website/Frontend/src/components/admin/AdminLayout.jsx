@@ -76,8 +76,7 @@ function AdminLayout() {
               A
             </div>
             <div>
-              <p className="text-lg font-bold leading-tight">Admin Panel</p>
-              <p className="text-xs text-white/70">Quản trị hệ thống</p>
+              <p className="text-lg font-bold leading-tight">Quản trị viên</p>
             </div>
           </div>
           <nav className="px-4 py-4">
@@ -111,10 +110,6 @@ function AdminLayout() {
               })}
             </ul>
           </nav>
-
-          <div className="mt-auto px-6 py-4 text-xs text-white/60 border-t border-white/10">
-            © {new Date().getFullYear()} Dashboard
-          </div>
         </aside>
 
         {/* Content full width */}

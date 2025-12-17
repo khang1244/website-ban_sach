@@ -47,6 +47,40 @@ export const xoaDiaChi = async (req, res) => {
   }
 };
 
+// Cập nhật địa chỉ theo ID
+// body: { diaChi, macDinh }
+export const capNhatDiaChi = async (req, res) => {
+  try {
+    const { diaChiID } = req.params;
+    const { diaChi, macDinh } = req.body;
+
+    const diaChiCu = await DiaChi.findByPk(diaChiID);
+    if (!diaChiCu)
+      return res
+        .status(404)
+        .json({ ok: false, message: "Không tìm thấy địa chỉ" });
+
+    // Nếu đánh dấu là mặc định, bỏ cờ mặc định cho các địa chỉ khác
+    if (macDinh) {
+      await DiaChi.update(
+        { macDinh: false },
+        { where: { khachHangID: diaChiCu.khachHangID } }
+      );
+    }
+
+    // Cập nhật địa chỉ
+    diaChiCu.diaChi = diaChi || diaChiCu.diaChi;
+    diaChiCu.macDinh = macDinh !== undefined ? !!macDinh : diaChiCu.macDinh;
+    await diaChiCu.save();
+
+    return res.json({ ok: true, address: diaChiCu });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ ok: false, message: "Lỗi cập nhật địa chỉ", err });
+  }
+};
+
 // Đặt một địa chỉ làm mặc định
 // params: id (diaChiID)
 export const datDiaChiMacDinh = async (req, res) => {

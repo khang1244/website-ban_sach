@@ -60,7 +60,7 @@ function FormBinhLuan({ sachID, dongFormBinhLuan }) {
         {/* Tiêu đề */}
         <div className="mb-4 text-center">
           <h3 className="text-xl sm:text-2xl font-semibold text-[#00809D]">
-            Gửi bình luận của bạn
+            Đánh giá sản phẩm
           </h3>
           <p className="mt-1 text-sm text-gray-500">
             Chia sẻ cảm nhận của bạn về cuốn sách này để giúp người đọc khác
