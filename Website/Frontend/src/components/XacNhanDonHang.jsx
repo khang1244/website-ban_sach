@@ -40,7 +40,7 @@ function XacNhanDonHang() {
               <FaHome /> Về Trang Chủ
             </Link>
             <Link
-              to="/lichsumuahang"
+              to="/lichsudonhang"
               // Nút phụ: Viền tinh tế, không có đổ bóng nặng nề
               className="flex items-center justify-center gap-2 bg-white border border-green-600 text-green-600 py-3 rounded-full font-bold text-base hover:bg-green-50 transition"
             >

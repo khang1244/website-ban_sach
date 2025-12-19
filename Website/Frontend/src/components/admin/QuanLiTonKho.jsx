@@ -84,7 +84,7 @@ function QuanLiTonKho() {
         ngayNhap: new Date(),
         ghiChu: ghiChuNhap,
         chiTietPhieuNhaps: chiTietHopLe,
-        khachHangID: user?.khachHangID || null,
+        nguoiDungID: user?.nguoiDungID || null,
       };
 
       await taoPhieuNhap(payload);
@@ -480,7 +480,7 @@ function QuanLiTonKho() {
                                     .replace(",", "")}
                                 </td>
                                 <td className="border p-2 text-center font-semibold text-blue-600">
-                                  {item.phieu.khachHang?.tenKhachHang ||
+                                  {item.phieu.nguoiDung?.tenNguoiDung ||
                                     "Chưa xác định"}
                                 </td>
                                 <td className="border p-7">
@@ -717,7 +717,7 @@ function QuanLiTonKho() {
                                 )}
                               </td>
                               <td className="border p-2 font-medium">
-                                {phieu.tenKhachHang || "-"}
+                                {phieu.tenNguoiDung || "-"}
                               </td>
                               <td className="border p-2 text-center">
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
@@ -863,7 +863,7 @@ function QuanLiTonKho() {
                                     .replace(",", "")}
                                 </td>
                                 <td className="border p-2 font-medium">
-                                  {item.phieu.tenKhachHang || "-"}
+                                  {item.phieu.tenNguoiDung || "-"}
                                 </td>
                                 <td className="border p-2">
                                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">

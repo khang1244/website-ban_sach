@@ -3,12 +3,12 @@ import Footer from "./Footer.jsx";
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { capNhatThongTinKhachHang } from "../lib/khach-hang-apis.js";
+import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
 import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
-import { layDiaChiTheoKhachHang } from "../lib/dia-chi-apis.js";
+import { layDiaChiTheoNguoiDung } from "../lib/dia-chi-apis.js";
 
-function HoSoKhachHang() {
+function HoSoNguoiDung() {
   // State cho phép chỉnh sửa thông tin
   const [edit, setEdit] = useState(false);
   // State lưu thông tin người dùng
@@ -51,8 +51,8 @@ function HoSoKhachHang() {
     }
 
     // Lưu thông tin người dùng mới sửa vào trong database
-    const duLieuKhachHangMoi = {
-      tenKhachHang: user.tenKhachHang,
+    const duLieuNguoiDungMoi = {
+      tenNguoiDung: user.tenNguoiDung,
       email: user.email,
       soDienThoai: user.soDienThoai,
       diaChi: user.diaChi,
@@ -64,9 +64,9 @@ function HoSoKhachHang() {
         : JSON.stringify(user.avatar), // Nếu có hình ảnh mới thì lấy hình ảnh mới, không thì lấy hình ảnh cũ
     };
 
-    const { status } = await capNhatThongTinKhachHang(
-      user.khachHangID,
-      duLieuKhachHangMoi
+    const { status } = await capNhatThongTinNguoiDung(
+      user.nguoiDungID,
+      duLieuNguoiDungMoi
     );
     if (status) {
       showToast("info", "Thành công", "Cập nhật hồ sơ thành công!");
@@ -75,13 +75,13 @@ function HoSoKhachHang() {
     }
 
     // Cập nhật thông tin người dùng trong localStorage để có thể hiển thị thông tin mới nhất (thực tế phải thay đổi giá trị biến trong context hoặc redux)
-    const duLieuKhachHangMoiDeLuuVaoLocalStorage = {
+    const duLieuNguoiDungMoiDeLuuVaoLocalStorage = {
       ...user,
-      ...duLieuKhachHangMoi,
+      ...duLieuNguoiDungMoi,
     };
     localStorage.setItem(
       "user",
-      JSON.stringify(duLieuKhachHangMoiDeLuuVaoLocalStorage)
+      JSON.stringify(duLieuNguoiDungMoiDeLuuVaoLocalStorage)
     );
   };
 
@@ -91,16 +91,16 @@ function HoSoKhachHang() {
     if (storedUser) {
       // Kiểm tra xem có dữ liệu user trong localStorage không
 
-      const duLieuKhachHang = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
 
       // Vì avatar vẫn đang là một chuỗi JSON nên mình phỉa chuyển nó thành dạng Object để sử dụng để hiển thị avatar của người dùng
-      const avatarDuocBienDoiThanhObject = duLieuKhachHang.avatar
-        ? JSON.parse(duLieuKhachHang.avatar)
+      const avatarDuocBienDoiThanhObject = duLieuNguoiDung.avatar
+        ? JSON.parse(duLieuNguoiDung.avatar)
         : null;
 
       setUser({
         // Thay đổi biến trạng thái user để hiển thị dữ liệu người dùng ra form
-        ...duLieuKhachHang,
+        ...duLieuNguoiDung,
         avatar: avatarDuocBienDoiThanhObject, // Chuyển chuỗi JSON thành object
       });
     }
@@ -109,10 +109,10 @@ function HoSoKhachHang() {
   // Lấy địa chỉ mặc định từ server
   useEffect(() => {
     const fetchDefaultAddress = async () => {
-      if (!user?.khachHangID) return;
+      if (!user?.nguoiDungID) return;
       try {
         setAddrLoading(true);
-        const list = await layDiaChiTheoKhachHang(user.khachHangID);
+        const list = await layDiaChiTheoNguoiDung(user.nguoiDungID);
         if (Array.isArray(list) && list.length > 0) {
           const def = list.find((a) => a.macDinh) || list[0];
           setDefaultAddress(def?.diaChi || "");
@@ -128,13 +128,13 @@ function HoSoKhachHang() {
     };
 
     fetchDefaultAddress();
-  }, [user?.khachHangID]);
+  }, [user?.nguoiDungID]);
   return (
     <div className="bg-gradient-to-br  min-h-screen w-full">
       <Navigation />
       <div className="max-w-2xl mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold text-white mb-8 text-center">
-          Cập nhật hồ sơ khách hàng
+          Cập nhật hồ sơ người dùng
         </h1>
         {/* Toast */}
         <ThongBaoChay
@@ -195,10 +195,10 @@ function HoSoKhachHang() {
               <label className="font-semibold">Tên người dùng</label>
               <input
                 className="border rounded px-4 py-2"
-                value={user.tenKhachHang}
+                value={user.tenNguoiDung}
                 disabled={!edit}
                 onChange={
-                  (e) => setUser({ ...user, tenKhachHang: e.target.value }) // spread operator
+                  (e) => setUser({ ...user, tenNguoiDung: e.target.value }) // spread operator
                 }
               />
             </div>
@@ -281,4 +281,4 @@ function HoSoKhachHang() {
   );
 }
 
-export default HoSoKhachHang;
+export default HoSoNguoiDung;

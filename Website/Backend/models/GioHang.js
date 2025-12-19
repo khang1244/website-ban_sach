@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
-import KhachHang from "./KhachHang.js";
+import NguoiDung from "./NguoiDung.js";
 import Sach from "./Sach.js";
 
 // Định nghĩa model GioHang (Shopping Cart)
@@ -12,12 +12,12 @@ const GioHang = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    khachHangID: {
+    nguoiDungID: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: KhachHang,
-        key: "khachHangID",
+        model: NguoiDung,
+        key: "nguoiDungID",
       },
     },
   },
@@ -74,8 +74,8 @@ const ChiTietGioHang = sequelize.define(
 
 // Thiết lập quan hệ giữa các model
 // Một người dùng có một giỏ hàng
-KhachHang.hasOne(GioHang, { foreignKey: "khachHangID" });
-GioHang.belongsTo(KhachHang, { foreignKey: "khachHangID" });
+NguoiDung.hasOne(GioHang, { foreignKey: "nguoiDungID" });
+GioHang.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
 
 // Một giỏ hàng có nhiều chi tiết giỏ hàng
 GioHang.hasMany(ChiTietGioHang, { foreignKey: "gioHangID" });

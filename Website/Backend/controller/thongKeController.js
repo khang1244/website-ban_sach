@@ -1,5 +1,5 @@
 import DonHang from "../models/DonHang.js";
-import KhachHang from "../models/KhachHang.js";
+import NguoiDung from "../models/NguoiDung.js";
 
 export const thongKe = async (req, res) => {
   try {
@@ -23,16 +23,16 @@ export const thongKe = async (req, res) => {
     });
     const tongDoanhThu = Number(tongDoanhThuRaw?.[0]?.tongDoanhThu) || 0;
     // Thống kê số lượng tài khoản người dùng đã đăng ký
-    const soLuongKhachHang = await KhachHang.count();
+    const soLuongNguoiDung = await NguoiDung.count();
 
     // Thống kê số lượng đơn hàng đã được tạo
     const soLuongDonHang = await DonHang.count();
 
     // Thống kê top 5 người dùng có đơn hàng nhiều nhất
     // Lấy top 5 người dùng có số lượng đơn hàng hoàn thành nhiều nhất
-    const topKhachHang = await DonHang.findAll({
+    const topNguoiDung = await DonHang.findAll({
       attributes: [
-        "khachHangID",
+        "nguoiDungID",
         // Đếm số lượng đơn hàng hoàn thành cho từng người dùng
         [
           DonHang.sequelize.fn("COUNT", DonHang.sequelize.col("donHangID")),
@@ -40,22 +40,22 @@ export const thongKe = async (req, res) => {
         ],
       ],
       where: { trangThai: "Hoàn thành" }, // Chỉ lấy các đơn hàng đã hoàn thành
-      group: ["khachHangID"], // Gom nhóm theo người dùng
+      group: ["nguoiDungID"], // Gom nhóm theo người dùng
       order: [[DonHang.sequelize.literal("soLuongDonHang"), "DESC"]], // Sắp xếp giảm dần theo số lượng đơn hàng
       limit: 5, // Giới hạn 5 người dùng đầu tiên
       include: [
         {
-          model: KhachHang,
+          model: NguoiDung,
           // Lấy thêm avatar, tên đăng nhập và email của người dùng
-          attributes: ["avatar", "tenKhachHang", "email"], // Lấy thêm thông tin tên đăng nhập và email của người dùng
+          attributes: ["avatar", "tenNguoiDung", "email"], // Lấy thêm thông tin tên đăng nhập và email của người dùng
         },
       ],
     });
     res.json({
       tongDoanhThu: tongDoanhThu || 0,
-      soLuongKhachHang,
+      soLuongNguoiDung,
       soLuongDonHang,
-      topKhachHang,
+      topNguoiDung,
     });
   } catch (error) {
     console.error("Lỗi khi thống kê dữ liệu:", error);

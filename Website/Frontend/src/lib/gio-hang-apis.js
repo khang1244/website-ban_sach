@@ -1,9 +1,9 @@
 import { BASE_URL } from "./baseUrl";
 
 // 1. Lấy thông tin giỏ hàng theo người dùng
-export const layGioHangTheoKhachHang = async (khachHangID) => {
+export const layGioHangTheoNguoiDung = async (nguoiDungID) => {
   try {
-    const response = await fetch(`${BASE_URL}/gioHang/${khachHangID}`, {
+    const response = await fetch(`${BASE_URL}/gioHang/${nguoiDungID}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export const layGioHangTheoKhachHang = async (khachHangID) => {
 
 // 2. Thêm sản phẩm vào giỏ hàng
 export const themSanPhamVaoGioHang = async (
-  khachHangID,
+  nguoiDungID,
   sachID,
   soLuong,
   giaLucThem
@@ -31,7 +31,7 @@ export const themSanPhamVaoGioHang = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        khachHangID,
+        nguoiDungID,
         sachID,
         soLuong,
         giaLucThem,
@@ -81,9 +81,9 @@ export const xoaSanPhamKhoiGioHang = async (chiTietGioHangID) => {
 };
 
 // 5. Xóa toàn bộ giỏ hàng
-export const xoaToanBoGioHang = async (khachHangID) => {
+export const xoaToanBoGioHang = async (nguoiDungID) => {
   try {
-    const response = await fetch(`${BASE_URL}/gioHang/toan-bo/${khachHangID}`, {
+    const response = await fetch(`${BASE_URL}/gioHang/toan-bo/${nguoiDungID}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -98,10 +98,10 @@ export const xoaToanBoGioHang = async (khachHangID) => {
 };
 
 // 6. Đếm số lượng sản phẩm trong giỏ hàng
-export const demSoLuongSanPhamTrongGioHang = async (khachHangID) => {
+export const demSoLuongSanPhamTrongGioHang = async (nguoiDungID) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/gioHang/dem-so-luong/${khachHangID}`,
+      `${BASE_URL}/gioHang/dem-so-luong/${nguoiDungID}`,
       {
         method: "GET",
         headers: {

@@ -207,7 +207,7 @@ function QuanLyBinhLuan() {
                       <td className="py-3 px-4">
                         <div className="flex flex-col">
                           <span className="text-gray-800 text-sm">
-                            {c.khachHangID}
+                            {c.nguoiDungID}
                           </span>
                         </div>
                       </td>

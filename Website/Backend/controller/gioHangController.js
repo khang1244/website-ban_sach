@@ -2,27 +2,27 @@ import { GioHang, ChiTietGioHang } from "../models/GioHang.js";
 import Sach from "../models/Sach.js";
 import HinhAnh from "../models/HinhAnh.js";
 
-// Lấy thông tin giỏ hàng của người dùng theo khachHangID
-export const layGioHangTheoKhachHang = async (req, res) => {
+// Lấy thông tin giỏ hàng của người dùng theo nguoiDungID
+export const layGioHangTheoNguoiDung = async (req, res) => {
   try {
-    const { khachHangID } = req.params;
+    const { nguoiDungID } = req.params; // Lấy nguoiDungID từ tham số URL
 
-    // Tìm giỏ hàng của người dùng kèm theo chi tiết sản phẩm
+    // Tìm giỏ hàng của người dùng kèm theo chi tiết sản phẩm và thông tin sách
     const gioHang = await GioHang.findOne({
-      where: { khachHangID },
+      where: { nguoiDungID },
       include: [
         {
           model: ChiTietGioHang,
           include: [
             {
               model: Sach,
-              attributes: ["sachID", "tenSach"], // Lấy thông tin sách cần thiết (images moved to HinhAnh)
+              attributes: ["sachID", "tenSach"], // Chỉ lấy các thuộc tính cần thiết
             },
           ],
         },
       ],
     });
-
+    // Nếu không tìm thấy giỏ hàng, trả về thông báo
     if (!gioHang) {
       return res.status(404).json({
         success: false,
@@ -66,7 +66,7 @@ export const layGioHangTheoKhachHang = async (req, res) => {
 // Thêm sản phẩm vào giỏ hàng
 export const themSanPhamVaoGioHang = async (req, res) => {
   try {
-    const { khachHangID, sachID, soLuong = 1, giaLucThem } = req.body;
+    const { nguoiDungID, sachID, soLuong = 1, giaLucThem } = req.body;
 
     // Kiểm tra sách có tồn tại không
     const sach = await Sach.findByPk(sachID);
@@ -86,10 +86,10 @@ export const themSanPhamVaoGioHang = async (req, res) => {
     }
 
     // Tìm hoặc tạo giỏ hàng cho người dùng
-    let gioHang = await GioHang.findOne({ where: { khachHangID } });
+    let gioHang = await GioHang.findOne({ where: { nguoiDungID } });
     if (!gioHang) {
       gioHang = await GioHang.create({
-        khachHangID,
+        nguoiDungID,
       });
     }
 
@@ -230,10 +230,10 @@ export const xoaSanPhamKhoiGioHang = async (req, res) => {
 // Xóa toàn bộ giỏ hàng
 export const xoaToanBoGioHang = async (req, res) => {
   try {
-    const { khachHangID } = req.params;
+    const { nguoiDungID } = req.params;
 
     // Tìm giỏ hàng của người dùng
-    const gioHang = await GioHang.findOne({ where: { khachHangID } });
+    const gioHang = await GioHang.findOne({ where: { nguoiDungID } });
 
     if (!gioHang) {
       return res.status(404).json({
@@ -261,11 +261,11 @@ export const xoaToanBoGioHang = async (req, res) => {
 // Đếm số lượng sản phẩm trong giỏ hàng
 export const demSoLuongSanPhamTrongGioHang = async (req, res) => {
   try {
-    const { khachHangID } = req.params;
+    const { nguoiDungID } = req.params;
 
     // Tìm giỏ hàng và đếm số lượng sản phẩm
     const gioHang = await GioHang.findOne({
-      where: { khachHangID },
+      where: { nguoiDungID },
       include: [
         {
           model: ChiTietGioHang,

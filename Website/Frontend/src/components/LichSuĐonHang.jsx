@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Navigation from "./Navigation";
-import Footer from "./Footer";
+import Navigation from "./Navigation.jsx";
+import Footer from "./Footer.jsx";
 // Thêm các icons cần thiết cho giao diện chuyên nghiệp hơn
 import {
   FaSearch,
@@ -14,9 +14,9 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 import { useEffect } from "react";
-import { nhanDonHangCuaMotKhachHang } from "../lib/don-hang-apis.js";
+import { nhanDonHangCuaMotNguoiDung } from "../lib/don-hang-apis.js";
 
-function LichSuMuaHang() {
+function LichSuDonHang() {
   // Biến trạng thái để lưu trữ danh sách đơn hàng của người dùng
   const [userOrders, setUserOrders] = React.useState([]);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -86,15 +86,15 @@ function LichSuMuaHang() {
 
   useEffect(() => {
     // Gọi hàm có sẵn trong file don-hang-apis.js để lấy đơn hàng của người dùng từ server
-    async function napDuLieuDonHangCuaKhachHang() {
+    async function napDuLieuDonHangCuaNguoiDung() {
       try {
         // Lấy ID người dùng từ localStorage
         const user = localStorage.getItem("user");
         if (!user) return; // Xử lý trường hợp chưa đăng nhập
 
-        const khachHangID = JSON.parse(user).khachHangID;
+        const nguoiDungID = JSON.parse(user).nguoiDungID;
 
-        const donHang = await nhanDonHangCuaMotKhachHang(khachHangID);
+        const donHang = await nhanDonHangCuaMotNguoiDung(nguoiDungID);
         console.log("Đơn hàng lấy từ server:", donHang);
         setUserOrders(donHang);
         setCurrentPage(1); // Reset về trang 1 khi load dữ liệu mới
@@ -102,7 +102,7 @@ function LichSuMuaHang() {
         console.error("Lỗi khi tải dữ liệu đơn hàng:", error);
       }
     }
-    napDuLieuDonHangCuaKhachHang();
+    napDuLieuDonHangCuaNguoiDung();
   }, []);
 
   // Tính toán phân trang
@@ -336,4 +336,4 @@ function LichSuMuaHang() {
   );
 }
 
-export default LichSuMuaHang;
+export default LichSuDonHang;

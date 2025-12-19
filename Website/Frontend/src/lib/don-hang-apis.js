@@ -29,10 +29,10 @@ export const layTatCaDonHang = async () => {
   }
 };
 // Nhận đơn hàng của một người dùng cụ thể
-export const nhanDonHangCuaMotKhachHang = async (khachHangID) => {
+export const nhanDonHangCuaMotNguoiDung = async (nguoiDungID) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/donHang/khachHang/${khachHangID}`,
+      `${BASE_URL}/donHang/nguoiDung/${nguoiDungID}`,
       {
         method: "GET",
         headers: {

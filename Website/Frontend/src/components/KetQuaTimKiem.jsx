@@ -9,7 +9,7 @@ import { CiHeart } from "react-icons/ci";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { nhanTatCaCacQuyenSach } from "../lib/sach-apis";
 import {
-  layGioHangTheoKhachHang,
+  layGioHangTheoNguoiDung,
   themSanPhamVaoGioHang,
 } from "../lib/gio-hang-apis";
 import { UserContext } from "../contexts/user-context";
@@ -58,11 +58,11 @@ const KetQuaTimKiemSach = () => {
       return;
     }
     const user = JSON.parse(storedUser);
-    const khachHangID = user.khachHangID;
+    const nguoiDungID = user.nguoiDungID;
 
     // Không thêm trùng sản phẩm, yêu cầu người dùng vào giỏ để tự tăng số lượng
     try {
-      const gioHangResp = await layGioHangTheoKhachHang(khachHangID);
+      const gioHangResp = await layGioHangTheoNguoiDung(nguoiDungID);
       const items = gioHangResp?.gioHang?.ChiTietGioHangs || [];
       const existed = items.some(
         (item) => String(item.sachID) === String(sachID)
@@ -78,7 +78,7 @@ const KetQuaTimKiemSach = () => {
     }
 
     const phanHoiTuSever = await themSanPhamVaoGioHang(
-      khachHangID,
+      nguoiDungID,
       sachID,
       soLuong,
       giaLucThem

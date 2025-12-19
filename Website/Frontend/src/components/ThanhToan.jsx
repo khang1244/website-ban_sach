@@ -16,7 +16,7 @@ import { useEffect, useRef } from "react";
 import { UserContext } from "../contexts/user-context";
 import {
   capNhatSoLuongSanPham,
-  layGioHangTheoKhachHang,
+  layGioHangTheoNguoiDung,
   xoaSanPhamKhoiGioHang,
   xoaToanBoGioHang,
 } from "../lib/gio-hang-apis";
@@ -26,7 +26,7 @@ import { layTatCaPhuongThucGiaoHang } from "../lib/phuong-thuc-giao-hang-apis";
 import tinhTP from "../lib/du-Lieu-TinhTP";
 import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 import {
-  layDiaChiTheoKhachHang,
+  layDiaChiTheoNguoiDung,
   taoDiaChi,
   datMacDinhDiaChi,
 } from "../lib/dia-chi-apis";
@@ -178,12 +178,12 @@ function ThanhToan() {
       return;
     }
     // Lấy dữ liệu người dùng từ localStorage để chuẩn bị dữ liệu đẩy lên sever
-    const khachHang = JSON.parse(localStorage.getItem("user"));
+    const nguoiDung = JSON.parse(localStorage.getItem("user"));
 
     // Chuẩn bị dữ liệu để tạo đơn hàng gửi lên sever
     const duLieuDonHang = {
-      khachHangID: khachHang.khachHangID,
-      tenKhachHang: customer.name,
+      nguoiDungID: nguoiDung.nguoiDungID,
+      tenNguoiDung: customer.name,
       soDienThoaiKH: customer.phone,
       ngayDat: new Date(),
       tongTien: total,
@@ -219,9 +219,9 @@ function ThanhToan() {
     if (response && response.success) {
       // Sau khi tạo đơn hàng thành công -> xóa toàn bộ giỏ hàng của người dùng
       try {
-        const khachHang = JSON.parse(localStorage.getItem("user"));
-        if (khachHang && khachHang.khachHangID) {
-          await xoaToanBoGioHang(khachHang.khachHangID);
+        const nguoiDung = JSON.parse(localStorage.getItem("user"));
+        if (nguoiDung && nguoiDung.nguoiDungID) {
+          await xoaToanBoGioHang(nguoiDung.nguoiDungID);
         }
       } catch (err) {
         console.error("Lỗi khi xóa giỏ hàng sau khi đặt hàng:", err);
@@ -245,7 +245,7 @@ function ThanhToan() {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return;
 
-      const data = await layGioHangTheoKhachHang(user.khachHangID);
+      const data = await layGioHangTheoNguoiDung(user.nguoiDungID);
       if (data && data.success) {
         setCart(data.gioHang.ChiTietGioHangs || []);
         setTongTien(data.gioHang.tongTien || 0);
@@ -260,17 +260,17 @@ function ThanhToan() {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       // Kiểm tra xem có dữ liệu user trong localStorage không
-      const duLieuKhachHang = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
+      const duLieuNguoiDung = JSON.parse(storedUser); // Chuyển dữ liệu người từ localStorage sang dạng Object để sử dụng
       setCustomer({
-        name: duLieuKhachHang.tenKhachHang || "",
-        email: duLieuKhachHang.email || "",
-        phone: duLieuKhachHang.soDienThoai || "",
+        name: duLieuNguoiDung.tenNguoiDung || "",
+        email: duLieuNguoiDung.email || "",
+        phone: duLieuNguoiDung.soDienThoai || "",
       });
       // Nạp danh sách địa chỉ đã lưu của người dùng
       (async () => {
         try {
-          const list = await layDiaChiTheoKhachHang(
-            duLieuKhachHang.khachHangID
+          const list = await layDiaChiTheoNguoiDung(
+            duLieuNguoiDung.nguoiDungID
           );
           setDiaChiDaLuu(list || []);
           // Nếu đã có địa chỉ lưu, ẩn form nhập địa chỉ mới; ngược lại hiện
@@ -338,12 +338,12 @@ function ThanhToan() {
       if (!diaChiFull || diaChiFull.trim().length === 0)
         return alert("Vui lòng nhập địa chỉ trước khi lưu.");
       const res = await taoDiaChi({
-        khachHangID: storedUser.khachHangID,
+        nguoiDungID: storedUser.nguoiDungID,
         diaChi: diaChiFull,
         macDinh: diaChiDaLuu.length === 0,
       });
       if (res && res.ok) {
-        const list = await layDiaChiTheoKhachHang(storedUser.khachHangID);
+        const list = await layDiaChiTheoNguoiDung(storedUser.nguoiDungID);
         setDiaChiDaLuu(list || []);
         const created = res.address;
         if (created) {
@@ -367,7 +367,7 @@ function ThanhToan() {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (!storedUser) return;
-      const list = await layDiaChiTheoKhachHang(storedUser.khachHangID);
+      const list = await layDiaChiTheoNguoiDung(storedUser.nguoiDungID);
       setDiaChiDaLuu(list || []);
       const def = (list || []).find((a) => a.macDinh);
       if (def) {

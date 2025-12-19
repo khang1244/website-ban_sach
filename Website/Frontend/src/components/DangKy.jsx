@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { dangKyTaiKhoan, kiemTraEmailTonTai } from "../lib/khach-hang-apis.js";
+import { dangKyTaiKhoan, kiemTraEmailTonTai } from "../lib/nguoi-dung-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay.jsx";
 
 function DangKy() {
-  const [tenKhachHang, setTenKhachHang] = useState("");
+  const [tenNguoiDung, setTenNguoiDung] = useState("");
   const [email, setEmail] = useState("");
   const [matKhau, setMatKhau] = useState("");
   const [xacNhanMatKhau, setXacNhanMatKhau] = useState("");
@@ -65,7 +65,7 @@ function DangKy() {
 
     // Gửi yêu cầu đăng ký
     await dangKyTaiKhoan({
-      tenKhachHang,
+      tenNguoiDung,
       email,
       matKhau,
       soDienThoai,
@@ -110,8 +110,8 @@ function DangKy() {
             <input
               type="text"
               name="username"
-              value={tenKhachHang}
-              onChange={(e) => setTenKhachHang(e.target.value)}
+              value={tenNguoiDung}
+              onChange={(e) => setTenNguoiDung(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 placeholder-gray-400"
               placeholder="Nhập tên người dùng"

@@ -1,11 +1,11 @@
 import { BASE_URL } from "./baseUrl.js";
 import { xaPhuong } from "./du-Lieu-XaPhuong.js";
 // Lấy danh sách địa chỉ của một người dùng
-// Tham số: khachHangID (số) => trả về mảng địa chỉ hoặc mảng rỗng
-export const layDiaChiTheoKhachHang = async (khachHangID) => {
+// Tham số: nguoiDungID (số) => trả về mảng địa chỉ hoặc mảng rỗng
+export const layDiaChiTheoNguoiDung = async (nguoiDungID) => {
   try {
     const phanHoi = await fetch(
-      `${BASE_URL}/diaChi/khachHangID/${khachHangID}`,
+      `${BASE_URL}/diaChi/nguoiDungID/${nguoiDungID}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -21,7 +21,7 @@ export const layDiaChiTheoKhachHang = async (khachHangID) => {
 };
 
 // Tạo địa chỉ mới cho người dùng
-// Tham số: duLieuDiaChi = { khachHangID, diaChi, isDefault }
+// Tham số: duLieuDiaChi = { nguoiDungID, diaChi, isDefault }
 export const taoDiaChi = async (duLieuDiaChi) => {
   try {
     const phanHoi = await fetch(`${BASE_URL}/diaChi`, {

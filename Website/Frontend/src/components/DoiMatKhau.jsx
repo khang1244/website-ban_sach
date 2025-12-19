@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { dangNhapTaiKhoan, capNhatMatKhau } from "../lib/khach-hang-apis.js";
+import { dangNhapTaiKhoan, capNhatMatKhau } from "../lib/nguoi-dung-apis.js";
 import ThongBaoChay from "./admin/ThongBaoChay";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/user-context";
@@ -76,7 +76,7 @@ export default function DoiMatKhau() {
         return;
       }
 
-      const res = await capNhatMatKhau(user.khachHangID, newPassword);
+      const res = await capNhatMatKhau(user.nguoiDungID, newPassword);
       if (res.status) {
         showToast("success", "Thành công", "Đổi mật khẩu thành công");
         // Bắt buộc đăng xuất để đăng nhập lại

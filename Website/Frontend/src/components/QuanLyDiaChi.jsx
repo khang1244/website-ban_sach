@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import {
-  layDiaChiTheoKhachHang,
+  layDiaChiTheoNguoiDung,
   taoDiaChi,
   xoaDiaChi,
   datMacDinhDiaChi,
@@ -50,7 +50,7 @@ function QuanLyDiaChi() {
     if (!user) return;
     try {
       setLoading(true);
-      const list = await layDiaChiTheoKhachHang(user.khachHangID);
+      const list = await layDiaChiTheoNguoiDung(user.nguoiDungID);
       setAddresses(list || []);
       const def = (list || []).find((a) => a.macDinh);
       setSelectedId(def?.diaChiID || list?.[0]?.diaChiID || null);
@@ -114,7 +114,7 @@ function QuanLyDiaChi() {
       } else {
         // Tạo địa chỉ mới
         await taoDiaChi({
-          khachHangID: user.khachHangID,
+          nguoiDungID: user.nguoiDungID,
           diaChi: diaChiText,
           macDinh: shouldBeDefault,
         });

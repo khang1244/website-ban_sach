@@ -28,8 +28,8 @@ export const nhanTatCaDonHang = async (req, res) => {
 export const taoDonHangMoi = async (req, res) => {
   try {
     const {
-      khachHangID,
-      tenKhachHang,
+      nguoiDungID,
+      tenNguoiDung,
       soDienThoaiKH,
       ngayDat,
       tongTien,
@@ -100,8 +100,8 @@ export const taoDonHangMoi = async (req, res) => {
       // Tạo đơn hàng mới
       const donHangMoi = await DonHang.create(
         {
-          khachHangID,
-          tenKhachHang,
+          nguoiDungID,
+          tenNguoiDung,
           soDienThoaiKH,
           ngayDat,
           tongTien,
@@ -257,12 +257,12 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
           const phieuXuatMoi = await PhieuXuat.create(
             {
               donHangID: donHang.donHangID,
-              khachHangID: donHang.khachHangID,
-              tenKhachHang: donHang.tenKhachHang,
+              nguoiDungID: donHang.nguoiDungID,
+              tenNguoiDung: donHang.tenNguoiDung,
               ngayXuat: new Date(),
               loaiXuat: "bán hàng",
               nguoiXuat: "Hệ thống tự động",
-              ghiChu: `Đơn hàng #${donHang.donHangID} - ${donHang.tenKhachHang}`,
+              ghiChu: `Đơn hàng #${donHang.donHangID} - ${donHang.tenNguoiDung}`,
             },
             { transaction: t }
           );
@@ -321,11 +321,11 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
   }
 };
 // Nhận đơn hàng theo tài khoản người dùng
-export const nhanDonHangCuaKhachHang = async (req, res) => {
+export const nhanDonHangCuaNguoiDung = async (req, res) => {
   try {
-    const { khachHangID } = req.params;
+    const { nguoiDungID } = req.params;
     const donHangs = await DonHang.findAll({
-      where: { khachHangID },
+      where: { nguoiDungID },
       include: [
         {
           model: Sach,
@@ -415,8 +415,8 @@ export const traHang = async (req, res) => {
       const phieuXuatMoi = await PhieuXuat.create(
         {
           donHangID: donHangID,
-          khachHangID: donHang.khachHangID,
-          tenKhachHang: donHang.tenKhachHang,
+          nguoiDungID: donHang.nguoiDungID,
+          tenNguoiDung: donHang.tenNguoiDung,
           ngayXuat: new Date(),
           loaiXuat: "Khách trả hàng",
           ghiChu: `Lí do trả hàng: ${lyDoTraHang || "Không có lí do"}`,

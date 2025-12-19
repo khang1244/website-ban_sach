@@ -9,9 +9,9 @@ import ChiTietSanPham from "./components/ChiTietSanPham";
 import ThanhToan from "./components/ThanhToan";
 import XacNhanDonHang from "./components/XacNhanDonHang";
 import GioHang from "./components/GioHang";
-import HoSoKhachHang from "./components/HoSoKhachHang";
+import HoSoNguoiDung from "./components/HoSoNguoiDung";
 import DoiMatKhau from "./components/DoiMatKhau";
-import LichSuMuaHang from "./components/LichSuMuaHang";
+import LichSuDonHang from "./components/LichSuĐonHang";
 import ChiTietDonHang from "./components/ChiTietDonHang";
 import KetQuaTimKiemSach from "./components/KetQuaTimKiem";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -22,7 +22,7 @@ import QuanLyDanhMuc from "./components/admin/QuanLyDanhMuc";
 import QuanLyKhuyenMai from "./components/admin/QuanLyKhuyenMai";
 import QuanLyPhuongThucGiaoHang from "./components/admin/QuanLyPhuongThucGiaoHang";
 import QuanLyDonHang from "./components/admin/QuanLyDonHang";
-import QuanLyKhachHang from "./components/admin/QuanLyKhachHang";
+import QuanLyNguoiDung from "./components/admin/QuanLyNguoiDung";
 import QuanLyBinhLuan from "./components/admin/QuanLyBinhLuan";
 import QuanLyTonKho from "./components/admin/QuanLyTonKho";
 import BaoVeTuyenDuong from "./components/bao-ve/BaoVeTuyenDuong";
@@ -42,9 +42,9 @@ function App() {
         <Route path="/thanhtoan" element={<ThanhToan />} />
         <Route path="/xacnhandonhang" element={<XacNhanDonHang />} />
         <Route path="/giohang" element={<GioHang />} />
-        <Route path="/hosokhachhang" element={<HoSoKhachHang />} />
+        <Route path="/hosonguoidung" element={<HoSoNguoiDung />} />
         <Route path="/doimatkhau" element={<DoiMatKhau />} />
-        <Route path="/lichsumuahang" element={<LichSuMuaHang />} />
+        <Route path="/lichsudonhang" element={<LichSuDonHang />} />
         <Route path="/quanlydiachi" element={<QuanLyDiaChi />} />
         <Route path="/chitietdonhang/:id" element={<ChiTietDonHang />} />
         <Route path="/ketquatimkiemsach" element={<KetQuaTimKiemSach />} />
@@ -67,7 +67,7 @@ function App() {
             element={<QuanLyPhuongThucGiaoHang />}
           />
           <Route path="donhang" element={<QuanLyDonHang />} />
-          <Route path="khachhang" element={<QuanLyKhachHang />} />
+          <Route path="nguoidung" element={<QuanLyNguoiDung />} />
           <Route path="binhluan" element={<QuanLyBinhLuan />} />
           <Route path="tonkho" element={<QuanLyTonKho />} />
         </Route>

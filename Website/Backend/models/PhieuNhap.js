@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
-import KhachHang from "./KhachHang.js";
+import NguoiDung from "./NguoiDung.js";
 
 // Model Phiếu Nhập - Quản lý các phiếu nhập kho
 const PhieuNhap = sequelize.define(
@@ -11,12 +11,12 @@ const PhieuNhap = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    khachHangID: {
+    nguoiDungID: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: "khach_hang",
-        key: "khachHangID",
+        model: "nguoi_dung",
+        key: "nguoiDungID",
       },
     },
     ngayNhap: {
@@ -34,7 +34,7 @@ const PhieuNhap = sequelize.define(
   }
 );
 
-// Thiết lập quan hệ với KhachHang
-PhieuNhap.belongsTo(KhachHang, { foreignKey: "khachHangID", as: "khachHang" });
+// Thiết lập quan hệ với NguoiDung
+PhieuNhap.belongsTo(NguoiDung, { foreignKey: "nguoiDungID", as: "nguoiDung" });
 
 export default PhieuNhap;

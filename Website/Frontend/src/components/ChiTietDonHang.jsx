@@ -28,7 +28,7 @@ function FormBinhLuan({ sachID, dongFormBinhLuan }) {
 
     const duLieuBinhLuan = {
       sachID: sachID,
-      khachHangID: JSON.parse(localStorage.getItem("user")).khachHangID,
+      nguoiDungID: JSON.parse(localStorage.getItem("user")).nguoiDungID,
       noiDung: noiDung,
       danhGia: danhGia,
     };
@@ -319,7 +319,7 @@ function ChiTietDonHang() {
       <Navigation />
       <div className="max-w-6xl mx-auto py-10 px-4">
         <Link
-          to="/lichsumuahang"
+          to="/lichsudonhang"
           className="flex items-center gap-2 text-blue-600 hover:underline mb-6 font-semibold"
         >
           <FaArrowLeft /> Quay lại lịch sử đơn hàng

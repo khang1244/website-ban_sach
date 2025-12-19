@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  layDiaChiTheoKhachHang,
+  layDiaChiTheoNguoiDung,
   taoDiaChi,
   xoaDiaChi,
   capNhatDiaChi,
@@ -9,7 +9,7 @@ import {
 
 const router = express.Router(); // Khởi tạo router
 
-router.get("/khachHangID/:khachHangID", layDiaChiTheoKhachHang); // Lấy địa chỉ theo khách hàng
+router.get("/nguoiDungID/:nguoiDungID", layDiaChiTheoNguoiDung); // Lấy địa chỉ theo người dùng
 router.post("/", taoDiaChi); // Tạo địa chỉ mới
 router.put("/:diaChiID", capNhatDiaChi); // Cập nhật địa chỉ
 router.delete("/:diaChiID", xoaDiaChi); // Xóa địa chỉ theo ID

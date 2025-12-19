@@ -228,7 +228,7 @@ function QuanLyDonHang() {
                       {/* Mã đơn hàng hiển thị theo thứ tự tổng, không chỉ index trong trang */}
                       # {order.donHangID}
                     </td>
-                    <td className="py-3 px-5 text-sm">{order.tenKhachHang}</td>
+                    <td className="py-3 px-5 text-sm">{order.tenNguoiDung}</td>
                     <td className="py-3 px-5 text-sm">{order.soDienThoaiKH}</td>
                     <td className="py-3 px-5 text-sm">
                       {order.diaChiGiaoHang}
@@ -351,7 +351,7 @@ function QuanLyDonHang() {
             </h3>
             <div className="mb-4">
               <strong>Khách hàng: </strong>
-              {selectedOrder.tenKhachHang}
+              {selectedOrder.tenNguoiDung}
             </div>
             <div className="mb-4">
               <strong>SĐT: </strong>

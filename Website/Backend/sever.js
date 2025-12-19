@@ -5,7 +5,7 @@ import sequelize from "./config/mysql_config.js";
 import SachRoutes from "./routes/SachRoutes.js";
 import DanhMucSachRoutes from "./routes/DanhMucSachRoutes.js";
 import DonHangRoutes from "./routes/DonHangRoutes.js";
-import KhachHangRoutes from "./routes/KhachHangRoutes.js";
+import NguoiDungRoutes from "./routes/NguoiDungRoutes.js";
 import BinhLuanRoutes from "./routes/BinhLuanRoutes.js";
 import KhuyenMaiRoutes from "./routes/KhuyenMaiRoutes.js";
 import HinhAnhRoutes from "./routes/HinhAnhRoutes.js";
@@ -48,7 +48,7 @@ app.use("/api/danhMucSach", DanhMucSachRoutes); // Sử dụng routes danhMucSac
 
 app.use("/api/donHang", DonHangRoutes); // Sử dụng routes donHang
 
-app.use("/api/khachHang", KhachHangRoutes); // Sử dụng routes khachHang
+app.use("/api/nguoiDung", NguoiDungRoutes); // Sử dụng routes nguoiDung
 
 app.use("/api/binhLuan", BinhLuanRoutes); // Sử dụng routes binhLuan
 

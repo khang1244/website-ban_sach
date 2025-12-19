@@ -121,14 +121,14 @@ function Navigation() {
 
               <div className="text-left hidden md:block">
                 <p className="text-white font-semibold leading-tight">
-                  {user?.tenKhachHang || "Chưa đăng nhập"}
+                  {user?.tenNguoiDung || "Chưa đăng nhập"}
                 </p>
               </div>
             </button>
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute right-0 mt-2 w-65 bg-white rounded-xl shadow-xl text-black overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-69 bg-white rounded-xl shadow-xl text-black overflow-hidden z-50">
                 <div>
                   <button
                     className="w-full text-left px-4 py-2 hover:bg-amber-100 flex justify-between items-center"
@@ -143,14 +143,14 @@ function Navigation() {
                   {showAccountMenu && (
                     <div className="bg-white border-t border-gray-100">
                       <Link
-                        to="/hosokhachhang"
+                        to="/hosonguoidung"
                         className="block px-6 py-2 hover:bg-amber-100"
                         onClick={() => {
                           setIsOpen(false);
                           setShowAccountMenu(false);
                         }}
                       >
-                        Cập nhật thông tin cá nhân
+                        Cập nhật thông tin người dùng
                       </Link>
                       <Link
                         to="/doimatkhau"
@@ -163,14 +163,14 @@ function Navigation() {
                         Đổi mật khẩu
                       </Link>
                       <Link
-                        to="/lichsumuahang"
+                        to="/lichsudonhang"
                         className="block px-6 py-2 hover:bg-amber-100"
                         onClick={() => {
                           setIsOpen(false);
                           setShowAccountMenu(false);
                         }}
                       >
-                        Lịch sử mua hàng
+                        Lịch sử đơn hàng
                       </Link>
                       <Link
                         to="/quanlydiachi"

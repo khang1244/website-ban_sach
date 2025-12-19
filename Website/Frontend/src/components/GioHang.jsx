@@ -10,7 +10,7 @@ import Navigation from "./Navigation";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import {
-  layGioHangTheoKhachHang,
+  layGioHangTheoNguoiDung,
   xoaSanPhamKhoiGioHang,
   capNhatSoLuongSanPham,
 } from "../lib/gio-hang-apis";
@@ -108,7 +108,7 @@ function GioHang() {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return;
 
-      const data = await layGioHangTheoKhachHang(user.khachHangID);
+      const data = await layGioHangTheoNguoiDung(user.nguoiDungID);
       if (data && data.success) {
         setCart(data.gioHang.ChiTietGioHangs || []);
         setTongTien(data.gioHang.tongTien || 0);
