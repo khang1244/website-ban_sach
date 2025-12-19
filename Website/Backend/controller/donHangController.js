@@ -363,6 +363,14 @@ export const nhanDonHangTheoID = async (req, res) => {
           attributes: ["phuongThucGiaoHangID", "tenPhuongThuc", "phiGiaoHang"],
         },
       ],
+      order: [
+        [
+          { model: Sach },
+          { model: HinhAnh, as: "hinhAnhs" },
+          "hinhAnhID",
+          "ASC",
+        ],
+      ],
     });
 
     if (!donHang) {

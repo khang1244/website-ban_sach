@@ -7,7 +7,11 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
     const danhSachSach = await Sach.findAll(); // SELECT * FROM Sach
     // Đính kèm ảnh từ HinhAnh cho mỗi sách
     for (const s of danhSachSach) {
-      const imgs = await HinhAnh.findAll({ where: { sachID: s.sachID } });
+      const imgs = await HinhAnh.findAll({
+        where: { sachID: s.sachID },
+        order: [["hinhAnhID", "ASC"]], // thêm dòng này
+      });
+
       // set on dataValues so it appears in JSON serialization
       s.dataValues.images = JSON.stringify(
         imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
@@ -222,7 +226,11 @@ export const layChiTietSach = async (req, res) => {
       return res.status(404).json({ error: "Sách không tồn tại." });
     }
     // Lấy ảnh liên quan từ bảng HinhAnh
-    const images = await HinhAnh.findAll({ where: { sachID: sach.sachID } });
+    const images = await HinhAnh.findAll({
+      where: { sachID: sach.sachID },
+      order: [["hinhAnhID", "ASC"]], // thêm dòng này
+    });
+
     const imagesForReturn = images.map((i) => ({
       url: i.url,
       public_id: i.public_id,
