@@ -17,6 +17,7 @@ const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 
 function QuanLySach() {
   const [books, setBooks] = useState([]);
+  const [boLocTrangThai, setBoLocTrangThai] = useState("tatCa");
   const [form, setForm] = useState({
     sachID: null,
     images: [],
@@ -303,10 +304,17 @@ function QuanLySach() {
     napLaiDanhSachSach();
   }, []);
 
+  const sachDaLoc = books.filter((book) => {
+    const trangThai = chuanHoaTrangThaiBan(book.trangThaiBan);
+    if (boLocTrangThai === "dangBan") return trangThai;
+    if (boLocTrangThai === "ngungBan") return !trangThai;
+    return true;
+  });
+
   // --- TÍNH PHÂN TRANG ---
   const tongTrangSach = Math.max(
     1,
-    Math.ceil(books.length / soLuongSachMotTrang)
+    Math.ceil(sachDaLoc.length / soLuongSachMotTrang)
   );
 
   // Nếu số trang thay đổi (ví dụ sau khi xóa), đảm bảo trang hiện tại hợp lệ
@@ -317,7 +325,7 @@ function QuanLySach() {
   }, [tongTrangSach, trangSachHienTai]);
 
   // Mảng sách sẽ hiển thị trên trang hiện tại
-  const sachHienThi = books.slice(
+  const sachHienThi = sachDaLoc.slice(
     (trangSachHienTai - 1) * soLuongSachMotTrang,
     trangSachHienTai * soLuongSachMotTrang
   );
@@ -563,6 +571,23 @@ function QuanLySach() {
         <h2 className="text-2xl font-semibold mb-4 text-[#00809D]">
           📖 Danh sách sách
         </h2>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-black">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Lọc trạng thái:</span>
+            <select
+              value={boLocTrangThai}
+              onChange={(e) => setBoLocTrangThai(e.target.value)}
+              className="border rounded px-3 py-2 text-sm"
+            >
+              <option value="tatCa">Tất cả</option>
+              <option value="dangBan">Đang bán</option>
+              <option value="ngungBan">Ngừng bán</option>
+            </select>
+          </div>
+          <div className="text-sm text-gray-600">
+            {sachDaLoc.length} sách phù hợp bộ lọc
+          </div>
+        </div>
         <div className="overflow-auto max-h-[600px] rounded border border-gray-200">
           <table className="min-w-full table-auto text-sm">
             <thead className="bg-emerald-900 text-white sticky top-0">
