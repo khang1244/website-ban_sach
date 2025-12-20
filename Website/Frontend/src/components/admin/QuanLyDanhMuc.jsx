@@ -199,10 +199,6 @@ function QuanLyDanhMuc() {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               Quản lý danh mục sách
             </h1>
-            <p className="text-slate-500 text-sm mt-1">
-              Quản lý danh mục một cách trực quan — màu sắc, khoảng cách và nút
-              được tinh chỉnh để chuyên nghiệp hơn.
-            </p>
           </div>
         </div>
       </div>

@@ -518,7 +518,7 @@ function QuanLyTonKho() {
                                 <td className="border p-7">
                                   {sach?.sachID || "-"}
                                 </td>
-                                <td className="border p-2">
+                                <td className="border p-2 w-35">
                                   {sach?.tenSach || "-"}
                                 </td>
                                 <td className="border p-2 text-center w-20">
@@ -844,7 +844,7 @@ function QuanLyTonKho() {
               </button>
 
               <h2 className="text-xl font-semibold mb-3 text-gray-800">
-                Lịch Sử Xuát Kho
+                Lịch Sử Xuất Kho
               </h2>
 
               {/* Lấy dữ liệu và tính toán phân trang */}

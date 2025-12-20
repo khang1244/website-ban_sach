@@ -8,9 +8,9 @@ const sidebarLinks = [
   { label: "Quản lý danh mục", to: "/admin/danhmucsach" },
   { label: "Quản lý đơn hàng", to: "/admin/donhang" },
   { label: "Quản lý người dùng", to: "/admin/nguoidung" },
-  { label: "Quản lý Bình luận", to: "/admin/binhluan" },
-  { label: "Quản lý Khuyến mãi", to: "/admin/khuyenmai" },
-  { label: "Quản lý Tồn kho", to: "/admin/tonkho" },
+  { label: "Quản lý bình luận", to: "/admin/binhluan" },
+  { label: "Quản lý khuyến mãi", to: "/admin/khuyenmai" },
+  { label: "Quản lý tồn kho", to: "/admin/tonkho" },
   { label: "Phương thức giao hàng", to: "/admin/phuongthucgiaohang" },
 ];
 

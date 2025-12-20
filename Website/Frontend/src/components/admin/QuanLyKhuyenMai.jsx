@@ -159,18 +159,8 @@ function QuanLyKhuyenMai() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Quản lý khuyến mãi
+            Quản Lý Khuyến Mãi
           </h1>
-          <p className="text-slate-600">
-            Tạo, chỉnh sửa và quản lý các mã khuyến mãi của bạn
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-purple-50 rounded-lg border border-purple-200">
-            <span className="text-sm text-purple-600 font-medium">
-              Tổng: {promos.length} mã
-            </span>
-          </div>
         </div>
       </div>
 
@@ -253,7 +243,9 @@ function QuanLyKhuyenMai() {
                       className="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                     />
                     <span className="ml-3 text-slate-700 text-sm font-medium">
-                      {form.trangThai ? "✓ Đang hoạt động" : "⊘ Ngừng kích hoạt"}
+                      {form.trangThai
+                        ? "✓ Đang hoạt động"
+                        : "⊘ Ngừng kích hoạt"}
                     </span>
                   </div>
                 </div>
@@ -502,7 +494,9 @@ function QuanLyKhuyenMai() {
                           d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <p className="text-lg font-medium">Chưa có mã khuyến mãi</p>
+                      <p className="text-lg font-medium">
+                        Chưa có mã khuyến mãi
+                      </p>
                       <p className="text-sm mt-1">
                         Hãy thêm mã khuyến mãi mới để bắt đầu
                       </p>
@@ -535,9 +529,7 @@ function QuanLyKhuyenMai() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() =>
-                    setTrangHienTai(Math.max(1, trangHienTai - 1))
-                  }
+                  onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
                   disabled={trangHienTai === 1}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
                     trangHienTai === 1

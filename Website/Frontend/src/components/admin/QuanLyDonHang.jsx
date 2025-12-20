@@ -147,7 +147,7 @@ function QuanLyDonHang() {
   return (
     <div className="max-w-6xl mx-auto p-8 bg-[#f7f9fc]">
       <h1 className="text-3xl font-bold mb-6 text-[#004C61]">
-        Quản lý đơn hàng
+        Quản Lý Đơn Hàng
       </h1>
 
       {/* Bộ lọc theo trạng thái */}

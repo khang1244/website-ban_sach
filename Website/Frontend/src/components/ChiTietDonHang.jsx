@@ -318,6 +318,10 @@ function ChiTietDonHang() {
     <div className="bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] min-h-screen w-full">
       <Navigation />
       <div className="max-w-6xl mx-auto py-10 px-4">
+        {/* Tiêu đề trang */}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-6">
+          Chi Tiết Đơn Hàng
+        </h1>
         <Link
           to="/lichsudonhang"
           className="flex items-center gap-2 text-blue-600 hover:underline mb-6 font-semibold"

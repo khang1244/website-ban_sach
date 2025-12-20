@@ -134,7 +134,7 @@ function HoSoNguoiDung() {
       <Navigation />
       <div className="max-w-2xl mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold text-white mb-8 text-center">
-          Cập nhật hồ sơ người dùng
+          Cập Nhật Hồ Sơ Người Dùng
         </h1>
         {/* Toast */}
         <ThongBaoChay

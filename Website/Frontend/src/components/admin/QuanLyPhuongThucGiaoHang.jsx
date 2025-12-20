@@ -285,10 +285,6 @@ function QuanLyPhuongThucGiaoHang() {
             <h1 className="text-3xl font-extrabold text-gray-900">
               Quản Lý Phương Thức Giao Hàng
             </h1>
-            <p className="text-gray-600 mt-1 text-sm">
-              Thêm, sửa, vô hiệu hóa và quản lý các lựa chọn giao hàng cho cửa
-              hàng.
-            </p>
           </div>
         </div>
         <button

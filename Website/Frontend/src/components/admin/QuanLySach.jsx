@@ -378,16 +378,6 @@ function QuanLySach() {
           <h1 className="text-3xl font-bold text-slate-800 mb-2">
             Quản lý sách
           </h1>
-          <p className="text-slate-600">
-            Thêm, chỉnh sửa và quản lý danh mục sách của bạn
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
-            <span className="text-sm text-blue-600 font-medium">
-              Tổng: {sachDaLoc.length} sách
-            </span>
-          </div>
         </div>
       </div>
 
@@ -398,7 +388,7 @@ function QuanLySach() {
             {editId ? "✏️ Chỉnh sửa sách" : "➕ Thêm sách mới"}
           </h2>
         </div>
-        
+
         <div className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Upload Images Section */}
@@ -698,9 +688,10 @@ function QuanLySach() {
                     : [];
                   const anhDauTien =
                     danhSachAnh.length > 0 ? danhSachAnh[0] : null;
-                  const tenDanhMuc = danhMucSach.find(
-                    (dm) => dm.danhMucSachID === book.danhMucSachID
-                  )?.tenDanhMuc || "N/A";
+                  const tenDanhMuc =
+                    danhMucSach.find(
+                      (dm) => dm.danhMucSachID === book.danhMucSachID
+                    )?.tenDanhMuc || "N/A";
 
                   return (
                     <tr
@@ -737,6 +728,8 @@ function QuanLySach() {
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
                           {tenDanhMuc} • {book.soTrang} trang • {book.dinhDang}
+                          <br />
+                          Ngày xuất bản: {formatDate(book.ngayXuatBan)}
                         </div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-700">

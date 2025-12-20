@@ -68,7 +68,7 @@ function QuanLyChung() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-[#00809D]">
-        Quản lý báo cáo thống kê
+        Quản Lý Báo Cáo Thống Kê
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl shadow-lg p-6 flex flex-col items-center transition-transform transform hover:scale-105">

@@ -107,11 +107,8 @@ function QuanLyBinhLuan() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#00809D]">
-            Quản lý bình luận & đánh giá
+            Quản Lý Bình Luận
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Xem, kiểm soát và quản lý phản hồi từ khách hàng về sách của bạn.
-          </p>
         </div>
       </div>
 

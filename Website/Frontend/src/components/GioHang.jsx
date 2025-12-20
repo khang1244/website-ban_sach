@@ -125,7 +125,7 @@ function GioHang() {
         {/* Tiêu đề chính: Cỡ lớn, đậm, màu Indigo nổi bật */}
         <h1 className="text-5xl font-extrabold text-white text-center mb-14 tracking-tight">
           <FaShoppingCart className="inline-block mr-4 text-black" />
-          Giỏ Hàng Của Bạn
+          Giỏ Hàng
         </h1>
 
         {/* --- 2. GIAO DIỆN KHI GIỎ HÀNG TRỐNG --- */}
