@@ -143,7 +143,7 @@ function QuanLyKhuyenMai() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="w-full space-y-6">
       {/* Toast */}
       <ThongBaoChay
         show={toast.show}
@@ -154,321 +154,450 @@ function QuanLyKhuyenMai() {
           setToast({ show: false, type: "", title: "", message: "" })
         }
       />
-      {/* Title */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          Quản lý mã khuyến mãi
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Tạo, chỉnh sửa và theo dõi các mã khuyến mãi.
-        </p>
+
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+            Quản lý khuyến mãi
+          </h1>
+          <p className="text-slate-600">
+            Tạo, chỉnh sửa và quản lý các mã khuyến mãi của bạn
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 bg-purple-50 rounded-lg border border-purple-200">
+            <span className="text-sm text-purple-600 font-medium">
+              Tổng: {promos.length} mã
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* form thêm mới hoặc chỉnh sửa mã khuyến mãi */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/60 p-6 mb-10"
-      >
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Biểu mẫu</h2>
+      {/* Form thêm mới hoặc chỉnh sửa mã khuyến mãi */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-blue-500 to-purple-700 px-6 py-4">
+          <h2 className="text-xl font-semibold text-white">
+            {editId ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
+          </h2>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Cột trái: Thông tin chính */}
-          <div className="lg:col-span-7 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Mã khuyến mãi <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="khuyenMaiID"
-                value={form.khuyenMaiID}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-              text-slate-900 caret-slate-900 placeholder:text-slate-400
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-                placeholder="VD: SALE20, FREESHIP"
-                required
-                disabled={editId !== null} // không cho phép chỉnh sửa mã khi đang ở chế độ chỉnh sửa
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Mô tả <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="moTa"
-                value={form.moTa}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-              text-slate-900 caret-slate-900 placeholder:text-slate-400
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-                placeholder="Mô tả ngắn gọn điều kiện áp dụng"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-black">
+            {/* Cột trái: Thông tin chính */}
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Số lượng
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Mã khuyến mãi <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="number"
-                  name="soLuong"
-                  value={form.soLuong}
+                  type="text"
+                  name="khuyenMaiID"
+                  value={form.khuyenMaiID}
                   onChange={handleChange}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-                text-slate-900 caret-slate-900 placeholder:text-slate-400
-                focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-                  min="0"
-                  placeholder="VD: 100"
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono"
+                  placeholder="VD: SALE20, FREESHIP"
+                  required
+                  disabled={editId !== null}
+                />
+                {editId && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Không thể thay đổi mã khi đang chỉnh sửa
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Mô tả <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="moTa"
+                  value={form.moTa}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Mô tả ngắn gọn điều kiện áp dụng"
+                  required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Trạng thái
-                </label>
-                <div className="flex items-center h-[42px]">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Số lượng
+                  </label>
                   <input
-                    type="checkbox"
-                    name="trangThai"
-                    checked={form.trangThai}
-                    onChange={(e) =>
-                      setForm({ ...form, trangThai: e.target.checked })
-                    }
-                    className="h-5 w-5 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
+                    type="number"
+                    name="soLuong"
+                    value={form.soLuong}
+                    onChange={handleChange}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    min="0"
+                    placeholder="0"
                   />
-                  <span className="ml-2 text-slate-700 text-sm">
-                    {form.trangThai ? "Đang hoạt động" : "Ngừng kích hoạt"}
-                  </span>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Trạng thái
+                  </label>
+                  <div className="flex items-center h-[42px] border border-slate-300 rounded-lg px-4 bg-slate-50">
+                    <input
+                      type="checkbox"
+                      name="trangThai"
+                      checked={form.trangThai}
+                      onChange={(e) =>
+                        setForm({ ...form, trangThai: e.target.checked })
+                      }
+                      className="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    />
+                    <span className="ml-3 text-slate-700 text-sm font-medium">
+                      {form.trangThai ? "✓ Đang hoạt động" : "⊘ Ngừng kích hoạt"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cột phải: Điều kiện áp dụng */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Loại giảm giá
+                </label>
+                <select
+                  name="typeof"
+                  value={form.typeof}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all bg-white"
+                >
+                  <option value="%">Phần trăm (%)</option>
+                  <option value="VNĐ">Số tiền (VNĐ)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Giá trị giảm
+                </label>
+                <input
+                  type="number"
+                  name="giaTriGiam"
+                  value={form.giaTriGiam}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  min="0"
+                  placeholder="0"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  {form.typeof === "%"
+                    ? "Nhập phần trăm giảm (VD: 20 = 20%)"
+                    : "Nhập số tiền giảm (VD: 50000 = 50,000 VNĐ)"}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Giá cơ bản để áp dụng (VNĐ)
+                </label>
+                <input
+                  type="number"
+                  name="giaCoBan"
+                  value={form.giaCoBan}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  min="0"
+                  placeholder="0"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Đơn hàng tối thiểu để áp dụng mã
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Ngày hết hạn <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="ngayHetHan"
+                  value={form.ngayHetHan}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  required
+                />
               </div>
             </div>
           </div>
 
-          {/* Cột phải: Điều kiện áp dụng */}
-          <div className="lg:col-span-5 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Giá trị giảm
-              </label>
-              <input
-                type="number"
-                name="giaTriGiam"
-                value={form.giaTriGiam}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-              text-slate-900 caret-slate-900 placeholder:text-slate-400
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-                min="0"
-                placeholder="VD: 20 hoặc 50000"
-              />
-            </div>
+          {/* Action bar */}
+          <div className="mt-6 pt-6 border-t border-slate-200 flex items-center justify-end gap-3">
+            {editId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({
+                    khuyenMaiID: "",
+                    moTa: "",
+                    giaTriGiam: 0,
+                    ngayHetHan: "",
+                    giaCoBan: 0,
+                    trangThai: true,
+                    soLuong: 0,
+                    typeof: "%",
+                  });
+                  setEditId(null);
+                }}
+                className="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-all"
+              >
+                Hủy
+              </button>
+            )}
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold shadow-sm hover:shadow-md transition-all"
+            >
+              {editId ? "Cập nhật khuyến mãi" : "Thêm khuyến mãi mới"}
+            </button>
+          </div>
+        </form>
+      </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Giá cơ bản để giảm
-              </label>
-              <input
-                type="number"
-                name="giaCoBan"
-                value={form.giaCoBan}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-              text-slate-900 caret-slate-900 placeholder:text-slate-400
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-                min="0"
-                placeholder="VD: 200000"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Ngày hết hạn <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="date"
-                name="ngayHetHan"
-                value={form.ngayHetHan}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5
-              text-slate-900 caret-slate-900 placeholder:text-slate-400
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 [color-scheme:light]"
-                required
-              />
+      {/* Danh sách mã khuyến mãi */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold text-slate-800">
+              Danh sách mã khuyến mãi
+            </h2>
+            <div className="text-sm text-slate-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200">
+              <span className="font-medium text-purple-700">
+                {promos.length} mã khuyến mãi
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Action bar */}
-        <div className="mt-6 flex items-center justify-end">
-          <button
-            type="submit"
-            className={`inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold shadow-sm
-            ${
-              editId
-                ? "bg-cyan-50 text-black border border-cyan-600 hover:bg-cyan-100"
-                : "bg-cyan-600 text-white hover:bg-cyan-700"
-            }`}
-          >
-            {editId ? "Cập nhật" : "Thêm mới"}
-          </button>
-        </div>
-      </form>
-      {/* LIST - Giao diện Chuyên nghiệp hơn */}
-      <div className="bg-white rounded-xl shadow-lg ring-1 ring-gray-100">
-        {/* Tiêu đề và Tổng quan */}
-        <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
-            ✨ Danh sách mã khuyến mãi
-          </h2>
-          <span className="mt-2 sm:mt-0 text-md font-medium text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-            Tổng cộng:{" "}
-            <strong className="text-gray-900">{promos.length}</strong> mã
-          </span>
-        </div>
-
-        {/* Bảng (Table) */}
+        {/* Bảng */}
         <div className="overflow-x-auto">
-          <table className="min-w-full text-left divide-y divide-gray-200">
-            <thead className="bg-gray-50 sticky top-0">
-              <tr className="text-xs uppercase tracking-wider text-gray-500">
-                <th className="py-3 px-5 font-semibold w-10">#</th>
-                <th className="py-3 px-5 font-semibold">Mã</th>
-                <th className="py-3 px-5 font-semibold">Mô tả</th>
-                <th className="py-3 px-5 font-semibold text-right">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  #
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Mã
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Mô tả
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Giá trị giảm
                 </th>
-                <th className="py-3 px-5 font-semibold text-right">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Giá cơ bản
                 </th>
-                <th className="py-3 px-5 font-semibold text-center">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Số lượng
                 </th>
-                <th className="py-3 px-5 font-semibold text-center">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Trạng thái
                 </th>
-                <th className="py-3 px-5 font-semibold">Hết hạn</th>
-                <th className="py-3 px-5 font-semibold text-center">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Hết hạn
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Hành động
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {promosHienThi &&
-                promosHienThi.length > 0 &&
+            <tbody className="bg-white divide-y divide-slate-200">
+              {promosHienThi && promosHienThi.length > 0 ? (
                 promosHienThi.map((promo, idx) => (
                   <tr
                     key={promo.khuyenMaiID}
-                    className="hover:bg-indigo-50/20 transition-colors duration-150 text-sm text-gray-700"
+                    className="hover:bg-slate-50 transition-colors"
                   >
-                    {/* STT */}
-                    <td className="py-3 px-5 font-medium text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                       {(trangHienTai - 1) * promosMotTrang + idx + 1}
                     </td>
-                    {/* Mã */}
-                    <td className="py-3 px-5 font-mono text-indigo-600 tracking-wider">
-                      {promo.khuyenMaiID}
-                    </td>
-                    {/* Mô tả */}
-                    <td className="py-3 px-5 max-w-xs truncate">
-                      {promo.moTa}
-                    </td>
-                    <td className="py-3 px-5 font-medium text-right text-green-600">
-                      {promo.giaTriGiam}
-                      {/* Logic: Nếu type là VNĐ, hiển thị ' VNĐ', ngược lại hiển thị '%' */}
-                      {promo.type === "VNĐ" ? " VNĐ" : "%"}
-                    </td>
-                    {/* Giá cơ bản */}
-                    <td className="py-3 px-5 text-right font-medium">
-                      {promo.giaCoBan.toLocaleString("vi-VN")} VNĐ
-                    </td>
-                    {/* Số lượng */}
-                    <td className="py-3 px-5 text-center">{promo.soLuong}</td>
-                    {/* Trạng thái (Sử dụng Badge) */}
-                    <td className="py-3 px-5 text-center">
-                      <span
-                        className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium transition-colors duration-150 ${
-                          promo.trangThai
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {promo.trangThai ? "Hoạt động" : "Không hoạt động"}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="font-mono text-purple-600 font-semibold tracking-wider">
+                        {promo.khuyenMaiID}
                       </span>
                     </td>
-                    {/* Hết hạn */}
-                    <td className="py-3 px-5 font-light text-gray-500">
-                      {formatDate(promo.ngayHetHan)}
+                    <td className="px-4 py-4">
+                      <div className="text-sm text-slate-700 max-w-xs">
+                        {promo.moTa}
+                      </div>
                     </td>
-                    {/* Hành động */}
-                    <td className="py-3 px-5 text-center whitespace-nowrap">
-                      <button
-                        onClick={() => handleEdit(promo)}
-                        className="mr-2 px-3 py-1 text-xs font-semibold text-indigo-600 border border-indigo-500 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-150 shadow-sm"
+                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-semibold text-green-600">
+                        {promo.giaTriGiam.toLocaleString()}
+                        {promo.type === "VNĐ" || promo.typeof === "VNĐ"
+                          ? " ₫"
+                          : "%"}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-medium text-slate-700">
+                        {promo.giaCoBan.toLocaleString("vi-VN")} ₫
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-slate-700 font-medium">
+                        {promo.soLuong}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <span
+                        className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                          promo.trangThai
+                            ? "bg-green-100 text-green-800"
+                            : "bg-slate-100 text-slate-800"
+                        }`}
                       >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(promo.khuyenMaiID)}
-                        className="px-3 py-1 text-xs font-semibold text-red-600 border border-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-150 shadow-sm"
-                      >
-                        Xóa
-                      </button>
+                        {promo.trangThai ? "✓ Hoạt động" : "⊘ Không hoạt động"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-sm text-slate-600">
+                        {formatDate(promo.ngayHetHan)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(promo)}
+                          className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => handleDelete(promo.khuyenMaiID)}
+                          className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="px-4 py-12 text-center">
+                    <div className="text-slate-400">
+                      <svg
+                        className="mx-auto h-12 w-12 mb-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-lg font-medium">Chưa có mã khuyến mãi</p>
+                      <p className="text-sm mt-1">
+                        Hãy thêm mã khuyến mãi mới để bắt đầu
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        {/* --- Phân trang đơn giản --- */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Trang {trangHienTai} / {tongTrang}
+
+        {/* Phân trang */}
+        {tongTrang > 1 && (
+          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-slate-600">
+                Hiển thị{" "}
+                <span className="font-semibold text-slate-900">
+                  {(trangHienTai - 1) * promosMotTrang + 1}
+                </span>{" "}
+                -{" "}
+                <span className="font-semibold text-slate-900">
+                  {Math.min(trangHienTai * promosMotTrang, promos.length)}
+                </span>{" "}
+                của{" "}
+                <span className="font-semibold text-slate-900">
+                  {promos.length}
+                </span>{" "}
+                mã
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setTrangHienTai(Math.max(1, trangHienTai - 1))
+                  }
+                  disabled={trangHienTai === 1}
+                  className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                    trangHienTai === 1
+                      ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
+                  }`}
+                >
+                  ← Trước
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: tongTrang }).map((_, i) => {
+                    const page = i + 1;
+                    if (
+                      page === 1 ||
+                      page === tongTrang ||
+                      (page >= trangHienTai - 1 && page <= trangHienTai + 1)
+                    ) {
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => setTrangHienTai(page)}
+                          className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                            trangHienTai === page
+                              ? "bg-purple-600 text-white border-purple-600 shadow-sm"
+                              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === trangHienTai - 2 ||
+                      page === trangHienTai + 2
+                    ) {
+                      return (
+                        <span key={i} className="px-2 text-slate-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                <button
+                  onClick={() =>
+                    setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
+                  }
+                  disabled={trangHienTai === tongTrang}
+                  className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                    trangHienTai === tongTrang
+                      ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
+                  }`}
+                >
+                  Tiếp →
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-black">
-            <button
-              onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
-              disabled={trangHienTai === 1}
-              className={`px-3 py-1 rounded-md border ${
-                trangHienTai === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              Trước
-            </button>
-            {Array.from({ length: tongTrang }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setTrangHienTai(i + 1)}
-                className={`px-3 py-1 rounded-md border ${
-                  trangHienTai === i + 1
-                    ? "bg-[#004C61] text-white"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() =>
-                setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
-              }
-              disabled={trangHienTai === tongTrang}
-              className={`px-3 py-1 rounded-md border ${
-                trangHienTai === tongTrang
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              Tiếp
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

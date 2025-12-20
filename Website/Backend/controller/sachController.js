@@ -259,7 +259,9 @@ export const capNhatTrangThaiBan = async (req, res) => {
 
     const sach = await Sach.findByPk(id);
     if (!sach) {
-      return res.status(404).json({ success: false, message: "Sách không tồn tại." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Sách không tồn tại." });
     }
 
     sach.trangThaiBan = trangThaiBanMoi;

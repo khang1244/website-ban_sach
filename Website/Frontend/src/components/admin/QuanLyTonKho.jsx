@@ -92,7 +92,9 @@ function QuanLyTonKho() {
         return !trangThaiBan;
       });
       if (sachNgungBan) {
-        alert("Sản phẩm đang ngừng bán, không thể tạo phiếu nhập cho sản phẩm đó.");
+        alert(
+          "Sản phẩm đang ngừng bán, không thể tạo phiếu nhập cho sản phẩm đó."
+        );
         return;
       }
 
