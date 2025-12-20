@@ -154,7 +154,14 @@ export const layTonKho = async (req, res) => {
 
     // Lấy danh sách tất cả sách
     const danhSachSach = await Sach.findAll({
-      attributes: ["sachID", "tenSach", "tacGia", "giaBan", "giaGiam"],
+      attributes: [
+        "sachID",
+        "tenSach",
+        "tacGia",
+        "giaBan",
+        "giaGiam",
+        "trangThaiBan",
+      ],
     });
 
     // Tính tồn kho cho từng sách
@@ -166,11 +173,20 @@ export const layTonKho = async (req, res) => {
       const soLuongXuat = xuat ? parseInt(xuat.tongSoLuongXuat) : 0;
       const tonKhoHienTai = soLuongNhap - soLuongXuat;
 
+      // chuẩn hoá trạng thái bán
+      const trangThaiBan =
+        sach.trangThaiBan === true ||
+        sach.trangThaiBan === 1 ||
+        sach.trangThaiBan === "1" ||
+        sach.trangThaiBan === "true" ||
+        sach.trangThaiBan === "dangBan";
+
       return {
         sachID: sach.sachID,
         tenSach: sach.tenSach,
         tacGia: sach.tacGia,
         giaGiam: sach.giaGiam || sach.giaBan,
+        trangThaiBan,
         soLuongNhap,
         soLuongXuat,
         tonKho: tonKhoHienTai,

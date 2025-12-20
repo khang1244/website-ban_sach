@@ -78,6 +78,24 @@ function QuanLyTonKho() {
         return;
       }
 
+      // Không cho nhập cho sách ngừng bán
+      const sachNgungBan = chiTietHopLe.find((ct) => {
+        const sach = danhSachSach.find(
+          (s) => String(s.sachID) === String(ct.sachID)
+        );
+        const trangThaiBan =
+          sach?.trangThaiBan === true ||
+          sach?.trangThaiBan === 1 ||
+          sach?.trangThaiBan === "1" ||
+          sach?.trangThaiBan === "true" ||
+          sach?.trangThaiBan === "dangBan";
+        return !trangThaiBan;
+      });
+      if (sachNgungBan) {
+        alert("Sản phẩm đang ngừng bán, không thể tạo phiếu nhập cho sản phẩm đó.");
+        return;
+      }
+
       // Lấy adminID từ localStorage
       const user = JSON.parse(localStorage.getItem("user"));
       const payload = {
@@ -183,6 +201,7 @@ function QuanLyTonKho() {
                         <th className="border  text-black">Tên Sách</th>
                         <th className="border  text-black">Tác Giả</th>
                         <th className="border text-black">Giá Giảm</th>
+                        <th className="border text-black">Trạng thái</th>
                         <th className="border  text-black">Số Lượng Nhập</th>
                         <th className="border  text-black">Số Lượng Xuất</th>
                         <th className="border  text-black">Tồn Kho</th>
@@ -223,6 +242,17 @@ function QuanLyTonKho() {
                             <td className="border p-2">{item.tacGia}</td>
                             <td className="border p-2 text-right">
                               {item.giaGiam?.toLocaleString()} đ
+                            </td>
+                            <td className="border p-2 text-center">
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-semibold ${
+                                  item.trangThaiBan
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {item.trangThaiBan ? "Đang bán" : "Ngừng bán"}
+                              </span>
                             </td>
                             <td className="border p-2 text-center text-black  ">
                               {item.soLuongNhap}
@@ -596,11 +626,20 @@ function QuanLyTonKho() {
                       className="border p-2 rounded flex-1 text-black"
                     >
                       <option value="">-- Chọn sách --</option>
-                      {danhSachSach.map((sach) => (
-                        <option key={sach.sachID} value={sach.sachID}>
-                          {sach.tenSach}
-                        </option>
-                      ))}
+                      {danhSachSach
+                        .filter(
+                          (sach) =>
+                            sach.trangThaiBan === true ||
+                            sach.trangThaiBan === 1 ||
+                            sach.trangThaiBan === "1" ||
+                            sach.trangThaiBan === "true" ||
+                            sach.trangThaiBan === "dangBan"
+                        )
+                        .map((sach) => (
+                          <option key={sach.sachID} value={sach.sachID}>
+                            {sach.tenSach}
+                          </option>
+                        ))}
                     </select>
                     <input
                       type="text"
