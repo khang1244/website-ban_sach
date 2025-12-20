@@ -18,6 +18,33 @@ import { UserContext } from "../../contexts/user-context";
 
 // const danhmuc = ["Tất cả", "Truyện tranh", "ngôn tình", "phiêu lưu", "kinh dị"];
 
+const chuanHoaTrangThaiBan = (value) =>
+  value === true ||
+  value === 1 ||
+  value === "1" ||
+  value === "true" ||
+  value === "dangBan";
+
+  // 
+const chuanHoaSachTuApi = (sach) => {
+  let images = [];
+  if (Array.isArray(sach.images)) {
+    images = sach.images;
+  } else {
+    try {
+      images = sach.images ? JSON.parse(sach.images) : [];
+    } catch {
+      images = [];
+    }
+  }
+
+  return {
+    ...sach,
+    images,
+    trangThaiBan: chuanHoaTrangThaiBan(sach.trangThaiBan),
+  };
+};
+
 const giasach = [
   // Vùng giá
   { label: "Tất cả", value: "all" },
@@ -89,14 +116,13 @@ function Homepage() {
   useEffect(() => {
     const napTatCaSanPham = async () => {
       const data = await nhanTatCaCacQuyenSach();
-      if (data) {
-        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng
-        data.forEach((sach) => {
-          sach.images = JSON.parse(sach.images);
-        });
+      if (!data) return;
 
-        setDanhSachSanPham(data);
-      }
+      const sachDangBan = data
+        .map((sach) => chuanHoaSachTuApi(sach))
+        .filter((sach) => sach.trangThaiBan); // chỉ giữ sách đang bán
+
+      setDanhSachSanPham(sachDangBan);
     };
     napTatCaSanPham();
   }, []);

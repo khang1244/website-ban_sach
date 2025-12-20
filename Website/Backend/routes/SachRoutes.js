@@ -1,6 +1,7 @@
 import express from "express";
 import {
   capNhatSach,
+  capNhatTrangThaiBan,
   nhanTatCaCacQuyenSach,
   taoSachMoi,
   xoaSach,
@@ -13,6 +14,8 @@ const router = express.Router();
 router.get("/", nhanTatCaCacQuyenSach); // GET /
 
 router.post("/", taoSachMoi); // POST /
+
+router.put("/:id/trang-thai-ban", capNhatTrangThaiBan); // PUT /:id/trang-thai-ban
 
 router.put("/:id", capNhatSach); // PUT /:id
 

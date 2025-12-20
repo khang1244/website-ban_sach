@@ -1,10 +1,49 @@
 import Sach from "../models/Sach.js";
 import HinhAnh from "../models/HinhAnh.js";
+import ChiTietPhieuNhap from "../models/ChiTietPhieuNhap.js";
+
+// Chuẩn hoá input trạng thái bán về Boolean (viết rõ cho dễ đọc)
+const chuanHoaTrangThaiBan = (value) => {
+  if (value === undefined || value === null) return undefined;
+  return (
+    value === true ||
+    value === 1 ||
+    value === "1" ||
+    value === "true" ||
+    value === "dangBan"
+  );
+};
+
+// Lấy map: sachID -> đã có ít nhất 1 phiếu nhập (true/false)
+const layMapSachCoPhieuNhap = async () => {
+  const danhSach = await ChiTietPhieuNhap.findAll({
+    attributes: [
+      "sachID",
+      [
+        ChiTietPhieuNhap.sequelize.fn(
+          "COUNT",
+          ChiTietPhieuNhap.sequelize.col("chiTietPhieuNhapID")
+        ),
+        "soPhieuNhap",
+      ],
+    ],
+    group: ["sachID"],
+    raw: true,
+  });
+
+  const map = new Map();
+  danhSach.forEach(({ sachID, soPhieuNhap }) => {
+    const coPhieuNhap = Number(soPhieuNhap || 0) > 0;
+    map.set(sachID, coPhieuNhap);
+  });
+  return map;
+};
 
 // Lấy tất cả các quyền sách
 export const nhanTatCaCacQuyenSach = async (req, res) => {
   try {
     const danhSachSach = await Sach.findAll(); // SELECT * FROM Sach
+    const mapCoPhieuNhap = await layMapSachCoPhieuNhap();
     // Đính kèm ảnh từ HinhAnh cho mỗi sách
     for (const s of danhSachSach) {
       const imgs = await HinhAnh.findAll({
@@ -16,6 +55,9 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
       s.dataValues.images = JSON.stringify(
         imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
       );
+      const trangThaiBan = chuanHoaTrangThaiBan(s.trangThaiBan);
+      s.dataValues.trangThaiBan = trangThaiBan ?? true;
+      s.dataValues.coPhieuNhap = mapCoPhieuNhap.get(s.sachID) || false;
     }
     res.json(danhSachSach);
   } catch (error) {
@@ -39,6 +81,7 @@ export const taoSachMoi = async (req, res) => {
       giaBan,
       giaGiam,
       images,
+      trangThaiBan,
     } = req.body;
 
     const sachMoi = await Sach.create({
@@ -53,6 +96,7 @@ export const taoSachMoi = async (req, res) => {
       dinhDang,
       giaBan,
       giaGiam,
+      trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true,
       // images column is deprecated; images will be stored in hinh_anh table
     });
 
@@ -71,6 +115,8 @@ export const taoSachMoi = async (req, res) => {
       ...sachMoi.toJSON(),
       moTa: sachMoi.moTa,
       images: JSON.stringify(imagesForReturn),
+      trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true,
+      coPhieuNhap: false,
     };
     res.status(201).json(result);
   } catch (error) {
@@ -96,6 +142,7 @@ export const capNhatSach = async (req, res) => {
       giaBan,
       giaGiam,
       images,
+      trangThaiBan,
     } = req.body;
 
     const sach = await Sach.findByPk(id);
@@ -115,6 +162,10 @@ export const capNhatSach = async (req, res) => {
     sach.dinhDang = dinhDang;
     sach.giaBan = giaBan;
     sach.giaGiam = giaGiam;
+    const trangThaiBanMoi = chuanHoaTrangThaiBan(trangThaiBan);
+    if (trangThaiBanMoi !== undefined) {
+      sach.trangThaiBan = trangThaiBanMoi;
+    }
     // Cập nhật sách
     await sach.save();
 
@@ -172,6 +223,8 @@ export const capNhatSach = async (req, res) => {
     const imagesForReturn = Array.isArray(images)
       ? images
       : await HinhAnh.findAll({ where: { sachID: sach.sachID } });
+    const coPhieuNhap =
+      (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
     const result = {
       ...sach.toJSON(),
       moTa: sach.moTa,
@@ -182,11 +235,61 @@ export const capNhatSach = async (req, res) => {
             )
           : []
       ),
+      coPhieuNhap,
     };
     res.json(result);
   } catch (error) {
     console.error("Lỗi khi cập nhật sách:", error);
     res.status(500).json({ error: "Đã xảy ra lỗi khi cập nhật sách." });
+  }
+};
+
+export const capNhatTrangThaiBan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { trangThaiBan } = req.body;
+    const trangThaiBanMoi = chuanHoaTrangThaiBan(trangThaiBan);
+
+    if (trangThaiBanMoi === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu hoặc sai định dạng trường trangThaiBan.",
+      });
+    }
+
+    const sach = await Sach.findByPk(id);
+    if (!sach) {
+      return res.status(404).json({ success: false, message: "Sách không tồn tại." });
+    }
+
+    sach.trangThaiBan = trangThaiBanMoi;
+    await sach.save();
+
+    const coPhieuNhap =
+      (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
+    const images = await HinhAnh.findAll({
+      where: { sachID: sach.sachID },
+      order: [["hinhAnhID", "ASC"]],
+    });
+
+    return res.json({
+      success: true,
+      trangThaiBan: sach.trangThaiBan,
+      coPhieuNhap,
+      sach: {
+        ...sach.toJSON(),
+        images: JSON.stringify(
+          images.map((i) => ({ url: i.url, public_id: i.public_id }))
+        ),
+        coPhieuNhap,
+      },
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái bán:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi khi cập nhật trạng thái bán.",
+    });
   }
 };
 
@@ -197,6 +300,14 @@ export const xoaSach = async (req, res) => {
     const sach = await Sach.findByPk(id);
     if (!sach) {
       return res.status(404).json({ error: "Sách không tồn tại." });
+    }
+    const coPhieuNhap =
+      (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
+    if (coPhieuNhap) {
+      return res.status(400).json({
+        success: false,
+        message: "Sách đã có phiếu nhập, không thể xóa khỏi hệ thống.",
+      });
     }
     // Trước khi xóa sách, xóa các bản ghi HinhAnh liên quan để tránh lỗi ràng buộc FK
     try {
@@ -236,9 +347,13 @@ export const layChiTietSach = async (req, res) => {
       public_id: i.public_id,
     }));
 
+    const coPhieuNhap =
+      (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
+
     const result = {
       ...sach.toJSON(),
       images: JSON.stringify(imagesForReturn),
+      coPhieuNhap,
     };
     res.json(result);
   } catch (error) {

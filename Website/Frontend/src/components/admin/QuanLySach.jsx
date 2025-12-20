@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { capNhatSach, themSach, xoaSach } from "../../lib/sach-apis";
+import {
+  capNhatSach,
+  capNhatTrangThaiBanSach,
+  themSach,
+  xoaSach,
+} from "../../lib/sach-apis";
 import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
 import { useEffect } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
@@ -25,9 +30,44 @@ function QuanLySach() {
     dinhDang: "Bìa mềm",
     giaBan: 0,
     giaGiam: 0,
+    trangThaiBan: true,
     moTa: "",
   });
   const [editId, setEditId] = useState(null);
+  const chuanHoaTrangThaiBan = (value) => {
+    if (value === undefined || value === null) return true;
+    return (
+      value === true ||
+      value === 1 ||
+      value === "1" ||
+      value === "true" ||
+      value === "dangBan"
+    );
+  };
+
+  const chuanHoaSachTuApi = (book) => ({
+    ...book,
+    images: Array.isArray(book.images)
+      ? book.images
+      : book.images
+      ? (() => {
+          try {
+            return JSON.parse(book.images);
+          } catch {
+            return [];
+          }
+        })()
+      : [],
+    trangThaiBan: chuanHoaTrangThaiBan(book.trangThaiBan),
+    coPhieuNhap: Boolean(book.coPhieuNhap),
+  });
+
+  const napLaiDanhSachSach = async () => {
+    const booksData = await nhanTatCaCacQuyenSach();
+    if (!booksData) return;
+    const processedBooks = booksData.map((book) => chuanHoaSachTuApi(book));
+    setBooks(processedBooks);
+  };
   // --- PHÂN TRANG SÁCH ---
   // Số sách hiển thị mỗi trang (yêu cầu: 4)
   const soLuongSachMotTrang = 4; // 4 sách/trang
@@ -79,22 +119,13 @@ function QuanLySach() {
         form.images = [...oldImages, ...publicIDvaUrl];
       }
       // Cập nhật sách trong database
-      await capNhatSach(editId, form);
-
-      // Cập nhật state books để hiển thị ngay lập tức
-      setBooks((prevBooks) =>
-        prevBooks.map((book) =>
-          book.sachID === editId ? { ...form, sachID: editId } : book
-        )
-      );
+      await capNhatSach(editId, {
+        ...form,
+        trangThaiBan: chuanHoaTrangThaiBan(form.trangThaiBan),
+      });
 
       // Refresh lại danh sách sách từ server để đảm bảo dữ liệu đồng bộ
-      const updatedBooks = await nhanTatCaCacQuyenSach();
-      const processedBooks = updatedBooks.map((book) => ({
-        ...book,
-        images: book.images ? JSON.parse(book.images) : [],
-      }));
-      setBooks(processedBooks);
+      await napLaiDanhSachSach();
 
       alert("Cập nhật sách thành công!");
       setEditId(null);
@@ -113,21 +144,12 @@ function QuanLySach() {
       }
       // Thay đổi giá trị images của form.images
       form.images = publicIDvaUrl; // Mảng này sẽ được gửi lên server khi thêm sách
-      await themSach(form);
-      // Cập nhật state books để hiển thị ngay lập tức
-      setBooks((prevBooks) =>
-        prevBooks.map((book) =>
-          book.sachID === editId ? { ...form, sachID: editId } : book
-        )
-      );
-
+      await themSach({
+        ...form,
+        trangThaiBan: chuanHoaTrangThaiBan(form.trangThaiBan),
+      });
       // Refresh lại danh sách sách từ server để đảm bảo dữ liệu đồng bộ
-      const updatedBooks = await nhanTatCaCacQuyenSach();
-      const processedBooks = updatedBooks.map((book) => ({
-        ...book,
-        images: book.images ? JSON.parse(book.images) : [],
-      }));
-      setBooks(processedBooks);
+      await napLaiDanhSachSach();
       // Gọi API để thêm sách vào database
       // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
       alert("Thêm sách thành công!");
@@ -146,6 +168,8 @@ function QuanLySach() {
       dinhDang: "Bìa mềm",
       giaBan: 0,
       giaGiam: 0,
+      trangThaiBan: true,
+      moTa: "",
     });
   };
 
@@ -158,6 +182,7 @@ function QuanLySach() {
       ...book,
       ngayXuatBan: formatDate,
       images: oldImages, // Giữ lại mảng hình ảnh cũ
+      trangThaiBan: chuanHoaTrangThaiBan(book.trangThaiBan),
     });
     setEditId(book.sachID);
   };
@@ -188,6 +213,7 @@ function QuanLySach() {
       giaBan: 0,
       giaGiam: 0,
       moTa: "",
+      trangThaiBan: true,
     });
     setEditId(null);
   };
@@ -248,23 +274,33 @@ function QuanLySach() {
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
 
+  const xuLyNgungBan = async (book) => {
+    const ok = window.confirm("Bạn có chắc muốn ngừng bán sản phẩm này?");
+    if (!ok) return;
+    const resp = await capNhatTrangThaiBanSach(book.sachID, false);
+    if (!resp || resp.success === false) {
+      alert(resp?.message || "Không thể ngừng bán sản phẩm.");
+      return;
+    }
+    await napLaiDanhSachSach();
+    alert("Đã chuyển sách sang trạng thái ngừng bán.");
+  };
+
+  const xuLyBanLai = async (book) => {
+    const ok = window.confirm("Bạn có muốn mở bán lại sản phẩm này?");
+    if (!ok) return;
+    const resp = await capNhatTrangThaiBanSach(book.sachID, true);
+    if (!resp || resp.success === false) {
+      alert(resp?.message || "Không thể mở bán lại sản phẩm.");
+      return;
+    }
+    await napLaiDanhSachSach();
+    alert("Đã chuyển sách sang trạng thái đang bán.");
+  };
+
   // useEffect để gọi API lấy tất cả các quyển sách từ database khi component được mount (kết nối, hiển thị) lần đầu tiên
   useEffect(() => {
-    const napDuLieuSach = async () => {
-      const booksData = await nhanTatCaCacQuyenSach();
-
-      // Lặp qua mảng kết quản để chúng ta chuyển trường images từ chuỗi JSON thành mảng
-      booksData.forEach((book) => {
-        if (book.images) {
-          book.images = JSON.parse(book.images); // Chuyển chuỗi JSON thành mảng
-        } else {
-          book.images = []; // Nếu không có trường images thì gán mảng rỗng
-        }
-      });
-      console.log("Dữ liệu sách nhận từ API:", booksData);
-      setBooks(booksData);
-    };
-    napDuLieuSach();
+    napLaiDanhSachSach();
   }, []);
 
   // --- TÍNH PHÂN TRANG ---
@@ -291,12 +327,22 @@ function QuanLySach() {
     return obj instanceof File;
   };
 
+  const chuanHoaAnhHienThi = (anh) => {
+    if (isFile(anh)) {
+      return { url: URL.createObjectURL(anh) };
+    }
+    return anh;
+  };
+
   // Modal xem ảnh (chỉ cho phần hình ảnh)
   const [anhModal, setAnhModal] = useState({ hien: false, dsAnh: [] });
 
   const moModalAnh = (dsAnh) => {
     const ds = Array.isArray(dsAnh) ? dsAnh : [];
-    setAnhModal({ hien: true, dsAnh: ds });
+    setAnhModal({
+      hien: true,
+      dsAnh: ds.map((anh) => chuanHoaAnhHienThi(anh)),
+    });
   };
 
   const dongModalAnh = () => setAnhModal({ hien: false, dsAnh: [] });
@@ -533,6 +579,7 @@ function QuanLySach() {
                 <th className="p-2">Định dạng</th>
                 <th className="p-2">Giá bán</th>
                 <th className="p-2">Giá giảm</th>
+                <th className="p-2">Trạng thái</th>
                 <th className="p-2">Hành động</th>
               </tr>
             </thead>
@@ -540,53 +587,111 @@ function QuanLySach() {
               {books &&
                 books.length > 0 &&
                 // Duyệt những sách đang nằm trong trang hiện tại
-                sachHienThi.map((book, idx) => (
-                  <tr key={book.sachID} className="even:bg-gray-100 text-black">
-                    <td className="p-2 font-bold">
-                      {(trangSachHienTai - 1) * soLuongSachMotTrang + idx + 1}
-                    </td>
-                    <td className="p-2">
-                      <div className="flex items-center">
-                        {book.images && book.images.length > 0 ? (
-                          <div className="relative">
-                            <img
-                              src={book.images[0].url}
-                              alt="book"
-                              className="w-12 h-12 object-cover rounded border cursor-pointer"
-                              onClick={() => moModalAnh(book.images)}
-                            />
-                            {book.images.length > 1 && (
-                              <div className="absolute -bottom-1 -right-1 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center border border-white">
-                                +{book.images.length - 1}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">Không có ảnh</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-2">{book.tenSach}</td>
-                    <td className="p-2">{book.tacGia}</td>
-                    <td className="p-2">{book.nhaXuatBan}</td>
-                    <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
-                    <td className="p-5">{book.ngonNgu}</td>
-                    <td className="p-8">{book.danhMucSachID}</td>
-                    <td className="p-2">{book.soTrang}</td>
-                    <td className="p-4">{book.dinhDang}</td>
-                    <td className="p-2">{book.giaBan.toLocaleString()} VNĐ</td>
-                    <td className="p-2">{book.giaGiam.toLocaleString()} VNĐ</td>
-                    <td className="p-2 flex gap-2">
-                      <button onClick={() => handleEdit(book)}>
-                        <FaEdit className="text-blue-600 text-2xl hover:text-red-500 mt-2" />
-                      </button>
+                sachHienThi.map((book, idx) => {
+                  const danhSachAnh = Array.isArray(book.images)
+                    ? book.images.map((anh) => chuanHoaAnhHienThi(anh))
+                    : [];
+                  const anhDauTien =
+                    danhSachAnh.length > 0 ? danhSachAnh[0] : null;
 
-                      <button onClick={() => handleDelete(book.sachID)}>
-                        <MdOutlineDelete className="text-red-600 text-3xl hover:text-blue-500 mt-2" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                  return (
+                    <tr
+                      key={book.sachID}
+                      className="even:bg-gray-100 text-black"
+                    >
+                      <td className="p-2 font-bold">
+                        {(trangSachHienTai - 1) * soLuongSachMotTrang + idx + 1}
+                      </td>
+                      <td className="p-2">
+                        <div className="flex items-center">
+                          {anhDauTien ? (
+                            <div className="relative">
+                              <img
+                                src={anhDauTien.url}
+                                alt="book"
+                                className="w-12 h-12 object-cover rounded border cursor-pointer"
+                                onClick={() => moModalAnh(danhSachAnh)}
+                              />
+                              {danhSachAnh.length > 1 && (
+                                <div className="absolute -bottom-1 -right-1 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center border border-white">
+                                  +{danhSachAnh.length - 1}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Không có ảnh</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-2">{book.tenSach}</td>
+                      <td className="p-2">{book.tacGia}</td>
+                      <td className="p-2">{book.nhaXuatBan}</td>
+                      <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
+                      <td className="p-5">{book.ngonNgu}</td>
+                      <td className="p-8">{book.danhMucSachID}</td>
+                      <td className="p-2">{book.soTrang}</td>
+                      <td className="p-4">{book.dinhDang}</td>
+                      <td className="p-2">
+                        {book.giaBan.toLocaleString()} VNĐ
+                      </td>
+                      <td className="p-2">
+                        {book.giaGiam.toLocaleString()} VNĐ
+                      </td>
+                      <td className="p-2">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                            book.trangThaiBan
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                        >
+                          {book.trangThaiBan ? "Đang bán" : "Ngừng bán"}
+                        </span>
+                        {book.coPhieuNhap && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Đã có phiếu nhập
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-2 flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(book)}
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                          title="Sửa"
+                        >
+                          <FaEdit className="text-xl" />
+                          <span className="text-sm font-semibold">Sửa</span>
+                        </button>
+
+                        {book.trangThaiBan ? (
+                          <button
+                            onClick={() => xuLyNgungBan(book)}
+                            className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded text-sm font-semibold"
+                          >
+                            Ngừng bán
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => xuLyBanLai(book)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-semibold"
+                          >
+                            Bán lại
+                          </button>
+                        )}
+
+                        {book.trangThaiBan && !book.coPhieuNhap && (
+                          <button
+                            onClick={() => handleDelete(book.sachID)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Xóa"
+                          >
+                            <MdOutlineDelete className="text-2xl" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

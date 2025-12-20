@@ -88,6 +88,24 @@ export const layChiTietSach = async (sachID) => {
   }
 };
 
+// 6. Cập nhật trạng thái bán (đang bán / ngừng bán)
+export const capNhatTrangThaiBanSach = async (sachId, trangThaiBan) => {
+  try {
+    const response = await fetch(`${BASE_URL}/sach/${sachId}/trang-thai-ban`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ trangThaiBan }),
+    });
+    const data = await response.json();
+    console.log("Cập nhật trạng thái bán:", data);
+    return data;
+  } catch (error) {
+    console.error("Error updating sale status:", error);
+  }
+};
+
 // 6. Gọi API tăng lượt xem (POST) — frontend gọi có kiểm soát (localStorage)
 export const tangLuotXem = async (sachID) => {
   try {

@@ -54,6 +54,11 @@ const Sach = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: true,
     },
+    trangThaiBan: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true, // true: đang bán, false: ngừng bán
+    },
     moTa: {
       type: DataTypes.TEXT,
       allowNull: true,
