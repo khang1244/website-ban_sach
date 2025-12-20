@@ -371,429 +371,630 @@ function QuanLySach() {
   }, []);
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold text-[#00809D] mb-8 text-center">
-        📚 Quản lý sách
-      </h1>
-
-      {/* Form thêm / sửa sách */}
-      <div className="bg-emerald-900 shadow-lg rounded-xl p-6 mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <label className="block font-semibold mb-2 text-white">
-            Hình ảnh sản phẩm
-          </label>
-          <input
-            type="file"
-            name="images"
-            multiple
-            accept="image/*"
-            onChange={handleChange}
-            className="mb-3"
-          />
-          <div className="flex flex-wrap gap-2 mt-2">
-            {form.images &&
-              Array.from(form.images).map((img, idx) => (
-                <div key={idx} className="relative">
-                  <img
-                    src={isFile(img) ? URL.createObjectURL(img) : img.url}
-                    alt={`preview-${idx}`}
-                    className="w-20 h-20 object-cover rounded-lg border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImageAt(idx)}
-                    className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700"
-                    title="Xóa ảnh"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+    <div className="w-full space-y-6">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+            Quản lý sách
+          </h1>
+          <p className="text-slate-600">
+            Thêm, chỉnh sửa và quản lý danh mục sách của bạn
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
+            <span className="text-sm text-blue-600 font-medium">
+              Tổng: {sachDaLoc.length} sách
+            </span>
           </div>
         </div>
+      </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <div>
-            <label className="block font-medium mb-1">Tên sách</label>
-            <input
-              type="text"
-              name="tenSach"
-              value={form.tenSach}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Tác giả</label>
-            <input
-              type="text"
-              name="tacGia"
-              value={form.tacGia}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Nhà xuất bản</label>
-            <input
-              type="text"
-              name="nhaXuatBan"
-              value={form.nhaXuatBan}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Ngày xuất bản</label>
-            <input
-              type="date"
-              name="ngayXuatBan"
-              value={form.ngayXuatBan}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Ngôn ngữ</label>
-            <select
-              name="ngonNgu"
-              value={form.ngonNgu}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
+      {/* Form thêm / sửa sách */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-[#00809D] to-[#00a0c0] px-6 py-4">
+          <h2 className="text-xl font-semibold text-white">
+            {editId ? "✏️ Chỉnh sửa sách" : "➕ Thêm sách mới"}
+          </h2>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Upload Images Section */}
+            <div className="lg:col-span-1">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
+                Hình ảnh sản phẩm
+              </label>
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-[#00809D] transition-colors">
+                <input
+                  type="file"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#00809D] file:text-white hover:file:bg-[#006f89] file:cursor-pointer cursor-pointer"
+                />
+                <p className="text-xs text-slate-500 mt-2">
+                  Chọn một hoặc nhiều hình ảnh
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3 mt-4">
+                {form.images &&
+                  Array.from(form.images).map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={isFile(img) ? URL.createObjectURL(img) : img.url}
+                        alt={`preview-${idx}`}
+                        className="w-24 h-24 object-cover rounded-lg border-2 border-slate-200 shadow-sm group-hover:shadow-md transition-shadow"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImageAt(idx)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="Xóa ảnh"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <form
+              onSubmit={handleSubmit}
+              className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 text-black"
             >
-              {NGON_NGU.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Tên sách <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="tenSach"
+                  value={form.tenSach}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  required
+                  placeholder="Nhập tên sách"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Tác giả <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="tacGia"
+                  value={form.tacGia}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  required
+                  placeholder="Nhập tên tác giả"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Nhà xuất bản <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="nhaXuatBan"
+                  value={form.nhaXuatBan}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  required
+                  placeholder="Nhập nhà xuất bản"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Ngày xuất bản <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="ngayXuatBan"
+                  value={form.ngayXuatBan}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Ngôn ngữ
+                </label>
+                <select
+                  name="ngonNgu"
+                  value={form.ngonNgu}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all bg-white"
+                >
+                  {NGON_NGU.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Danh mục sách
+                </label>
+                <select
+                  name="danhMucSachID"
+                  value={form.danhMucSachID}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all bg-white"
+                >
+                  {danhMucSach.map((loai) => (
+                    <option key={loai.danhMucSachID} value={loai.danhMucSachID}>
+                      {loai.tenDanhMuc}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Số trang
+                </label>
+                <input
+                  type="number"
+                  name="soTrang"
+                  value={form.soTrang}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  min="1"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Định dạng
+                </label>
+                <select
+                  name="dinhDang"
+                  value={form.dinhDang}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all bg-white"
+                >
+                  {DINH_DANG.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Giá bán (VNĐ)
+                </label>
+                <input
+                  type="number"
+                  name="giaBan"
+                  value={form.giaBan}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  min="0"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Giá giảm (VNĐ)
+                </label>
+                <input
+                  type="number"
+                  name="giaGiam"
+                  value={form.giaGiam}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all"
+                  min="0"
+                  placeholder="0"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Mô tả
+                </label>
+                <textarea
+                  name="moTa"
+                  value={form.moTa}
+                  onChange={handleChange}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 h-32 focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent transition-all resize-none"
+                  placeholder="Nhập mô tả sách..."
+                />
+              </div>
+              <div className="md:col-span-2 flex justify-end items-center gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#00809D] text-white rounded-lg hover:bg-[#006f89] font-semibold shadow-sm hover:shadow-md transition-all"
+                >
+                  {editId ? "Cập nhật sách" : "Thêm sách mới"}
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label className=" block font-medium mb-1">Danh mục sách</label>
-            <select
-              name="danhMucSachID"
-              value={form.danhMucSachID}
-              onChange={handleChange}
-              className="text-white bg-emerald-900 w-full border rounded p-2 mb-3"
-            >
-              {danhMucSach.map((loai) => (
-                <option key={loai.danhMucSachID} value={loai.danhMucSachID}>
-                  {loai.tenDanhMuc}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Số trang</label>
-            <input
-              type="number"
-              name="soTrang"
-              value={form.soTrang}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              min="1"
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Định dạng</label>
-            <select
-              name="dinhDang"
-              value={form.dinhDang}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-            >
-              {DINH_DANG.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block font.medium mb-1">Giá Bán</label>
-            <input
-              type="number"
-              name="giaBan"
-              value={form.giaBan}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              min="0"
-            />
-          </div>
-          <div>
-            <label className="block font.medium mb-1">Giá giảm</label>
-            <input
-              type="number"
-              name="giaGiam"
-              value={form.giaGiam}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-3"
-              min="0"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block font-medium mb-1">Mô tả</label>
-            <textarea
-              name="moTa"
-              value={form.moTa}
-              onChange={handleChange}
-              className="w-full border rounded p-2 mb-2 h-32"
-              placeholder="Nhập mô tả sách..."
-            />
-          </div>
-          <div className="md:col-span-2 flex justify-end items-center gap-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="bg-[#00809D] text-white px-6 py-2 rounded hover:bg-[#006f89] font-semibold transition"
-            >
-              {editId ? "Cập nhật" : "Thêm mới"}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
 
       {/* Danh sách sách */}
-      <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-[#00809D]">
-          📖 Danh sách sách
-        </h2>
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 text-black">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-700">Lọc trạng thái:</span>
-            <select
-              value={boLocTrangThai}
-              onChange={(e) => setBoLocTrangThai(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
-            >
-              <option value="tatCa">Tất cả</option>
-              <option value="dangBan">Đang bán</option>
-              <option value="ngungBan">Ngừng bán</option>
-            </select>
-          </div>
-          <div className="text-sm text-gray-600">
-            {sachDaLoc.length} sách phù hợp bộ lọc
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold text-slate-800">
+              Danh sách sách
+            </h2>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700 ">
+                  Lọc trạng thái
+                </label>
+                <select
+                  value={boLocTrangThai}
+                  onChange={(e) => setBoLocTrangThai(e.target.value)}
+                  className=" text-black border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00809D] focus:border-transparent bg-white"
+                >
+                  <option value="tatCa">Tất cả</option>
+                  <option value="dangBan">Đang bán</option>
+                  <option value="ngungBan">Ngừng bán</option>
+                </select>
+              </div>
+              <div className="text-sm text-slate-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                <span className="font-medium text-blue-700">
+                  {sachDaLoc.length} sách
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="overflow-auto max-h-[600px] rounded border border-gray-200">
-          <table className="min-w-full table-auto text-sm">
-            <thead className="bg-emerald-900 text-white sticky top-0">
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Hình ảnh</th>
-                <th className="p-2">Tên sách</th>
-                <th className="p-2">Tác giả</th>
-                <th className="p-2">NXB</th>
-                <th className="p-2">Ngày XB</th>
-                <th className="p-2">Ngôn ngữ</th>
-                <th className="p-2">Danh mục sách</th>
-                <th className="p-2">Trang</th>
-                <th className="p-2">Định dạng</th>
-                <th className="p-2">Giá bán</th>
-                <th className="p-2">Giá giảm</th>
-                <th className="p-2">Trạng thái</th>
-                <th className="p-2">Hành động</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  #
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Hình ảnh
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Tên sách
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Tác giả
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  NXB
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Giá bán
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Giá giảm
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Hành động
+                </th>
               </tr>
             </thead>
-            <tbody>
-              {books &&
-                books.length > 0 &&
-                // Duyệt những sách đang nằm trong trang hiện tại
+            <tbody className="bg-white divide-y divide-slate-200">
+              {books && books.length > 0 ? (
                 sachHienThi.map((book, idx) => {
                   const danhSachAnh = Array.isArray(book.images)
                     ? book.images.map((anh) => chuanHoaAnhHienThi(anh))
                     : [];
                   const anhDauTien =
                     danhSachAnh.length > 0 ? danhSachAnh[0] : null;
+                  const tenDanhMuc = danhMucSach.find(
+                    (dm) => dm.danhMucSachID === book.danhMucSachID
+                  )?.tenDanhMuc || "N/A";
 
                   return (
                     <tr
                       key={book.sachID}
-                      className="even:bg-gray-100 text-black"
+                      className="hover:bg-slate-50 transition-colors"
                     >
-                      <td className="p-2 font-bold">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                         {(trangSachHienTai - 1) * soLuongSachMotTrang + idx + 1}
                       </td>
-                      <td className="p-2">
-                        <div className="flex items-center">
-                          {anhDauTien ? (
-                            <div className="relative">
-                              <img
-                                src={anhDauTien.url}
-                                alt="book"
-                                className="w-12 h-12 object-cover rounded border cursor-pointer"
-                                onClick={() => moModalAnh(danhSachAnh)}
-                              />
-                              {danhSachAnh.length > 1 && (
-                                <div className="absolute -bottom-1 -right-1 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center border border-white">
-                                  +{danhSachAnh.length - 1}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">Không có ảnh</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-2">{book.tenSach}</td>
-                      <td className="p-2">{book.tacGia}</td>
-                      <td className="p-2">{book.nhaXuatBan}</td>
-                      <td className="p-2">{formatDate(book.ngayXuatBan)}</td>
-                      <td className="p-5">{book.ngonNgu}</td>
-                      <td className="p-8">{book.danhMucSachID}</td>
-                      <td className="p-2">{book.soTrang}</td>
-                      <td className="p-4">{book.dinhDang}</td>
-                      <td className="p-2">
-                        {book.giaBan.toLocaleString()} VNĐ
-                      </td>
-                      <td className="p-2">
-                        {book.giaGiam.toLocaleString()} VNĐ
-                      </td>
-                      <td className="p-2">
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-semibold ${
-                            book.trangThaiBan
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-200 text-gray-700"
-                          }`}
-                        >
-                          {book.trangThaiBan ? "Đang bán" : "Ngừng bán"}
-                        </span>
-                        {book.coPhieuNhap && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Đã có phiếu nhập
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        {anhDauTien ? (
+                          <div className="relative group">
+                            <img
+                              src={anhDauTien.url}
+                              alt={book.tenSach}
+                              className="w-16 h-16 object-cover rounded-lg border-2 border-slate-200 cursor-pointer hover:border-[#00809D] transition-all shadow-sm"
+                              onClick={() => moModalAnh(danhSachAnh)}
+                            />
+                            {danhSachAnh.length > 1 && (
+                              <div className="absolute -bottom-1 -right-1 bg-[#00809D] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow-md font-semibold">
+                                +{danhSachAnh.length - 1}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 bg-slate-100 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center">
+                            <span className="text-xs text-slate-400">N/A</span>
                           </div>
                         )}
                       </td>
-                      <td className="p-2 flex flex-wrap items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(book)}
-                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                          title="Sửa"
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-semibold text-slate-900 max-w-xs">
+                          {book.tenSach}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          {tenDanhMuc} • {book.soTrang} trang • {book.dinhDang}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-700">
+                        {book.tacGia}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-700">
+                        {book.nhaXuatBan}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-slate-900">
+                          {book.giaBan.toLocaleString()}₫
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-red-600">
+                          {book.giaGiam.toLocaleString()}₫
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                            book.trangThaiBan
+                              ? "bg-green-100 text-green-800"
+                              : "bg-slate-100 text-slate-800"
+                          }`}
                         >
-                          <FaEdit className="text-xl" />
-                          <span className="text-sm font-semibold">Sửa</span>
-                        </button>
-
-                        {book.trangThaiBan ? (
-                          <button
-                            onClick={() => xuLyNgungBan(book)}
-                            className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded text-sm font-semibold"
-                          >
-                            Ngừng bán
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => xuLyBanLai(book)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-semibold"
-                          >
-                            Bán lại
-                          </button>
+                          {book.trangThaiBan ? "✓ Đang bán" : "⊘ Ngừng bán"}
+                        </span>
+                        {book.coPhieuNhap && (
+                          <div className="text-xs text-blue-600 mt-1 font-medium">
+                            📦 Đã có phiếu nhập
+                          </div>
                         )}
-
-                        {book.trangThaiBan && !book.coPhieuNhap && (
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => handleDelete(book.sachID)}
-                            className="text-red-600 hover:text-red-800"
-                            title="Xóa"
+                            onClick={() => handleEdit(book)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                            title="Sửa"
                           >
-                            <MdOutlineDelete className="text-2xl" />
+                            <FaEdit className="text-lg" />
                           </button>
-                        )}
+                          {book.trangThaiBan ? (
+                            <button
+                              onClick={() => xuLyNgungBan(book)}
+                              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm"
+                            >
+                              Ngừng
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => xuLyBanLai(book)}
+                              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-all shadow-sm"
+                            >
+                              Bán lại
+                            </button>
+                          )}
+                          {book.trangThaiBan && !book.coPhieuNhap && (
+                            <button
+                              onClick={() => handleDelete(book.sachID)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                              title="Xóa"
+                            >
+                              <MdOutlineDelete className="text-lg" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
-                })}
+                })
+              ) : (
+                <tr>
+                  <td colSpan="9" className="px-4 py-12 text-center">
+                    <div className="text-slate-400">
+                      <svg
+                        className="mx-auto h-12 w-12 mb-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                        />
+                      </svg>
+                      <p className="text-lg font-medium">Chưa có sách nào</p>
+                      <p className="text-sm mt-1">
+                        Hãy thêm sách mới để bắt đầu
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        {/* PHÂN TRANG: Trước / số trang / Tiếp */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Trang {trangSachHienTai} / {tongTrangSach}
+
+        {/* Pagination */}
+        {tongTrangSach > 1 && (
+          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-slate-600">
+                Hiển thị{" "}
+                <span className="font-semibold text-slate-900">
+                  {(trangSachHienTai - 1) * soLuongSachMotTrang + 1}
+                </span>{" "}
+                -{" "}
+                <span className="font-semibold text-slate-900">
+                  {Math.min(
+                    trangSachHienTai * soLuongSachMotTrang,
+                    sachDaLoc.length
+                  )}
+                </span>{" "}
+                của{" "}
+                <span className="font-semibold text-slate-900">
+                  {sachDaLoc.length}
+                </span>{" "}
+                sách
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setTrangSachHienTai(Math.max(1, trangSachHienTai - 1))
+                  }
+                  disabled={trangSachHienTai === 1}
+                  className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                    trangSachHienTai === 1
+                      ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
+                  }`}
+                >
+                  ← Trước
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: tongTrangSach }).map((_, i) => {
+                    const page = i + 1;
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === tongTrangSach ||
+                      (page >= trangSachHienTai - 1 &&
+                        page <= trangSachHienTai + 1)
+                    ) {
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => setTrangSachHienTai(page)}
+                          className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                            trangSachHienTai === page
+                              ? "bg-[#00809D] text-white border-[#00809D] shadow-sm"
+                              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === trangSachHienTai - 2 ||
+                      page === trangSachHienTai + 2
+                    ) {
+                      return (
+                        <span key={i} className="px-2 text-slate-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                <button
+                  onClick={() =>
+                    setTrangSachHienTai(
+                      Math.min(tongTrangSach, trangSachHienTai + 1)
+                    )
+                  }
+                  disabled={trangSachHienTai === tongTrangSach}
+                  className={`px-4 py-2 rounded-lg border font-medium transition-all ${
+                    trangSachHienTai === tongTrangSach
+                      ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
+                  }`}
+                >
+                  Tiếp →
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-black">
-            <button
-              onClick={() =>
-                setTrangSachHienTai(Math.max(1, trangSachHienTai - 1))
-              }
-              disabled={trangSachHienTai === 1}
-              className={`px-3 py-1 rounded-md border ${
-                trangSachHienTai === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              Trước
-            </button>
-            {Array.from({ length: tongTrangSach }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setTrangSachHienTai(i + 1)}
-                className={`px-3 py-1 rounded-md border ${
-                  trangSachHienTai === i + 1
-                    ? "bg-[#00809D] text-white"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() =>
-                setTrangSachHienTai(
-                  Math.min(tongTrangSach, trangSachHienTai + 1)
-                )
-              }
-              disabled={trangSachHienTai === tongTrangSach}
-              className={`px-3 py-1 rounded-md border ${
-                trangSachHienTai === tongTrangSach
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              Tiếp
-            </button>
-          </div>
-        </div>
+        )}
       </div>
-      {/* Modal xem ảnh (chỉ ảnh của sách khi bấm thumbnail) */}
+
+      {/* Modal xem ảnh */}
       {anhModal.hien && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg max-w-4xl w-full p-4 relative">
-            <button
-              onClick={dongModalAnh}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-            >
-              ×
-            </button>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {anhModal.dsAnh && anhModal.dsAnh.length > 0 ? (
-                anhModal.dsAnh.map((a, i) => (
-                  <div key={i} className="flex items-center justify-center p-2">
-                    <img
-                      src={a.url}
-                      alt={`img-${i}`}
-                      className="max-h-[60vh] object-contain rounded shadow"
-                    />
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">
+                Hình ảnh sản phẩm
+              </h3>
+              <button
+                onClick={dongModalAnh}
+                className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {anhModal.dsAnh && anhModal.dsAnh.length > 0 ? (
+                  anhModal.dsAnh.map((a, i) => (
+                    <div
+                      key={i}
+                      className="group relative bg-slate-100 rounded-lg overflow-hidden border-2 border-slate-200 hover:border-[#00809D] transition-all"
+                    >
+                      <img
+                        src={a.url}
+                        alt={`img-${i}`}
+                        className="w-full h-64 object-contain rounded-lg"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Hình {i + 1} / {anhModal.dsAnh.length}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12 text-slate-500">
+                    <svg
+                      className="mx-auto h-12 w-12 mb-4 text-slate-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p>Không có ảnh để hiển thị</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-500">Không có ảnh</div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
