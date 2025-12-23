@@ -20,19 +20,20 @@ import {
 import { taoBinhLuanMoi } from "../lib/binh-luan-apis.js";
 
 function FormBinhLuan({ sachID, dongFormBinhLuan }) {
-  const [noiDung, setNoiDung] = useState("");
-  const [danhGia, setDanhGia] = useState(5);
+  const [noiDung, setNoiDung] = useState(""); // Nội dung bình luận
+  const [danhGia, setDanhGia] = useState(5); // Đánh giá sao (1-5)
 
   const xuLyGuiBinhLuan = async (e) => {
     e.preventDefault();
 
+    // Tạo đối tượng dữ liệu bình luận
     const duLieuBinhLuan = {
       sachID: sachID,
       nguoiDungID: JSON.parse(localStorage.getItem("user")).nguoiDungID,
       noiDung: noiDung,
       danhGia: danhGia,
     };
-
+    // Gửi dữ liệu bình luận lên server
     const phanHoiTuSever = await taoBinhLuanMoi(duLieuBinhLuan);
 
     if (phanHoiTuSever && phanHoiTuSever.success) {
@@ -262,6 +263,7 @@ function ChiTietDonHang() {
       alert("Lỗi khi hủy đơn hàng:", phanHoiTuSever.message);
     }
   };
+  // Hàm định dạng ngày tháng giờ
   const formatDateTime = (dateString) =>
     new Date(dateString)
       .toLocaleString("vi-VN", {
@@ -273,11 +275,13 @@ function ChiTietDonHang() {
       })
       .replace(",", "");
 
+  // Hàm định dạng tiền tệ
   const formatMoney = (value) =>
     typeof value === "number"
       ? value.toLocaleString("vi-VN", { minimumFractionDigits: 0 })
       : "-";
 
+  // Hàm lấy tone màu dựa trên trạng thái đơn hàng
   const getStatusTone = (status = "") => {
     const s = status.toLowerCase();
     if (s.includes("hủy")) return "bg-rose-100 text-rose-700 border-rose-200";
@@ -292,6 +296,7 @@ function ChiTietDonHang() {
     return "bg-slate-100 text-slate-700 border-slate-200";
   };
 
+  // Hàm lấy hình ảnh đầu tiên của sản phẩm
   const getFirstImage = (hinhAnhs) => {
     try {
       if (Array.isArray(hinhAnhs) && hinhAnhs.length > 0) {
@@ -305,7 +310,7 @@ function ChiTietDonHang() {
       return null;
     }
   };
-
+  // Hàm tính tổng tạm tính sản phẩm
   const tinhTamTinhSanPham = (saches) => {
     if (!Array.isArray(saches)) return 0;
     return saches.reduce((sum, sp) => {

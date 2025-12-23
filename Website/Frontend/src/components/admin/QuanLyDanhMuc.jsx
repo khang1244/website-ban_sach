@@ -38,11 +38,11 @@ function QuanLyDanhMuc() {
   const danhMucMotTrang = 4; // số mục trên mỗi trang (giống quản lý đơn hàng)
   const [trangHienTai, setTrangHienTai] = useState(1);
 
-  // Helper: lấy tên danh mục khi dữ liệu có thể là string hoặc object
+  // Hàm lấy tên danh mục dù là object hay string
   const getCatName = (cat) =>
     typeof cat === "string" ? cat : cat?.tenDanhMuc || "";
 
-  // ====== Logic thêm danh mục (có thông báo thành công) ======
+  // hàm xử lý khi nhấn nút thêm
   const handleAdd = async (e) => {
     e.preventDefault();
     const name = input.trim();

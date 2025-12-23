@@ -24,12 +24,14 @@ function QuanLyChung() {
   const [loadingChart, setLoadingChart] = useState(true);
   const [thangDuocChon, setThangDuocChon] = useState("");
 
+  // Hàm định dạng tiền tệ
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("vi-VN", { maximumFractionDigits: 0 }) +
     " VNĐ";
 
+  // Sử dụng useEffect để tải dữ liệu thống kê khi component được gắn vào DOM
   useEffect(() => {
-    // Gọi hàm có sẵn trong file don-hang-apis.js để lấy đơn hàng của người dùng từ server
+    // // Hàm nạp dữ liệu thống kê chung
     async function napDuLieuThongKe() {
       const phanHoiTuSever = await layThongKe();
       if (phanHoiTuSever && phanHoiTuSever.success) {
@@ -47,7 +49,7 @@ function QuanLyChung() {
         });
       }
     }
-
+    // Hàm nạp dữ liệu doanh thu theo tháng
     async function napDoanhThuTheoThang() {
       setLoadingChart(true);
       const result = await layDoanhThuTheoThang();

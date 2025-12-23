@@ -64,6 +64,7 @@ function QuanLyDonHang() {
       );
     }
   };
+  // Lấy danh sách đơn hàng từ server khi component được gắn vào DOM
   useEffect(() => {
     async function napDuLieuDonHang() {
       const res = await layTatCaDonHang();
@@ -73,6 +74,7 @@ function QuanLyDonHang() {
     }
     napDuLieuDonHang();
   }, []);
+  // Lấy chi tiết đơn hàng khi selectedOrder thay đổi
   useEffect(() => {
     const napDonHang = async () => {
       const duLieuDonHang = await layDonHangTheoID(selectedOrder?.donHangID);
@@ -102,7 +104,7 @@ function QuanLyDonHang() {
     // Reload danh sách đơn hàng khi đóng modal để cập nhật trạng thái mới
     reloadDonHang();
   };
-
+  // --- Lọc đơn hàng theo trạng thái ---
   const filteredOrders = userOrder.filter((order) => {
     if (!filterStatus) return true; // không lọc -> hiện tất cả
     return order.trangThai === filterStatus; // lọc theo trạng thái

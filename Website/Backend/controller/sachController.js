@@ -14,7 +14,7 @@ const chuanHoaTrangThaiBan = (value) => {
   );
 };
 
-// Lấy map: sachID -> đã có ít nhất 1 phiếu nhập (true/false)
+// lấy sách có phiếu nhập
 const layMapSachCoPhieuNhap = async () => {
   const danhSach = await ChiTietPhieuNhap.findAll({
     attributes: [
@@ -51,7 +51,7 @@ export const nhanTatCaCacQuyenSach = async (req, res) => {
         order: [["hinhAnhID", "ASC"]], // thêm dòng này
       });
 
-      // set on dataValues so it appears in JSON serialization
+      // Đính kèm trường images dưới dạng chuỗi JSON để giữ tương thích frontend
       s.dataValues.images = JSON.stringify(
         imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
       );
@@ -96,11 +96,10 @@ export const taoSachMoi = async (req, res) => {
       dinhDang,
       giaBan,
       giaGiam,
-      trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true,
-      // images column is deprecated; images will be stored in hinh_anh table
+      trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true, // mặc định là true
     });
 
-    // Nếu có images được gửi lên (mảng {url, public_id}), lưu vào bảng HinhAnh
+    // Nếu có images truyền lên, thêm vào bảng HinhAnh
     if (Array.isArray(images) && images.length > 0) {
       const records = images.map((img) => ({
         sachID: sachMoi.sachID,

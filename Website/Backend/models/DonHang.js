@@ -3,6 +3,7 @@ import sequelize from "../config/mysql_config.js";
 import Sach from "./Sach.js";
 import NguoiDung from "./NguoiDung.js";
 import PhuongThucGiaoHang from "./PhuongThucGiaoHang.js";
+import KhuyenMai from "./KhuyenMai.js";
 // Định nghãi model DonHang
 const DonHang = sequelize.define(
   "DonHang",
@@ -43,6 +44,10 @@ const DonHang = sequelize.define(
     khuyenMaiID: {
       type: DataTypes.STRING,
       allowNull: true,
+      references: {
+        model: "khuyen_mai",
+        key: "khuyenMaiID",
+      },
     },
     tienGiam: {
       type: DataTypes.FLOAT,
@@ -64,6 +69,10 @@ const DonHang = sequelize.define(
     phuongThucGiaoHangID: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      references: {
+        model: "phuong_thuc_giao_hang",
+        key: "phuongThucGiaoHangID",
+      },
     },
     ghiChu: {
       type: DataTypes.TEXT,
@@ -122,6 +131,10 @@ Sach.belongsToMany(DonHang, { through: DonHang_Sach, foreignKey: "sachID" });
 // Tạo liên kết cho bảng DonHang với bảng NguoiDung
 DonHang.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
 NguoiDung.hasMany(DonHang, { foreignKey: "nguoiDungID" });
+
+// Tạo liên kết cho bảng DonHang với bảng KhuyenMai
+DonHang.belongsTo(KhuyenMai, { foreignKey: "khuyenMaiID" });
+KhuyenMai.hasMany(DonHang, { foreignKey: "khuyenMaiID" });
 
 // Tạo liên kết cho bảng DonHang với bảng PhuongThucGiaoHang
 DonHang.belongsTo(PhuongThucGiaoHang, { foreignKey: "phuongThucGiaoHangID" });
