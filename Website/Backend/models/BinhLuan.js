@@ -21,9 +21,8 @@ const BinhLuan = sequelize.define(
     nguoiDungID: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      // Tham chiếu đến bảng Người Dùng nếu có
       references: {
-        model: "nguoi_dung",
+        model: NguoiDung,
         key: "nguoiDungID",
       },
     },

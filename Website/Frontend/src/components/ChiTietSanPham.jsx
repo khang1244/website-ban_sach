@@ -123,8 +123,10 @@ function ChiTietSanPham() {
       const chiTietSanPham = await layChiTietSach(sachID);
 
       if (chiTietSanPham) {
-        // Chuyển dữ liệu hình ảnh (images) về dạng mảng
-        chiTietSanPham.images = JSON.parse(chiTietSanPham.images);
+        // Đảm bảo images là mảng
+        if (!Array.isArray(chiTietSanPham.images)) {
+          chiTietSanPham.images = [];
+        }
 
         console.log("Chi tiết sản phẩm từ server:", chiTietSanPham);
 
@@ -253,7 +255,21 @@ function ChiTietSanPham() {
 
         // Chuyển images từ chuỗi JSON sang mảng nếu cần
         const sachCungDanhMuc = data
-          .map((s) => ({ ...s, images: JSON.parse(s.images || "[]") }))
+          .map((s) => ({
+            ...s,
+            images:
+              typeof s.images === "string"
+                ? (() => {
+                    try {
+                      return JSON.parse(s.images);
+                    } catch {
+                      return [];
+                    }
+                  })()
+                : Array.isArray(s.images)
+                ? s.images
+                : [],
+          }))
           .filter(
             (s) =>
               String(s.danhMucSachID) ===

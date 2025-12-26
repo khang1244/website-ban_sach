@@ -17,7 +17,7 @@ const DonHang = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "nguoi_dung",
+        model: NguoiDung,
         key: "nguoiDungID",
       },
     },
@@ -45,7 +45,7 @@ const DonHang = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       references: {
-        model: "khuyen_mai",
+        model: KhuyenMai,
         key: "khuyenMaiID",
       },
     },
@@ -68,9 +68,9 @@ const DonHang = sequelize.define(
     },
     phuongThucGiaoHangID: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
-        model: "phuong_thuc_giao_hang",
+        model: PhuongThucGiaoHang,
         key: "phuongThucGiaoHangID",
       },
     },
@@ -89,22 +89,19 @@ const DonHang = sequelize.define(
 export const DonHang_Sach = sequelize.define(
   "DonHang_Sach",
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     donHangID: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
-        model: "don_hang",
+        model: DonHang,
         key: "donHangID",
       },
     },
     sachID: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
-        model: "sach",
+        model: Sach,
         key: "sachID",
       },
     },
@@ -123,21 +120,24 @@ export const DonHang_Sach = sequelize.define(
   }
 );
 
-// Thiết lập quan hệ nhiều nhiều giữa DonHang và Sach thông qua bảng trung gian DonHang_Sach
-DonHang.belongsToMany(Sach, { through: DonHang_Sach, foreignKey: "donHangID" });
-
-Sach.belongsToMany(DonHang, { through: DonHang_Sach, foreignKey: "sachID" });
-
 // Tạo liên kết cho bảng DonHang với bảng NguoiDung
 DonHang.belongsTo(NguoiDung, { foreignKey: "nguoiDungID" });
 NguoiDung.hasMany(DonHang, { foreignKey: "nguoiDungID" });
 
 // Tạo liên kết cho bảng DonHang với bảng KhuyenMai
-DonHang.belongsTo(KhuyenMai, { foreignKey: "khuyenMaiID" });
+DonHang.belongsTo(KhuyenMai, {
+  foreignKey: "khuyenMaiID",
+  onDelete: "RESTRICT",
+});
 KhuyenMai.hasMany(DonHang, { foreignKey: "khuyenMaiID" });
 
 // Tạo liên kết cho bảng DonHang với bảng PhuongThucGiaoHang
 DonHang.belongsTo(PhuongThucGiaoHang, { foreignKey: "phuongThucGiaoHangID" });
 PhuongThucGiaoHang.hasMany(DonHang, { foreignKey: "phuongThucGiaoHangID" });
+
+// Thiết lập quan hệ nhiều nhiều giữa DonHang và Sach thông qua bảng trung gian DonHang_Sach
+DonHang.belongsToMany(Sach, { through: DonHang_Sach, foreignKey: "donHangID" });
+
+Sach.belongsToMany(DonHang, { through: DonHang_Sach, foreignKey: "sachID" });
 
 export default DonHang;

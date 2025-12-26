@@ -31,11 +31,6 @@ const GioHang = sequelize.define(
 const ChiTietGioHang = sequelize.define(
   "ChiTietGioHang",
   {
-    chiTietGioHangID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     gioHangID: {
       type: DataTypes.INTEGER,
       allowNull: false,

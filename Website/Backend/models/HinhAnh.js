@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/mysql_config.js";
+import Sach from "./Sach.js";
 
 const HinhAnh = sequelize.define(
   "HinhAnh",
@@ -13,7 +14,7 @@ const HinhAnh = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "sach",
+        model: Sach,
         key: "sachID",
       },
     },
@@ -31,5 +32,9 @@ const HinhAnh = sequelize.define(
     timestamps: true,
   }
 );
+
+//quan hệ 1-n giữa Sach và HinhAnh
+Sach.hasMany(HinhAnh, { foreignKey: "sachID", as: "hinhAnhs" });
+HinhAnh.belongsTo(Sach, { foreignKey: "sachID", as: "sach" });
 
 export default HinhAnh;

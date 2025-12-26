@@ -933,8 +933,8 @@ function ThanhToan() {
                     <li key={idx} className="flex gap-4 py-4 items-center">
                       <img
                         src={
-                          item.Sach?.images
-                            ? JSON.parse(item.Sach.images)[0].url
+                          Array.isArray(item.Sach?.images)
+                            ? item.Sach.images[0]?.url
                             : ""
                         }
                         alt={item.Sach?.tenSach}

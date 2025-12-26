@@ -15,7 +15,7 @@ const PhieuNhap = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: "nguoi_dung",
+        model: NguoiDung,
         key: "nguoiDungID",
       },
     },

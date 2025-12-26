@@ -16,7 +16,7 @@ const ChiTietPhieuNhap = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "phieu_nhap",
+        model: PhieuNhap,
         key: "phieuNhapID",
       },
     },
@@ -24,7 +24,7 @@ const ChiTietPhieuNhap = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "sach",
+        model: Sach,
         key: "sachID",
       },
     },

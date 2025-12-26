@@ -9,8 +9,7 @@ export const layGioHangTheoNguoiDung = async (nguoiDungID) => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi lấy giỏ hàng:", error);
     throw error;
@@ -27,9 +26,7 @@ export const themSanPhamVaoGioHang = async (
   try {
     const response = await fetch(`${BASE_URL}/gioHang`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         nguoiDungID,
         sachID,
@@ -37,8 +34,7 @@ export const themSanPhamVaoGioHang = async (
         giaLucThem,
       }),
     });
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi thêm sản phẩm vào giỏ hàng:", error);
     throw error;
@@ -46,17 +42,17 @@ export const themSanPhamVaoGioHang = async (
 };
 
 // 3. Cập nhật số lượng sản phẩm trong giỏ hàng
-export const capNhatSoLuongSanPham = async (chiTietGioHangID, soLuong) => {
+export const capNhatSoLuongSanPham = async (gioHangID, sachID, soLuong) => {
   try {
-    const response = await fetch(`${BASE_URL}/gioHang/${chiTietGioHangID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ soLuong }),
-    });
-    const data = await response.json();
-    return data;
+    const response = await fetch(
+      `${BASE_URL}/gioHang/${gioHangID}/sach/${sachID}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ soLuong }),
+      }
+    );
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi cập nhật số lượng sản phẩm:", error);
     throw error;
@@ -64,16 +60,15 @@ export const capNhatSoLuongSanPham = async (chiTietGioHangID, soLuong) => {
 };
 
 // 4. Xóa sản phẩm khỏi giỏ hàng
-export const xoaSanPhamKhoiGioHang = async (chiTietGioHangID) => {
+export const xoaSanPhamKhoiGioHang = async (gioHangID, sachID) => {
   try {
-    const response = await fetch(`${BASE_URL}/gioHang/${chiTietGioHangID}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return data;
+    const response = await fetch(
+      `${BASE_URL}/gioHang/${gioHangID}/sach/${sachID}`,
+      {
+        method: "DELETE",
+      }
+    );
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi xóa sản phẩm khỏi giỏ hàng:", error);
     throw error;
@@ -89,8 +84,7 @@ export const xoaToanBoGioHang = async (nguoiDungID) => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi xóa toàn bộ giỏ hàng:", error);
     throw error;
@@ -109,46 +103,44 @@ export const demSoLuongSanPhamTrongGioHang = async (nguoiDungID) => {
         },
       }
     );
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Lỗi mạng khi đếm số lượng sản phẩm:", error);
     throw error;
   }
 };
 
-// 7. Helper function - Tính tổng tiền giỏ hàng (từ dữ liệu frontend)
+//7. HELPER – TÍNH TỔNG TIỀN GIỎ HÀNG
 export const tinhTongTienGioHang = (chiTietGioHangs) => {
-  if (!chiTietGioHangs || !Array.isArray(chiTietGioHangs)) {
-    return 0;
-  }
-  return chiTietGioHangs.reduce((total, item) => {
-    return total + (item.tongGia || 0);
-  }, 0);
+  if (!Array.isArray(chiTietGioHangs)) return 0;
+  return chiTietGioHangs.reduce(
+    (total, item) => total + (item.tongGia || 0),
+    0
+  );
 };
 
-// 8. Helper function - Tính tổng số lượng sản phẩm (từ dữ liệu frontend)
+//8. HELPER – TÍNH TỔNG SỐ LƯỢNG SẢN PHẨM
 export const tinhTongSoLuongSanPham = (chiTietGioHangs) => {
-  if (!chiTietGioHangs || !Array.isArray(chiTietGioHangs)) {
-    return 0;
-  }
-  return chiTietGioHangs.reduce((total, item) => {
-    return total + (item.soLuong || 0);
-  }, 0);
+  if (!Array.isArray(chiTietGioHangs)) return 0;
+  return chiTietGioHangs.reduce(
+    (total, item) => total + (item.soLuong || 0),
+    0
+  );
 };
 
-// 9. Helper function - Kiểm tra sản phẩm có trong giỏ hàng không
+//9. HELPER – KIỂM TRA SÁCH CÓ TRONG GIỎ KHÔNG
 export const kiemTraSanPhamTrongGioHang = (chiTietGioHangs, sachID) => {
-  if (!chiTietGioHangs || !Array.isArray(chiTietGioHangs)) {
-    return false;
-  }
-  return chiTietGioHangs.some((item) => item.sachID === sachID);
+  if (!Array.isArray(chiTietGioHangs)) return false;
+  return chiTietGioHangs.some((item) => String(item.sachID) === String(sachID));
 };
 
-// 10. Helper function - Lấy thông tin chi tiết sản phẩm trong giỏ hàng
+/* =====================================================
+   10. HELPER – LẤY CHI TIẾT SẢN PHẨM TRONG GIỎ
+===================================================== */
 export const layChiTietSanPhamTrongGioHang = (chiTietGioHangs, sachID) => {
-  if (!chiTietGioHangs || !Array.isArray(chiTietGioHangs)) {
-    return null;
-  }
-  return chiTietGioHangs.find((item) => item.sachID === sachID) || null;
+  if (!Array.isArray(chiTietGioHangs)) return null;
+  return (
+    chiTietGioHangs.find((item) => String(item.sachID) === String(sachID)) ||
+    null
+  );
 };

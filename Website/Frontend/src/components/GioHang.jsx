@@ -23,10 +23,11 @@ const formatCurrency = (amount) => {
 };
 
 function GioHang() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]); // Mảng chứa các sản phẩm trong giỏ hàng
   const [tongTien, setTongTien] = useState(0);
-  const timeoutRef = useRef(null);
-  const { refreshCartCount } = useContext(UserContext);
+  const [gioHangID, setGioHangID] = useState(null); // Lưu trữ ID giỏ hàng
+  const timeoutRef = useRef(null); // Ref để lưu timeout khi cập nhật số lượng
+  const { refreshCartCount } = useContext(UserContext); // Hàm để làm mới số lượng sản phẩm trong giỏ hàng ở header
 
   async function updateQuantity(index, delta) {
     const item = cart[index];
@@ -70,11 +71,11 @@ function GioHang() {
     }
 
     timeoutRef.current = setTimeout(async () => {
-      const chiTietGioHangID = newCart[index].chiTietGioHangID;
+      const sachID = newCart[index].sachID;
       const soLuong = newCart[index].soLuong;
 
       try {
-        await capNhatSoLuongSanPham(chiTietGioHangID, soLuong);
+        await capNhatSoLuongSanPham(gioHangID, sachID, soLuong);
         console.log("Đã cập nhật số lượng trên server:", soLuong);
       } catch (error) {
         console.error("Lỗi khi cập nhật số lượng:", error);
@@ -83,8 +84,7 @@ function GioHang() {
   }
 
   async function removeItem(index) {
-    const chiTietGioHangID = cart[index].chiTietGioHangID;
-
+    const sachID = cart[index].sachID;
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
 
@@ -95,7 +95,7 @@ function GioHang() {
     setTongTien(newTotal);
 
     try {
-      await xoaSanPhamKhoiGioHang(chiTietGioHangID);
+      await xoaSanPhamKhoiGioHang(gioHangID, sachID);
       // Cập nhật lại badge số lượng sản phẩm
       if (typeof refreshCartCount === "function") refreshCartCount();
     } catch (error) {
@@ -109,9 +109,10 @@ function GioHang() {
       if (!user) return;
 
       const data = await layGioHangTheoNguoiDung(user.nguoiDungID);
-      if (data && data.success) {
+      if (data && data.success && data.gioHang) {
         setCart(data.gioHang.ChiTietGioHangs || []);
         setTongTien(data.gioHang.tongTien || 0);
+        setGioHangID(data.gioHang.gioHangID || null);
       }
     };
     napDuLieuGioHang();
@@ -156,16 +157,16 @@ function GioHang() {
                   {/* Phần 1: Hình ảnh */}
                   <img
                     src={
-                      item.Sach?.images
-                        ? JSON.parse(item.Sach.images)[0].url
+                      Array.isArray(item.Sach?.images)
+                        ? item.Sach.images[0]?.url
                         : ""
                     }
                     alt={item.Sach?.tenSach}
-                    className="w-24 h-32 object-cover rounded-lg mr-6 flex-shrink-0 border border-gray-200"
+                    className="w-24 h-32 object-cover rounded-lg mr-6 shrink-0 border border-gray-200"
                   />
 
                   {/* Phần 2: Thông tin sản phẩm (Căn giữa theo chiều dọc) */}
-                  <div className="flex-grow min-w-0 pr-4">
+                  <div className="grow min-w-0 pr-4">
                     <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
                       {item.Sach?.tenSach || "Tên sách không tồn tại"}
                     </h3>
@@ -175,7 +176,7 @@ function GioHang() {
                   </div>
 
                   {/* Phần 3: Điều khiển số lượng */}
-                  <div className="flex flex-col items-center justify-center space-y-2 flex-shrink-0 w-24 mx-4">
+                  <div className="flex flex-col items-center justify-center space-y-2 shrink-0 w-24 mx-4">
                     <label className="text-xs font-medium text-gray-600">
                       Số lượng
                     </label>
@@ -200,7 +201,7 @@ function GioHang() {
                   </div>
 
                   {/* Phần 4: Thành tiền và Xóa (Căn phải) */}
-                  <div className="flex flex-col items-end space-y-3 flex-shrink-0 w-32">
+                  <div className="flex flex-col items-end space-y-3 shrink-0 w-32">
                     <p className="text-xl font-extrabold text-indigo-600">
                       {formatCurrency(item.giaLucThem * item.soLuong)}
                     </p>
@@ -242,7 +243,7 @@ function GioHang() {
                 {/* Nút Thanh toán: Màu xanh lá cây/Teal nổi bật (CTA chính) */}
                 <Link
                   to="/thanhtoan"
-                  className="w-full mt-8 block text-center bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-emerald-600 transition duration-300 shadow-lg flex items-center justify-center transform hover:scale-[1.01]"
+                  className="w-full mt-8 flex text-center bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-emerald-600 transition duration-300 shadow-lg items-center justify-center transform hover:scale-[1.01]"
                 >
                   <FaCreditCard className="mr-3 w-5 h-5" />
                   Tiến hành thanh toán

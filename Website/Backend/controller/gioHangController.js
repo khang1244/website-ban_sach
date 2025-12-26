@@ -30,22 +30,20 @@ export const layGioHangTheoNguoiDung = async (req, res) => {
       });
     }
 
-    // Đính kèm ảnh sản phẩm cho từng ChiTietGioHang -> Sach
+    // Gắn danh sách hình ảnh cho từng sách trong giỏ
     for (const ct of gioHang.ChiTietGioHangs) {
-      const sach = ct.Sach;
-      if (sach) {
-        const imgs = await HinhAnh.findAll({ where: { sachID: sach.sachID } });
-        // định dạng tương thích: sach.images là chuỗi JSON của mảng {url, public_id}
-        sach.dataValues.images = JSON.stringify(
-          imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
-        );
-      }
+      const imgs = await HinhAnh.findAll({ where: { sachID: ct.Sach.sachID } });
+      ct.Sach.dataValues.images = imgs.map((i) => ({
+        url: i.url,
+        public_id: i.public_id,
+      }));
     }
 
     // Tính tổng tiền giỏ hàng
-    const tongTien = gioHang.ChiTietGioHangs.reduce((total, item) => {
-      return total + item.tongGia;
-    }, 0);
+    const tongTien = gioHang.ChiTietGioHangs.reduce(
+      (sum, i) => sum + i.tongGia,
+      0
+    );
 
     res.json({
       success: true,
@@ -54,12 +52,9 @@ export const layGioHangTheoNguoiDung = async (req, res) => {
         tongTien,
       },
     });
-  } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server khi lấy giỏ hàng",
-    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
@@ -68,166 +63,100 @@ export const themSanPhamVaoGioHang = async (req, res) => {
   try {
     const { nguoiDungID, sachID, soLuong = 1, giaLucThem } = req.body;
 
-    // Kiểm tra sách có tồn tại không
-    const sach = await Sach.findByPk(sachID);
-    if (!sach) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy sách",
-      });
-    }
-
-    // Kiểm tra số lượng sách trong kho
-    if (sach.soLuongConLai < soLuong) {
-      return res.status(400).json({
-        success: false,
-        message: "Số lượng sách trong kho không đủ",
-      });
-    }
-
-    // Tìm hoặc tạo giỏ hàng cho người dùng
+    // Nếu chưa có giỏ hàng thì tạo mới
     let gioHang = await GioHang.findOne({ where: { nguoiDungID } });
-    if (!gioHang) {
-      gioHang = await GioHang.create({
-        nguoiDungID,
-      });
-    }
+    if (!gioHang) gioHang = await GioHang.create({ nguoiDungID });
 
-    // Kiểm tra sản phẩm đã có trong chi tiết giỏ hàng chưa
-    const chiTietGioHangCu = await ChiTietGioHang.findOne({
-      where: {
-        gioHangID: gioHang.gioHangID,
-        sachID,
-      },
+    // Kiểm tra sản phẩm đã có trong giỏ chưa
+    const existed = await ChiTietGioHang.findOne({
+      where: { gioHangID: gioHang.gioHangID, sachID },
     });
 
-    if (chiTietGioHangCu) {
-      // Nếu đã có, cập nhật số lượng
-      const soLuongMoi = chiTietGioHangCu.soLuong + soLuong;
-      const tongGiaMoi = soLuongMoi * chiTietGioHangCu.giaLucThem;
-
-      await chiTietGioHangCu.update({
+    if (existed) {
+      // Nếu đã có thì cộng dồn số lượng
+      const soLuongMoi = existed.soLuong + soLuong;
+      await existed.update({
         soLuong: soLuongMoi,
-        tongGia: tongGiaMoi,
+        tongGia: soLuongMoi * existed.giaLucThem,
       });
-
-      res.json({
-        success: true,
-        message: "Đã cập nhật số lượng sản phẩm trong giỏ hàng",
-        chiTietGioHang: chiTietGioHangCu,
-      });
-    } else {
-      // Nếu chưa có, thêm mới
-      const tongGia = soLuong * giaLucThem;
-      const chiTietGioHangMoi = await ChiTietGioHang.create({
-        gioHangID: gioHang.gioHangID,
-        sachID,
-        soLuong,
-        giaLucThem: giaLucThem,
-        tongGia,
-      });
-
-      res.status(201).json({
-        success: true,
-        message: "Đã thêm sản phẩm vào giỏ hàng",
-        chiTietGioHang: chiTietGioHangMoi,
-      });
+      return res.json({ success: true, message: "Đã cập nhật số lượng" });
     }
-  } catch (error) {
-    console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server khi thêm sản phẩm vào giỏ hàng",
+
+    // Nếu chưa có thì thêm mới sản phẩm vào giỏ
+    await ChiTietGioHang.create({
+      gioHangID: gioHang.gioHangID,
+      sachID,
+      soLuong,
+      giaLucThem,
+      tongGia: soLuong * giaLucThem,
     });
+
+    res.status(201).json({ success: true, message: "Đã thêm sản phẩm" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 export const capNhatSoLuongSanPham = async (req, res) => {
   try {
-    const { chiTietGioHangID } = req.params;
+    const { gioHangID, sachID } = req.params;
     const { soLuong } = req.body;
 
-    if (soLuong <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Số lượng phải lớn hơn 0",
-      });
-    }
-
-    // Tìm chi tiết giỏ hàng
-    const chiTietGioHang = await ChiTietGioHang.findByPk(chiTietGioHangID, {
+    // Tìm chi tiết giỏ hàng cần cập nhật
+    const ct = await ChiTietGioHang.findOne({
+      where: { gioHangID, sachID },
       include: [{ model: Sach }],
     });
 
-    if (!chiTietGioHang) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy sản phẩm trong giỏ hàng",
-      });
-    }
-
-    // Kiểm tra số lượng sách trong kho
-    if (chiTietGioHang.Sach.soLuongConLai < soLuong) {
-      return res.status(400).json({
-        success: false,
-        message: "Số lượng sách trong kho không đủ",
-      });
+    if (!ct) {
+      // Không tìm thấy sản phẩm trong giỏ
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy" });
     }
 
     // Cập nhật số lượng và tổng giá
-    const tongGiaMoi = soLuong * chiTietGioHang.giaLucThem;
-    await chiTietGioHang.update({
+    await ct.update({
       soLuong,
-      tongGia: tongGiaMoi,
+      tongGia: soLuong * ct.giaLucThem,
     });
 
-    res.json({
-      success: true,
-      message: "Đã cập nhật số lượng sản phẩm",
-      chiTietGioHang,
-    });
-  } catch (error) {
-    console.error("Lỗi khi cập nhật số lượng sản phẩm:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server khi cập nhật số lượng sản phẩm",
-    });
+    res.json({ success: true, message: "Đã cập nhật", ct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
 // Xóa sản phẩm khỏi giỏ hàng
 export const xoaSanPhamKhoiGioHang = async (req, res) => {
   try {
-    const { chiTietGioHangID } = req.params;
+    const { gioHangID, sachID } = req.params;
 
-    // Tìm chi tiết giỏ hàng
-    const chiTietGioHang = await ChiTietGioHang.findByPk(chiTietGioHangID);
+    // Tìm chi tiết giỏ hàng cần xóa
+    const ct = await ChiTietGioHang.findOne({
+      where: { gioHangID, sachID },
+    });
 
-    if (!chiTietGioHang) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy sản phẩm trong giỏ hàng",
-      });
+    if (!ct) {
+      // Không tìm thấy sản phẩm trong giỏ
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy" });
     }
 
-    // Xóa sản phẩm khỏi giỏ hàng
-    await chiTietGioHang.destroy();
-
-    res.json({
-      success: true,
-      message: "Đã xóa sản phẩm khỏi giỏ hàng",
-    });
-  } catch (error) {
-    console.error("Lỗi khi xóa sản phẩm khỏi giỏ hàng:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server khi xóa sản phẩm khỏi giỏ hàng",
-    });
+    await ct.destroy();
+    res.json({ success: true, message: "Đã xóa sản phẩm" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
-// Xóa toàn bộ giỏ hàng
+//Xóa toàn bộ sản phẩm trong giỏ hàng của người dùng khi đặt hàng thành công
+
 export const xoaToanBoGioHang = async (req, res) => {
   try {
     const { nguoiDungID } = req.params;
@@ -236,25 +165,19 @@ export const xoaToanBoGioHang = async (req, res) => {
     const gioHang = await GioHang.findOne({ where: { nguoiDungID } });
 
     if (!gioHang) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy giỏ hàng",
-      });
+      // Nếu chưa có giỏ thì coi như đã xóa xong
+      return res.json({ success: true });
     }
 
-    // Xóa giỏ hàng
-    await gioHang.destroy();
+    // Xóa toàn bộ chi tiết giỏ hàng
+    await ChiTietGioHang.destroy({
+      where: { gioHangID: gioHang.gioHangID },
+    });
 
-    res.json({
-      success: true,
-      message: "Đã xóa toàn bộ sản phẩm trong giỏ hàng",
-    });
-  } catch (error) {
-    console.error("Lỗi khi xóa toàn bộ giỏ hàng:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server khi xóa toàn bộ giỏ hàng",
-    });
+    res.json({ success: true, message: "Đã xóa toàn bộ giỏ hàng" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
 
@@ -263,7 +186,7 @@ export const demSoLuongSanPhamTrongGioHang = async (req, res) => {
   try {
     const { nguoiDungID } = req.params;
 
-    // Tìm giỏ hàng và đếm số lượng sản phẩm
+    // Tìm giỏ hàng và lấy các chi tiết để đếm số lượng
     const gioHang = await GioHang.findOne({
       where: { nguoiDungID },
       include: [
@@ -281,17 +204,17 @@ export const demSoLuongSanPhamTrongGioHang = async (req, res) => {
       });
     }
 
-    // Tính tổng số lượng sản phẩm
-    const tongSoLuong = gioHang.ChiTietGioHangs.reduce((total, item) => {
-      return total + item.soLuong;
-    }, 0);
+    const tongSoLuong = gioHang.ChiTietGioHangs.reduce(
+      (total, item) => total + item.soLuong,
+      0
+    );
 
     res.json({
       success: true,
       soLuongSanPham: tongSoLuong,
     });
   } catch (error) {
-    console.error("Lỗi khi đếm số lượng sản phẩm trong giỏ hàng:", error);
+    console.error("Lỗi khi đếm số lượng sản phẩm:", error);
     res.status(500).json({
       success: false,
       message: "Lỗi server khi đếm số lượng sản phẩm",

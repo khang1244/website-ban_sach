@@ -14,17 +14,17 @@ const PhieuXuat = sequelize.define(
     },
     donHangID: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
-        model: "don_hang",
+        model: DonHang,
         key: "donHangID",
       },
     },
     nguoiDungID: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
-        model: "nguoi_dung",
+        model: NguoiDung,
         key: "nguoiDungID",
       },
     },

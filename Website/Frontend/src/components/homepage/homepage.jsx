@@ -25,17 +25,13 @@ const chuanHoaTrangThaiBan = (value) =>
   value === "true" ||
   value === "dangBan";
 
-  // 
+// Chuẩn hoá sách từ API về đúng định dạng cần thiết
 const chuanHoaSachTuApi = (sach) => {
   let images = [];
   if (Array.isArray(sach.images)) {
     images = sach.images;
   } else {
-    try {
-      images = sach.images ? JSON.parse(sach.images) : [];
-    } catch {
-      images = [];
-    }
+    images = [];
   }
 
   return {
@@ -380,7 +376,14 @@ function Homepage() {
                               product.giaGiam || product.giaBan
                             )
                           }
-                          className="flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all"
+                          disabled={
+                            !product.coPhieuNhap || product.tonKho === 0
+                          }
+                          className={`flex-1 flex items-center justify-center gap-2 bg-white text-[#00809D] font-bold py-2 px-3 rounded-lg hover:scale-105 transition-all ${
+                            !product.coPhieuNhap || product.tonKho === 0
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           <RiShoppingCartLine className="text-lg" />
                         </button>

@@ -13,7 +13,7 @@ const DiaChi = sequelize.define(
     nguoiDungID: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: "nguoi_dung", key: "nguoiDungID" },
+      references: { model: NguoiDung, key: "nguoiDungID" },
     },
     diaChi: {
       type: DataTypes.TEXT,

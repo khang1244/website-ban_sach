@@ -37,11 +37,7 @@ const KetQuaTimKiemSach = () => {
     const napTatCaSanPham = async () => {
       const data = await nhanTatCaCacQuyenSach();
       if (data) {
-        // Chuyển đổi chuỗi JSON của trường images thành mảng để sử dụng
-        data.forEach((sach) => {
-          sach.images = JSON.parse(sach.images);
-        });
-
+        // Backend đã trả về images là mảng object, không cần parse nữa
         setDanhSachSanPham(data);
       }
     };

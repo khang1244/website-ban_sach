@@ -39,26 +39,29 @@ const layMapSachCoPhieuNhap = async () => {
   return map;
 };
 
-// Lấy tất cả các quyền sách
+// Hàm tiện ích: lấy danh sách images cho 1 sách
+const getImages = async (sachID) => {
+  const imgs = await HinhAnh.findAll({
+    where: { sachID },
+    order: [["hinhAnhID", "ASC"]],
+  });
+  return imgs.map((i) => ({ url: i.url, public_id: i.public_id }));
+};
+
+// Lấy tất cả sách, kèm images và trạng thái nhập kho
 export const nhanTatCaCacQuyenSach = async (req, res) => {
   try {
-    const danhSachSach = await Sach.findAll(); // SELECT * FROM Sach
+    const danhSachSach = await Sach.findAll();
     const mapCoPhieuNhap = await layMapSachCoPhieuNhap();
-    // Đính kèm ảnh từ HinhAnh cho mỗi sách
-    for (const s of danhSachSach) {
-      const imgs = await HinhAnh.findAll({
-        where: { sachID: s.sachID },
-        order: [["hinhAnhID", "ASC"]], // thêm dòng này
-      });
-
-      // Đính kèm trường images dưới dạng chuỗi JSON để giữ tương thích frontend
-      s.dataValues.images = JSON.stringify(
-        imgs.map((i) => ({ url: i.url, public_id: i.public_id }))
-      );
-      const trangThaiBan = chuanHoaTrangThaiBan(s.trangThaiBan);
-      s.dataValues.trangThaiBan = trangThaiBan ?? true;
-      s.dataValues.coPhieuNhap = mapCoPhieuNhap.get(s.sachID) || false;
-    }
+    // Gắn images, trạng thái bán, trạng thái nhập kho cho từng sách
+    await Promise.all(
+      danhSachSach.map(async (s) => {
+        s.dataValues.images = await getImages(s.sachID);
+        s.dataValues.trangThaiBan =
+          chuanHoaTrangThaiBan(s.trangThaiBan) ?? true;
+        s.dataValues.coPhieuNhap = mapCoPhieuNhap.get(s.sachID) || false;
+      })
+    );
     res.json(danhSachSach);
   } catch (error) {
     console.error("Lỗi khi lấy danh sách sách:", error);
@@ -99,21 +102,21 @@ export const taoSachMoi = async (req, res) => {
       trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true, // mặc định là true
     });
 
-    // Nếu có images truyền lên, thêm vào bảng HinhAnh
+    // Thêm images nếu có
     if (Array.isArray(images) && images.length > 0) {
-      const records = images.map((img) => ({
-        sachID: sachMoi.sachID,
-        url: img.url,
-        public_id: img.public_id || img.publicId || null,
-      }));
-      await HinhAnh.bulkCreate(records);
+      await HinhAnh.bulkCreate(
+        images.map((img) => ({
+          sachID: sachMoi.sachID,
+          url: img.url,
+          public_id: img.public_id || img.publicId || null,
+        }))
+      );
     }
-    // Đính kèm trường images trả về để giữ tương thích frontend (chuỗi JSON)
-    const imagesForReturn = Array.isArray(images) ? images : [];
+    // Trả về sách mới cùng images (nếu có)
     const result = {
       ...sachMoi.toJSON(),
       moTa: sachMoi.moTa,
-      images: JSON.stringify(imagesForReturn),
+      images: Array.isArray(images) ? images : [],
       trangThaiBan: chuanHoaTrangThaiBan(trangThaiBan) ?? true,
       coPhieuNhap: false,
     };
@@ -168,72 +171,37 @@ export const capNhatSach = async (req, res) => {
     // Cập nhật sách
     await sach.save();
 
-    // Nếu có images truyền lên, cập nhật bảng HinhAnh một cách thông minh
+    // Nếu có images truyền lên, đồng bộ lại bảng HinhAnh
     if (Array.isArray(images)) {
-      // Lấy ảnh hiện có trong DB
       const existing = await HinhAnh.findAll({
         where: { sachID: sach.sachID },
       });
-
-      const existingByPublic = new Map();
-      const existingByUrl = new Map();
+      const existingUrls = new Set(existing.map((e) => e.url));
+      const submittedUrls = new Set(images.map((i) => i.url));
+      // Xóa ảnh không còn trong images mới
       for (const e of existing) {
-        if (e.public_id) existingByPublic.set(e.public_id, e);
-        if (e.url) existingByUrl.set(e.url, e);
+        if (!submittedUrls.has(e.url))
+          await HinhAnh.destroy({ where: { hinhAnhID: e.hinhAnhID } });
       }
-
-      // Chuẩn hoá submitted images
-      const submitted = images.map((img) => ({
-        url: img.url,
-        public_id: img.public_id || img.publicId || null,
-      }));
-
-      const submittedPublicIds = new Set(
-        submitted.map((i) => i.public_id).filter(Boolean)
-      );
-      const submittedUrls = new Set(
-        submitted.map((i) => i.url).filter(Boolean)
-      );
-
-      // 1) Xóa những ảnh trong DB không có trong submitted
-      const toDelete = existing.filter(
-        (e) =>
-          !(submittedPublicIds.has(e.public_id) || submittedUrls.has(e.url))
-      );
-      for (const d of toDelete) {
-        await HinhAnh.destroy({ where: { hinhAnhID: d.hinhAnhID } });
-      }
-
-      // 2) Thêm những ảnh mới (không tồn tại trong DB theo public_id hoặc url)
-      const toAdd = submitted.filter(
-        (s) => !existingByPublic.has(s.public_id) && !existingByUrl.has(s.url)
-      );
-      if (toAdd.length > 0) {
-        const records = toAdd.map((img) => ({
-          sachID: sach.sachID,
-          url: img.url,
-          public_id: img.public_id || null,
-        }));
-        await HinhAnh.bulkCreate(records);
+      // Thêm ảnh mới
+      for (const img of images) {
+        if (!existingUrls.has(img.url)) {
+          await HinhAnh.create({
+            sachID: sach.sachID,
+            url: img.url,
+            public_id: img.public_id || img.publicId || null,
+          });
+        }
       }
     }
-
-    // Trả về sách với trường images để frontend vẫn hoạt động
-    const imagesForReturn = Array.isArray(images)
-      ? images
-      : await HinhAnh.findAll({ where: { sachID: sach.sachID } });
+    // Trả về sách với images mới nhất
+    const imagesForReturn = await getImages(sach.sachID);
     const coPhieuNhap =
       (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
     const result = {
       ...sach.toJSON(),
       moTa: sach.moTa,
-      images: JSON.stringify(
-        Array.isArray(imagesForReturn)
-          ? imagesForReturn.map((i) =>
-              i.url ? { url: i.url, public_id: i.public_id } : i
-            )
-          : []
-      ),
+      images: imagesForReturn,
       coPhieuNhap,
     };
     res.json(result);
@@ -279,9 +247,7 @@ export const capNhatTrangThaiBan = async (req, res) => {
       coPhieuNhap,
       sach: {
         ...sach.toJSON(),
-        images: JSON.stringify(
-          images.map((i) => ({ url: i.url, public_id: i.public_id }))
-        ),
+        images: images.map((i) => ({ url: i.url, public_id: i.public_id })),
         coPhieuNhap,
       },
     });
@@ -337,23 +303,13 @@ export const layChiTietSach = async (req, res) => {
     if (!sach) {
       return res.status(404).json({ error: "Sách không tồn tại." });
     }
-    // Lấy ảnh liên quan từ bảng HinhAnh
-    const images = await HinhAnh.findAll({
-      where: { sachID: sach.sachID },
-      order: [["hinhAnhID", "ASC"]], // thêm dòng này
-    });
-
-    const imagesForReturn = images.map((i) => ({
-      url: i.url,
-      public_id: i.public_id,
-    }));
-
+    // Lấy images và trạng thái nhập kho
+    const imagesForReturn = await getImages(sach.sachID);
     const coPhieuNhap =
       (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
-
     const result = {
       ...sach.toJSON(),
-      images: JSON.stringify(imagesForReturn),
+      images: imagesForReturn,
       coPhieuNhap,
     };
     res.json(result);
