@@ -7,10 +7,10 @@ import upload from "../config/multer.js";
 
 const router = express.Router();
 
-// Tải ảnh lên Cloudinary
+// tải ảnh lên s3
 router.post("/taianhlen", upload.single("image"), xuLyTaiAnhLenCloud);
 
-// Xóa ảnh khỏi Cloudinary
+// xóa ảnh khỏi s3
 router.post("/xoaanh", xuLyXoaAnhKhoiCloud);
 
 export default router;

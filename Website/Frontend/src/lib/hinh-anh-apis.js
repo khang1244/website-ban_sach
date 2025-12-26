@@ -1,5 +1,3 @@
-// Các API này liên quan đến hình ảnh, ví dụ như tải lên, lấy danh sách hình ảnh, xóa hình ảnh, v.v.
-
 import { BASE_URL } from "./baseUrl";
 
 // Hàm để tải lên hình ảnh
