@@ -4,17 +4,14 @@ import PhieuXuat from "./PhieuXuat.js";
 import Sach from "./Sach.js";
 
 // Model Chi Tiết Phiếu Xuất - Lưu thông tin từng sản phẩm trong phiếu xuất
+
 const ChiTietPhieuXuat = sequelize.define(
   "ChiTietPhieuXuat",
   {
-    chiTietPhieuXuatID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     phieuXuatID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: PhieuXuat,
         key: "phieuXuatID",
@@ -23,6 +20,7 @@ const ChiTietPhieuXuat = sequelize.define(
     sachID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: Sach,
         key: "sachID",

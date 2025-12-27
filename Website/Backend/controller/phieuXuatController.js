@@ -7,32 +7,29 @@ import sequelize from "../config/mysql_config.js";
 // Lấy tất cả phiếu xuất
 export const layTatCaPhieuXuat = async (req, res) => {
   try {
-    const danhSachPhieuXuat = await PhieuXuat.findAll({
+    // Lấy tất cả phiếu xuất, kèm chi tiết phiếu xuất và thông tin sách
+    const danhSach = await PhieuXuat.findAll({
       include: [
         {
-          model: ChiTietPhieuXuat,
-          as: "chiTietPhieuXuats",
+          model: ChiTietPhieuXuat, // Lấy model chi tiết phiếu xuất
+          as: "chiTietPhieuXuats", // Tên alias khi khai báo association
           include: [
-            {
-              model: Sach,
-              attributes: ["sachID", "tenSach"],
-            },
+            { model: Sach, attributes: ["sachID", "tenSach"] }, // Lấy tên sách cho từng chi tiết
           ],
         },
       ],
-      order: [["ngayXuat", "DESC"]],
     });
-    res.status(200).json(danhSachPhieuXuat);
+    res.status(200).json(danhSach); // Trả về danh sách phiếu xuất
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách phiếu xuất:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi lấy danh sách phiếu xuất" });
   }
 };
 
 // Lấy phiếu xuất theo ID
 export const layPhieuXuatTheoID = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // Lấy id từ URL
+    // Tìm phiếu xuất theo id, kèm chi tiết và thông tin sách
     const phieuXuat = await PhieuXuat.findOne({
       where: { phieuXuatID: id },
       include: [
@@ -40,130 +37,95 @@ export const layPhieuXuatTheoID = async (req, res) => {
           model: ChiTietPhieuXuat,
           as: "chiTietPhieuXuats",
           include: [
-            {
-              model: Sach,
-              attributes: ["sachID", "tenSach", "tacGia"],
-            },
+            { model: Sach, attributes: ["sachID", "tenSach", "tacGia"] },
           ],
         },
       ],
     });
-
-    if (!phieuXuat) {
+    if (!phieuXuat)
+      // Nếu không tìm thấy
       return res.status(404).json({ message: "Không tìm thấy phiếu xuất" });
-    }
-
-    res.status(200).json(phieuXuat);
+    res.status(200).json(phieuXuat); // Trả về phiếu xuất
   } catch (error) {
-    console.error("Lỗi khi lấy phiếu xuất:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi lấy phiếu xuất" });
   }
 };
 
 // Tạo phiếu xuất mới
 export const taoPhieuXuat = async (req, res) => {
-  try {
-    const { ngayXuat, loaiXuat, ghiChu, chiTietPhieuXuats } = req.body;
+  const { ngayXuat, loaiXuat, ghiChu, chiTietPhieuXuats } = req.body;
 
-    // Kiểm tra dữ liệu đầu vào
-    if (!chiTietPhieuXuats || chiTietPhieuXuats.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Phải có ít nhất 1 sản phẩm trong phiếu xuất" });
+  if (!Array.isArray(chiTietPhieuXuats) || chiTietPhieuXuats.length === 0) {
+    return res.status(400).json({
+      message: "Phải có ít nhất 1 sản phẩm trong phiếu xuất",
+    });
+  }
+  // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+  const t = await sequelize.transaction();
+
+  try {
+    // 1. KIỂM TRA TỒN KHO TRƯỚC
+    for (const item of chiTietPhieuXuats) {
+      // Lấy thông tin sách và số lượng xuất từ từng mục
+      const { sachID, soLuongXuat } = item;
+      // Tính tổng số lượng nhập của sách này
+      const tongNhap = await ChiTietPhieuNhap.sum("soLuongNhap", {
+        where: { sachID },
+        transaction: t,
+      });
+      // Tính tổng số lượng xuất của sách này
+      const tongXuat = await ChiTietPhieuXuat.sum("soLuongXuat", {
+        where: { sachID },
+        transaction: t,
+      });
+      //
+      const tonKho = (tongNhap || 0) - (tongXuat || 0);
+      // Kiểm tra nếu tồn kho không đủ
+      if (tonKho < soLuongXuat) {
+        const sach = await Sach.findByPk(sachID);
+        await t.rollback();
+        return res.status(400).json({
+          message: `Sách "${sach?.tenSach}" chỉ còn ${tonKho} cuốn`,
+        });
+      }
     }
 
-    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
-    const t = await sequelize.transaction();
-    try {
-      // Tạo phiếu xuất
-      const phieuXuatMoi = await PhieuXuat.create(
+    // 2. TẠO PHIẾU XUẤT
+    const phieuXuat = await PhieuXuat.create(
+      {
+        ngayXuat: ngayXuat || new Date(),
+        loaiXuat: loaiXuat || "bán hàng",
+        ghiChu: ghiChu || null,
+      },
+      { transaction: t }
+    );
+
+    // 3. TẠO CHI TIẾT PHIẾU XUẤT
+    for (const item of chiTietPhieuXuats) {
+      const { sachID, soLuongXuat, donGiaBan } = item;
+      // Tạo chi tiết phiếu xuất
+      await ChiTietPhieuXuat.create(
         {
-          ngayXuat: ngayXuat || new Date(),
-          loaiXuat: loaiXuat || "bán hàng",
-          ghiChu: ghiChu || null,
+          phieuXuatID: phieuXuat.phieuXuatID,
+          sachID,
+          soLuongXuat,
+          donGiaBan,
+          thanhTien: soLuongXuat * donGiaBan,
         },
         { transaction: t }
       );
-
-      // Tạo chi tiết phiếu xuất và kiểm tra tồn kho
-      for (const item of chiTietPhieuXuats) {
-        const { sachID, soLuongXuat, donGiaBan } = item;
-
-        // Kiểm tra tồn kho trước khi xuất
-        // Tính tồn kho, loại trừ phiếu xuất đã hủy đơn
-        const tongNhap = await ChiTietPhieuNhap.findAll({
-          attributes: [
-            [sequelize.fn("SUM", sequelize.col("soLuongNhap")), "total"],
-          ],
-          where: { sachID },
-          raw: true,
-          transaction: t,
-        });
-
-        const tongXuat = await ChiTietPhieuXuat.findAll({
-          attributes: [
-            [sequelize.fn("SUM", sequelize.col("soLuongXuat")), "total"],
-          ],
-          where: {
-            sachID,
-            // Chỉ tính phiếu xuất loại "bán hàng", không tính "Khách trả hàng"
-            "$PhieuXuat.loaiXuat$": "bán hàng",
-          },
-          include: [
-            {
-              model: PhieuXuat,
-              attributes: [],
-              required: true,
-            },
-          ],
-          raw: true,
-          transaction: t,
-        });
-
-        const soLuongNhapTotal = tongNhap[0]?.total || 0;
-        const soLuongXuatTotal = tongXuat[0]?.total || 0;
-        const tonKhoHienTai = soLuongNhapTotal - soLuongXuatTotal;
-
-        // Kiểm tra đủ hàng không
-        if (tonKhoHienTai < soLuongXuat) {
-          await t.rollback();
-          const sach = await Sach.findByPk(sachID);
-          return res.status(400).json({
-            message: `Không đủ hàng trong kho. Sách "${
-              sach?.tenSach || sachID
-            }" chỉ còn ${tonKhoHienTai} cuốn`,
-          });
-        }
-
-        // Tính thành tiền
-        const thanhTien = soLuongXuat * donGiaBan;
-
-        // Tạo chi tiết phiếu xuất
-        await ChiTietPhieuXuat.create(
-          {
-            phieuXuatID: phieuXuatMoi.phieuXuatID,
-            sachID,
-            soLuongXuat,
-            donGiaBan,
-            thanhTien,
-          },
-          { transaction: t }
-        );
-      }
-
-      await t.commit();
-
-      res.status(201).json({
-        message: "Tạo phiếu xuất thành công",
-        phieuXuatID: phieuXuatMoi.phieuXuatID,
-      });
-    } catch (err) {
-      await t.rollback();
-      console.error("Lỗi transaction khi tạo phiếu xuất:", err);
-      return res.status(500).json({ message: err.message });
     }
+    // lưu tất cả thay đổi
+    await t.commit();
+    // Trả về kết quả thành công
+    return res.status(201).json({
+      message: "Tạo phiếu xuất thành công",
+      phieuXuatID: phieuXuat.phieuXuatID,
+    });
   } catch (error) {
-    console.error("Lỗi khi tạo phiếu xuất:", error);
-    res.status(500).json({ message: error.message });
+    await t.rollback();
+    return res.status(500).json({
+      message: "Lỗi khi tạo phiếu xuất",
+    });
   }
 };

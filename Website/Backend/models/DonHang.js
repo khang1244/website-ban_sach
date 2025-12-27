@@ -92,6 +92,7 @@ export const DonHang_Sach = sequelize.define(
     donHangID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: DonHang,
         key: "donHangID",
@@ -100,6 +101,7 @@ export const DonHang_Sach = sequelize.define(
     sachID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: Sach,
         key: "sachID",

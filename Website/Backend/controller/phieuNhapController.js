@@ -1,5 +1,6 @@
 import PhieuNhap from "../models/PhieuNhap.js";
 import ChiTietPhieuNhap from "../models/ChiTietPhieuNhap.js";
+import ChiTietPhieuXuat from "../models/ChiTietPhieuXuat.js";
 import Sach from "../models/Sach.js";
 import NguoiDung from "../models/NguoiDung.js";
 import sequelize from "../config/mysql_config.js";
@@ -7,37 +8,34 @@ import sequelize from "../config/mysql_config.js";
 // Lấy tất cả phiếu nhập
 export const layTatCaPhieuNhap = async (req, res) => {
   try {
-    const danhSachPhieuNhap = await PhieuNhap.findAll({
+    // Lấy tất cả phiếu nhập, kèm thông tin người dùng và chi tiết phiếu nhập
+    const danhSach = await PhieuNhap.findAll({
       include: [
         {
-          model: NguoiDung,
+          model: NguoiDung, // Lấy thông tin người nhập
           as: "nguoiDung",
           attributes: ["nguoiDungID", "tenNguoiDung", "email"],
         },
         {
-          model: ChiTietPhieuNhap,
+          model: ChiTietPhieuNhap, // Lấy chi tiết phiếu nhập
           as: "chiTietPhieuNhaps",
           include: [
-            {
-              model: Sach,
-              attributes: ["sachID", "tenSach"],
-            },
+            { model: Sach, attributes: ["sachID", "tenSach"] }, // Lấy tên sách cho từng chi tiết
           ],
         },
       ],
-      order: [["ngayNhap", "DESC"]],
     });
-    res.status(200).json(danhSachPhieuNhap);
+    res.status(200).json(danhSach); // Trả về danh sách phiếu nhập
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách phiếu nhập:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi lấy danh sách phiếu nhập" });
   }
 };
 
 // Lấy phiếu nhập theo ID
 export const layPhieuNhapTheoID = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // Lấy id từ URL
+    // Tìm phiếu nhập theo id, kèm chi tiết và thông tin sách
     const phieuNhap = await PhieuNhap.findOne({
       where: { phieuNhapID: id },
       include: [
@@ -45,114 +43,80 @@ export const layPhieuNhapTheoID = async (req, res) => {
           model: ChiTietPhieuNhap,
           as: "chiTietPhieuNhaps",
           include: [
-            {
-              model: Sach,
-              attributes: ["sachID", "tenSach", "tacGia"],
-            },
+            { model: Sach, attributes: ["sachID", "tenSach", "tacGia"] },
           ],
         },
       ],
     });
-
-    if (!phieuNhap) {
+    // Kiểm tra nếu không tìm thấy phiếu nhập
+    if (!phieuNhap)
+      // Nếu không tìm thấy
       return res.status(404).json({ message: "Không tìm thấy phiếu nhập" });
-    }
-
-    res.status(200).json(phieuNhap);
+    res.status(200).json(phieuNhap); // Trả về phiếu nhập
   } catch (error) {
-    console.error("Lỗi khi lấy phiếu nhập:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi lấy phiếu nhập" });
   }
 };
 
 // Tạo phiếu nhập mới
 export const taoPhieuNhap = async (req, res) => {
+  const { ngayNhap, ghiChu, chiTietPhieuNhaps, nguoiDungID } = req.body;
+
+  // 1. Phải có ít nhất 1 sách
+  if (!Array.isArray(chiTietPhieuNhaps) || chiTietPhieuNhaps.length === 0) {
+    return res.status(400).json({
+      message: "Phiếu nhập phải có ít nhất 1 sách",
+    });
+  }
+  // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+  const t = await sequelize.transaction();
+
   try {
-    const { ngayNhap, ghiChu, chiTietPhieuNhaps, nguoiDungID } = req.body;
+    // 2. Tạo phiếu nhập (hóa đơn)
+    const phieuNhap = await PhieuNhap.create(
+      {
+        nguoiDungID: nguoiDungID || null,
+        ngayNhap: ngayNhap || new Date(),
+        ghiChu: ghiChu || null,
+      },
+      { transaction: t }
+    );
 
-    // Kiểm tra dữ liệu đầu vào
-    if (!chiTietPhieuNhaps || chiTietPhieuNhaps.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Phải có ít nhất 1 sản phẩm trong phiếu nhập" });
-    }
-
-    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
-    const t = await sequelize.transaction();
-    try {
-      // Tạo phiếu nhập
-      const phieuNhapMoi = await PhieuNhap.create(
+    // 3. Tạo chi tiết phiếu nhập
+    for (const item of chiTietPhieuNhaps) {
+      const { sachID, soLuongNhap, donGiaNhap } = item;
+      // Tạo từng chi tiết phiếu nhập
+      await ChiTietPhieuNhap.create(
         {
-          nguoiDungID: nguoiDungID || null,
-          ngayNhap: ngayNhap || new Date(),
-          ghiChu: ghiChu || null,
+          phieuNhapID: phieuNhap.phieuNhapID,
+          sachID,
+          soLuongNhap,
+          donGiaNhap,
+          thanhTien: soLuongNhap * donGiaNhap,
         },
         { transaction: t }
       );
-
-      // Tạo chi tiết phiếu nhập và cập nhật tồn kho
-      for (const item of chiTietPhieuNhaps) {
-        const { sachID, soLuongNhap, donGiaNhap } = item;
-
-        // Tính thành tiền
-        const thanhTien = soLuongNhap * donGiaNhap;
-
-        // Tạo chi tiết phiếu nhập
-        await ChiTietPhieuNhap.create(
-          {
-            phieuNhapID: phieuNhapMoi.phieuNhapID,
-            sachID,
-            soLuongNhap,
-            donGiaNhap,
-            thanhTien,
-          },
-          { transaction: t }
-        );
-      }
-
-      await t.commit();
-
-      res.status(201).json({
-        message: "Tạo phiếu nhập thành công",
-        phieuNhapID: phieuNhapMoi.phieuNhapID,
-      });
-    } catch (err) {
-      await t.rollback();
-      console.error("Lỗi transaction khi tạo phiếu nhập:", err);
-      return res.status(500).json({ message: err.message });
     }
+
+    // 4. Lưu tất cả
+    await t.commit();
+    // Trả về kết quả thành công
+    return res.status(201).json({
+      message: "Tạo phiếu nhập thành công",
+      phieuNhapID: phieuNhap.phieuNhapID,
+    });
   } catch (error) {
-    console.error("Lỗi khi tạo phiếu nhập:", error);
-    res.status(500).json({ message: error.message });
+    await t.rollback();
+    return res.status(500).json({
+      message: "Lỗi khi tạo phiếu nhập",
+    });
   }
 };
 
 // Lấy tồn kho hiện tại của tất cả sách
 export const layTonKho = async (req, res) => {
   try {
-    // Lấy tổng nhập từ chi tiết phiếu nhập
-    const tongNhap = await ChiTietPhieuNhap.findAll({
-      attributes: [
-        "sachID",
-        [sequelize.fn("SUM", sequelize.col("soLuongNhap")), "tongSoLuongNhap"],
-      ],
-      group: ["sachID"],
-      raw: true,
-    });
-
-    // Lấy tổng xuất từ chi tiết phiếu xuất
-    const ChiTietPhieuXuat = (await import("../models/ChiTietPhieuXuat.js"))
-      .default;
-    const tongXuat = await ChiTietPhieuXuat.findAll({
-      attributes: [
-        "sachID",
-        [sequelize.fn("SUM", sequelize.col("soLuongXuat")), "tongSoLuongXuat"],
-      ],
-      group: ["sachID"],
-      raw: true,
-    });
-
-    // Lấy danh sách tất cả sách
+    // 1. Lấy danh sách sách
     const danhSachSach = await Sach.findAll({
       attributes: [
         "sachID",
@@ -164,39 +128,40 @@ export const layTonKho = async (req, res) => {
       ],
     });
 
-    // Tính tồn kho cho từng sách
-    const tonKho = danhSachSach.map((sach) => {
-      const nhap = tongNhap.find((n) => n.sachID === sach.sachID);
-      const xuat = tongXuat.find((x) => x.sachID === sach.sachID);
+    const ketQua = [];
 
-      const soLuongNhap = nhap ? parseInt(nhap.tongSoLuongNhap) : 0;
-      const soLuongXuat = xuat ? parseInt(xuat.tongSoLuongXuat) : 0;
-      const tonKhoHienTai = soLuongNhap - soLuongXuat;
+    // 2. Tính tồn kho từng sách
+    for (const sach of danhSachSach) {
+      // Tổng nhập
+      const tongNhap = await ChiTietPhieuNhap.sum("soLuongNhap", {
+        where: { sachID: sach.sachID },
+      });
 
-      // chuẩn hoá trạng thái bán
-      const trangThaiBan =
-        sach.trangThaiBan === true ||
-        sach.trangThaiBan === 1 ||
-        sach.trangThaiBan === "1" ||
-        sach.trangThaiBan === "true" ||
-        sach.trangThaiBan === "dangBan";
+      // Tổng xuất
+      const tongXuat = await ChiTietPhieuXuat.sum("soLuongXuat", {
+        where: { sachID: sach.sachID },
+      });
 
-      return {
+      const soLuongNhap = tongNhap || 0;
+      const soLuongXuat = tongXuat || 0;
+
+      ketQua.push({
         sachID: sach.sachID,
         tenSach: sach.tenSach,
         tacGia: sach.tacGia,
         giaGiam: sach.giaGiam || sach.giaBan,
-        trangThaiBan,
+        trangThaiBan: Boolean(sach.trangThaiBan),
         soLuongNhap,
         soLuongXuat,
-        tonKho: tonKhoHienTai,
-      };
-    });
+        tonKho: soLuongNhap - soLuongXuat,
+      });
+    }
 
-    res.status(200).json(tonKho);
+    return res.status(200).json(ketQua);
   } catch (error) {
-    console.error("Lỗi khi lấy tồn kho:", error);
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Lỗi khi lấy tồn kho",
+    });
   }
 };
 
@@ -205,44 +170,28 @@ export const layTonKhoTheoSach = async (req, res) => {
   try {
     const { sachID } = req.params;
 
-    // Tính tổng nhập
-    const tongNhap = await sequelize.query(
-      `
-      SELECT SUM(soLuongNhap) as tongSoLuongNhap
-      FROM chi_tiet_phieu_nhap
-      WHERE sachID = :sachID
-    `,
-      {
-        replacements: { sachID },
-        type: sequelize.QueryTypes.SELECT,
-      }
-    );
+    // Tổng số lượng nhập
+    const tongNhap = await ChiTietPhieuNhap.sum("soLuongNhap", {
+      where: { sachID },
+    });
 
-    // Tính tổng xuất
-    const tongXuat = await sequelize.query(
-      `
-      SELECT SUM(soLuongXuat) as tongSoLuongXuat
-      FROM chi_tiet_phieu_xuat
-      WHERE sachID = :sachID
-    `,
-      {
-        replacements: { sachID },
-        type: sequelize.QueryTypes.SELECT,
-      }
-    );
+    // Tổng số lượng xuất
+    const tongXuat = await ChiTietPhieuXuat.sum("soLuongXuat", {
+      where: { sachID },
+    });
 
-    const soLuongNhap = tongNhap[0]?.tongSoLuongNhap || 0;
-    const soLuongXuat = tongXuat[0]?.tongSoLuongXuat || 0;
-    const tonKhoHienTai = soLuongNhap - soLuongXuat;
+    const soLuongNhap = tongNhap || 0;
+    const soLuongXuat = tongXuat || 0;
 
-    res.status(200).json({
+    return res.status(200).json({
       sachID,
-      soLuongNhap: parseInt(soLuongNhap),
-      soLuongXuat: parseInt(soLuongXuat),
-      tonKho: parseInt(tonKhoHienTai),
+      soLuongNhap,
+      soLuongXuat,
+      tonKho: soLuongNhap - soLuongXuat,
     });
   } catch (error) {
-    console.error("Lỗi khi lấy tồn kho theo sách:", error);
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Lỗi khi lấy tồn kho theo sách",
+    });
   }
 };

@@ -22,7 +22,7 @@ const layMapSachCoPhieuNhap = async () => {
       [
         ChiTietPhieuNhap.sequelize.fn(
           "COUNT",
-          ChiTietPhieuNhap.sequelize.col("chiTietPhieuNhapID")
+          ChiTietPhieuNhap.sequelize.col("phieuNhapID")
         ),
         "soPhieuNhap",
       ],

@@ -34,6 +34,7 @@ const ChiTietGioHang = sequelize.define(
     gioHangID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: GioHang,
         key: "gioHangID",
@@ -42,6 +43,7 @@ const ChiTietGioHang = sequelize.define(
     sachID: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: Sach,
         key: "sachID",
