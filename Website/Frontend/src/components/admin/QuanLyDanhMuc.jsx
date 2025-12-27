@@ -161,7 +161,7 @@ function QuanLyDanhMuc() {
     const napTatCaSach = async () => {
       const sachList = await nhanTatCaCacQuyenSach();
       if (Array.isArray(sachList)) {
-        const used = sachList.map(s => s.danhMucSachID).filter(Boolean);
+        const used = sachList.map((s) => s.danhMucSachID).filter(Boolean);
         setUsedCategoryIds(used);
       }
     };
@@ -322,18 +322,24 @@ function QuanLyDanhMuc() {
                         >
                           <FiEdit2 /> Sửa
                         </button>
-                          <button
-                            onClick={() => handleDelete(globalIdx)}
-                            disabled={usedCategoryIds.includes(cat.danhMucSachID)}
-                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border transition
-                              ${usedCategoryIds.includes(cat.danhMucSachID)
-                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
-                                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'}
+                        <button
+                          onClick={() => handleDelete(globalIdx)}
+                          disabled={usedCategoryIds.includes(cat.danhMucSachID)}
+                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border transition
+                              ${
+                                usedCategoryIds.includes(cat.danhMucSachID)
+                                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
+                                  : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                              }
                             `}
-                            title={usedCategoryIds.includes(cat.danhMucSachID) ? 'Danh mục đã được sử dụng ở sách, không thể xóa' : 'Xóa'}
-                          >
-                            <FiTrash2 /> Xóa
-                          </button>
+                          title={
+                            usedCategoryIds.includes(cat.danhMucSachID)
+                              ? "Danh mục đã được sử dụng ở sách, không thể xóa"
+                              : "Xóa"
+                          }
+                        >
+                          <FiTrash2 /> Xóa
+                        </button>
                       </div>
                     </div>
                   )}
