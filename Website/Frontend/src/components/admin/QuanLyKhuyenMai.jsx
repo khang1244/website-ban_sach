@@ -5,6 +5,7 @@ import {
   capNhatKhuyenMai,
   xoaKhuyenMai,
 } from "../../lib/khuyenmai-apis";
+import { layTatCaDonHang } from "../../lib/don-hang-apis";
 import { useEffect } from "react";
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
@@ -25,6 +26,8 @@ function QuanLyKhuyenMai() {
   };
   // trạng thái danh sách mã khuyến mãi
   const [promos, setPromos] = useState([]);
+  // lưu các mã khuyến mãi đã được sử dụng trong đơn hàng
+  const [usedPromoIds, setUsedPromoIds] = useState([]);
   // --- PHÂN TRANG giống QuanLyDonHang ---
   const promosMotTrang = 4; // số mục mỗi trang
   const [trangHienTai, setTrangHienTai] = useState(1);
@@ -112,7 +115,17 @@ function QuanLyKhuyenMai() {
       const data = await nhanTatCaKhuyenMai();
       setPromos(data);
     };
+    // Lấy tất cả đơn hàng để xác định mã khuyến mãi đã dùng
+    const napDonHang = async () => {
+      const res = await layTatCaDonHang();
+      if (res && res.success && Array.isArray(res.data)) {
+        // Lấy danh sách mã khuyến mãi đã dùng (loại bỏ null/undefined)
+        const used = res.data.map(dh => dh.khuyenMaiID).filter(Boolean);
+        setUsedPromoIds(used);
+      }
+    };
     napTatCaMaKhuyenMai();
+    napDonHang();
   }, []);
 
   // Khi `promos` thay đổi, đảm bảo trang hiện tại không vượt quá tổng trang
@@ -469,7 +482,13 @@ function QuanLyKhuyenMai() {
                         </button>
                         <button
                           onClick={() => handleDelete(promo.khuyenMaiID)}
-                          className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
+                          disabled={usedPromoIds.includes(promo.khuyenMaiID)}
+                          className={`px-3 py-1.5 text-xs font-semibold border rounded-lg transition-all
+                            ${usedPromoIds.includes(promo.khuyenMaiID)
+                              ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+                              : 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100'}
+                          `}
+                          title={usedPromoIds.includes(promo.khuyenMaiID) ? 'Mã đã được sử dụng trong đơn hàng, không thể xóa' : 'Xóa'}
                         >
                           Xóa
                         </button>
