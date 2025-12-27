@@ -55,7 +55,11 @@ export const xoaDanhMucSach = async (req, res) => {
     // Kiểm tra có sách nào thuộc danh mục này không
     const sachCount = await Sach.count({ where: { danhMucSachID } });
     if (sachCount > 0) {
-      return res.status(400).json({ error: "Không thể xóa danh mục này vì có sách thuộc danh mục này." });
+      return res
+        .status(400)
+        .json({
+          error: "Không thể xóa danh mục này vì có sách thuộc danh mục này.",
+        });
     }
     await danhMucSach.destroy();
     res.json({ message: "Danh mục sách đã được xóa." });
