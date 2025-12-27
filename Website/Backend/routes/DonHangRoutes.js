@@ -4,7 +4,6 @@ import {
   taoDonHangMoi,
   capNhatTrangThaiDonHang,
   nhanDonHangTheoID,
-  xoaDonHangTheoID,
   nhanDonHangCuaNguoiDung,
   traHang,
 } from "../controller/donHangController.js";
@@ -27,8 +26,5 @@ router.put("/:id", capNhatTrangThaiDonHang);
 
 // Nhận đơn hàng theo ID
 router.get("/:id", nhanDonHangTheoID);
-
-// Xóa đơn hàng theo ID
-router.delete("/:id", xoaDonHangTheoID);
 
 export default router;

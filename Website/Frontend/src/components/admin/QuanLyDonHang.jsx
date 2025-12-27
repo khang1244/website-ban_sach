@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import {
   capNhatTrangThaiDonHang,
   layTatCaDonHang,
-  xoaDonHangTheoID,
   layDonHangTheoID,
 } from "../../lib/don-hang-apis";
 
@@ -128,19 +127,6 @@ function QuanLyDonHang() {
     trangHienTai * donHangMotTrang // end index
   );
 
-  // Xóa đơn hàng
-  const handleDeleteOrder = (id) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xóa danh mục này?"
-    );
-    if (!confirmDelete) return;
-
-    const updatedOrders = userOrder.filter((order) => order.donHangID !== id);
-    setUserOrder(updatedOrders);
-    // Gọi API để xóa đơn hàng trên server nếu cần thiết
-    alert("Đơn hàng đã được xóa.");
-    xoaDonHangTheoID(id);
-  };
   const formatMoney = (value) =>
     typeof value === "number"
       ? value.toLocaleString("vi-VN", { minimumFractionDigits: 0 })
@@ -170,14 +156,6 @@ function QuanLyDonHang() {
               </option>
             ))}
           </select>
-          {filterStatus && (
-            <button
-              onClick={() => setFilterStatus("")}
-              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap"
-            >
-              ✕ Xóa
-            </button>
-          )}
         </div>
       </div>
 
@@ -212,9 +190,6 @@ function QuanLyDonHang() {
                 </th>
                 <th className="py-3 px-5 text-sm text-gray-600 font-medium">
                   Chi tiết
-                </th>
-                <th className="py-3 px-5 text-sm text-gray-600 font-medium">
-                  Xóa
                 </th>
               </tr>
             </thead>
@@ -271,14 +246,6 @@ function QuanLyDonHang() {
                         className="text-[#004C61] hover:text-[#007A99] font-semibold"
                       >
                         Xem chi tiết
-                      </button>
-                    </td>
-                    <td className="py-3 px-5 text-sm">
-                      <button
-                        onClick={() => handleDeleteOrder(order.donHangID)}
-                        className="text-red-600 hover:text-red-800 font-semibold"
-                      >
-                        Xóa
                       </button>
                     </td>
                   </tr>

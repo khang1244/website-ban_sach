@@ -148,43 +148,6 @@ export const layDonHangTheoID = async (donHangID) => {
   }
 };
 
-// 5. Xóa đơn hàng theo ID
-export const xoaDonHangTheoID = async (donHangID) => {
-  try {
-    const response = await fetch(`${BASE_URL}/donHang/${donHangID}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return {
-          success: false,
-          message: "Đơn hàng không tồn tại",
-          error: "Không tìm thấy đơn hàng để xóa",
-        };
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return {
-      success: true,
-      data: data,
-      message: "Xóa đơn hàng thành công",
-    };
-  } catch (error) {
-    console.error("Lỗi khi xóa đơn hàng:", error);
-    return {
-      success: false,
-      message: "Không thể xóa đơn hàng",
-      error: error.message,
-    };
-  }
-};
-
 // Trả hàng
 export const traHang = async (donHangID, lyDoTraHang) => {
   try {

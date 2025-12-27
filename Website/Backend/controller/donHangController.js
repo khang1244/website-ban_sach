@@ -24,81 +24,51 @@ export const nhanTatCaDonHang = async (req, res) => {
   }
 };
 
-// Tạo đơn hàng mới
 export const taoDonHangMoi = async (req, res) => {
-  try {
-    const {
-      nguoiDungID,
-      tenNguoiDung,
-      soDienThoaiKH,
-      ngayDat,
-      tongTien,
-      trangThai,
-      diaChiGiaoHang,
-      phuongThucThanhToan,
-      phuongThucGiaoHangID,
-      ghiChu,
-      items, // { sachID, soLuong, donGia }
-      khuyenMaiID, // Mã khuyến mãi
-      tienGiam, // Số tiền giảm giá
-      tongTienBanDau, // Tổng tiền ban đầu trước khi giảm giá
-    } = req.body;
+  const {
+    nguoiDungID,
+    tenNguoiDung,
+    soDienThoaiKH,
+    ngayDat,
+    tongTien,
+    trangThai,
+    diaChiGiaoHang,
+    phuongThucThanhToan,
+    phuongThucGiaoHangID,
+    ghiChu,
+    items,
+    khuyenMaiID,
+    tienGiam,
+    tongTienBanDau,
+  } = req.body;
 
-    // Dùng transaction để đảm bảo atomic
-    const t = await sequelize.transaction();
-    try {
-      // Xử lý mã khuyến mãi nếu có
-      let appliedCoupon = null;
+  try {
+    const result = await sequelize.transaction(async (t) => {
+      // 1. Xử lý khuyến mãi
       if (khuyenMaiID) {
-        appliedCoupon = await KhuyenMai.findOne({
-          where: { khuyenMaiID },
+        const coupon = await KhuyenMai.findByPk(khuyenMaiID, {
           transaction: t,
-          lock: t.LOCK ? t.LOCK.UPDATE : undefined,
+          lock: t.LOCK.UPDATE,
         });
 
-        if (!appliedCoupon) {
-          await t.rollback();
-          return res
-            .status(400)
-            .json({ message: "Mã khuyến mãi không tồn tại" });
+        if (!coupon) throw new Error("Mã khuyến mãi không tồn tại");
+
+        if (coupon.ngayHetHan) {
+          const end = new Date(coupon.ngayHetHan);
+          end.setHours(23, 59, 59, 999);
+          if (new Date() > end) throw new Error("Mã khuyến mãi đã hết hạn");
         }
 
-        // Kiểm tra hạn sử dụng
-        const hetHan = appliedCoupon.ngayHetHan
-          ? new Date(appliedCoupon.ngayHetHan)
-          : null;
-        if (hetHan) {
-          const endOfDay = new Date(hetHan);
-          endOfDay.setHours(23, 59, 59, 999);
-          if (new Date() > endOfDay) {
-            await t.rollback();
-            return res
-              .status(400)
-              .json({ message: "Mã khuyến mãi đã hết hạn" });
-          }
-        }
+        if (coupon.soLuong <= 0)
+          throw new Error("Mã khuyến mãi đã hết số lượng");
 
-        if (!appliedCoupon.soLuong || appliedCoupon.soLuong <= 0) {
-          await t.rollback();
-          return res
-            .status(400)
-            .json({ message: "Mã khuyến mãi đã hết số lượng" });
-        }
-
-        //  Cập nhật số lượng mã khuyến mãi
-        console.log(
-          `Áp dụng mã khuyến mãi ${khuyenMaiID}, soLuong trước: ${appliedCoupon.soLuong}`
-        );
-        appliedCoupon.soLuong = appliedCoupon.soLuong - 1;
-        if (appliedCoupon.soLuong <= 0) appliedCoupon.trangThai = false;
-        await appliedCoupon.save({ transaction: t });
-        console.log(
-          `Áp dụng mã khuyến mãi ${khuyenMaiID}, soLuong sau: ${appliedCoupon.soLuong}`
-        );
+        coupon.soLuong -= 1;
+        if (coupon.soLuong === 0) coupon.trangThai = false;
+        await coupon.save({ transaction: t });
       }
 
-      // Tạo đơn hàng mới
-      const donHangMoi = await DonHang.create(
+      // 2. Tạo đơn hàng
+      const donHang = await DonHang.create(
         {
           nguoiDungID,
           tenNguoiDung,
@@ -111,170 +81,116 @@ export const taoDonHangMoi = async (req, res) => {
           phuongThucGiaoHangID,
           ghiChu,
           khuyenMaiID: khuyenMaiID || null,
-          tienGiam: tienGiam || null,
-          tongTienBanDau: tongTienBanDau || null,
+          tienGiam,
+          tongTienBanDau,
         },
         { transaction: t }
       );
 
-      // Thêm các sách vào đơn hàng với số lượng và đơn giá tương ứng
-      for (const item of items) {
-        // Lấy sách hiện tại
-        const sach = await Sach.findOne({
-          where: { sachID: item.sachID },
-          transaction: t,
-        });
+      // 3. Xử lý từng sách
+      for (const { sachID, soLuong, donGia } of items) {
+        const sach = await Sach.findByPk(sachID, { transaction: t });
+        if (!sach) throw new Error(`Sách ${sachID} không tồn tại`);
 
-        if (!sach) {
-          await t.rollback();
-          return res
-            .status(400)
-            .json({ message: `Sách ${item.sachID} không tồn tại` });
-        }
-
-        // Kiểm tra tồn kho
-        const tongNhap = await sequelize.query(
-          `
-          SELECT SUM(soLuongNhap) as tongSoLuongNhap
-          FROM chi_tiet_phieu_nhap
-          WHERE sachID = :sachID
-        `,
-          {
-            replacements: { sachID: item.sachID },
-            type: sequelize.QueryTypes.SELECT,
-            transaction: t,
-          }
+        const [nhap] = await sequelize.query(
+          `SELECT COALESCE(SUM(soLuongNhap),0) AS tong FROM chi_tiet_phieu_nhap WHERE sachID=:sachID`,
+          { replacements: { sachID }, transaction: t }
         );
 
-        const tongXuat = await sequelize.query(
-          `
-          SELECT SUM(soLuongXuat) as tongSoLuongXuat
-          FROM chi_tiet_phieu_xuat
-          WHERE sachID = :sachID
-        `,
-          {
-            replacements: { sachID: item.sachID },
-            type: sequelize.QueryTypes.SELECT,
-            transaction: t,
-          }
+        const [xuat] = await sequelize.query(
+          `SELECT COALESCE(SUM(soLuongXuat),0) AS tong FROM chi_tiet_phieu_xuat WHERE sachID=:sachID`,
+          { replacements: { sachID }, transaction: t }
         );
 
-        const soLuongNhap = tongNhap[0]?.tongSoLuongNhap || 0;
-        const soLuongXuat = tongXuat[0]?.tongSoLuongXuat || 0;
-        const tonKhoHienTai = soLuongNhap - soLuongXuat;
+        const tonKho = nhap[0].tong - xuat[0].tong;
+        if (tonKho < soLuong)
+          throw new Error(`Sách '${sach.tenSach}' không đủ. Tồn kho ${tonKho}`);
 
-        if (tonKhoHienTai < item.soLuong) {
-          await t.rollback();
-          return res.status(400).json({
-            message: `Sách '${sach.tenSach}' không đủ. Tồn kho: ${tonKhoHienTai}, yêu cầu: ${item.soLuong}`,
-          });
-        }
-
-        // Thêm vào bảng trung gian DonHang_Sach
         await DonHang_Sach.create(
           {
-            donHangID: donHangMoi.donHangID,
-            sachID: item.sachID,
-            soLuong: item.soLuong,
-            donGia: item.donGia,
+            donHangID: donHang.donHangID,
+            sachID,
+            soLuong,
+            donGia,
           },
           { transaction: t }
         );
       }
 
-      await t.commit();
-      res.status(201).json({
-        message: "Tạo đơn hàng thành công",
-        donHangID: donHangMoi.donHangID,
-      });
-    } catch (err) {
-      await t.rollback();
-      console.error("Lỗi khi xử lý tạo đơn với transaction:", err);
-      return res.status(500).json({ message: err.message });
-    }
-  } catch (error) {
-    console.error("Lỗi khi tạo đơn hàng mới:", error);
-    res.status(500).json({ message: error.message });
+      return donHang;
+    });
+
+    res.status(201).json({
+      message: "Tạo đơn hàng thành công",
+      donHangID: result.donHangID,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
   }
 };
 
-// Cập nhật trạng thái đơn hàng
 export const capNhatTrangThaiDonHang = async (req, res) => {
-  try {
-    const { id } = req.params; // Lấy ID đơn hàng từ tham số URL
-    const { trangThai } = req.body; // Lấy trạng thái mới từ body yêu cầu
+  const { id } = req.params;
+  const { trangThai } = req.body;
 
-    // Tìm đơn hàng hiện tại
-    const donHang = await DonHang.findOne({
-      where: { donHangID: id },
-      include: [
-        {
-          model: Sach,
-          through: { attributes: ["soLuong", "donGia"] },
-        },
-      ],
+  try {
+    const donHang = await DonHang.findByPk(id, {
+      include: [{ model: Sach }],
     });
 
-    if (!donHang) {
+    if (!donHang)
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
-    }
 
     const trangThaiCu = donHang.trangThai;
 
-    // Nếu đơn hàng đã hủy hoặc đã trả hàng thì không cho phép cập nhật trạng thái nữa
-    if (trangThaiCu === "Đã hủy" || trangThaiCu === "Đã trả hàng") {
+    if (["Đã hủy", "Đã trả hàng"].includes(trangThaiCu)) {
       return res.status(400).json({
-        message:
-          "Không thể cập nhật trạng thái của đơn hàng đã hủy hoặc đã trả hàng",
+        message: "Không thể cập nhật đơn hàng đã hủy hoặc đã trả hàng",
       });
     }
 
-    // Nếu trạng thái không thay đổi thì trả về ok
     if (trangThaiCu === trangThai) {
       return res
         .status(200)
         .json({ message: "Trạng thái đơn hàng không thay đổi" });
     }
 
-    // Dùng transaction để cập nhật trạng thái và hoàn/khấu trừ tồn kho một cách atomic
-    const t = await sequelize.transaction();
-    try {
-      // Khi đơn hàng được hoàn tất/xác nhận => Tạo phiếu xuất để trừ kho
-      // Chỉ trừ kho khi đơn được hoàn thành
+    await sequelize.transaction(async (t) => {
+      // 1. Hoàn thành đơn → tạo phiếu xuất (trừ kho)
       if (trangThai === "Hoàn thành" && trangThaiCu !== "Hoàn thành") {
-        const chiTiets = await DonHang_Sach.findAll({
-          where: { donHangID: id },
+        const daCoPhieuXuat = await PhieuXuat.findOne({
+          where: { donHangID: id, loaiXuat: "bán hàng" },
           transaction: t,
         });
 
-        // Tạo phiếu xuất bán hàng nếu chưa có
-        const phieuXuatBan = await PhieuXuat.findOne({
-          where: { donHangID: donHang.donHangID, loaiXuat: "bán hàng" },
-          transaction: t,
-        });
-
-        if (!phieuXuatBan) {
-          const phieuXuatMoi = await PhieuXuat.create(
+        if (!daCoPhieuXuat) {
+          const phieuXuat = await PhieuXuat.create(
             {
               donHangID: donHang.donHangID,
               nguoiDungID: donHang.nguoiDungID,
               tenNguoiDung: donHang.tenNguoiDung,
               ngayXuat: new Date(),
               loaiXuat: "bán hàng",
-              nguoiXuat: "Hệ thống tự động",
-              ghiChu: `Đơn hàng #${donHang.donHangID} - ${donHang.tenNguoiDung}`,
+              nguoiXuat: "Hệ thống",
+              ghiChu: `Đơn hàng #${donHang.donHangID}`,
             },
             { transaction: t }
           );
 
-          for (const chiTiet of chiTiets) {
+          const chiTiets = await DonHang_Sach.findAll({
+            where: { donHangID: id },
+            transaction: t,
+          });
+
+          for (const ct of chiTiets) {
             await ChiTietPhieuXuat.create(
               {
-                phieuXuatID: phieuXuatMoi.phieuXuatID,
-                sachID: chiTiet.sachID,
-                soLuongXuat: chiTiet.soLuong,
-                donGiaBan: chiTiet.donGia,
-                thanhTien: chiTiet.soLuong * chiTiet.donGia,
+                phieuXuatID: phieuXuat.phieuXuatID,
+                sachID: ct.sachID,
+                soLuongXuat: ct.soLuong,
+                donGiaBan: ct.donGia,
+                thanhTien: ct.soLuong * ct.donGia,
               },
               { transaction: t }
             );
@@ -282,44 +198,34 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
         }
       }
 
-      // Khi hủy đơn hàng => chỉ hoàn lại mã khuyến mãi, không tạo phiếu xuất
+      // 2. Hủy đơn → hoàn mã khuyến mãi
       if (trangThai === "Đã hủy" && trangThaiCu !== "Đã hủy") {
-        // Hoàn lại mã khuyến mãi nếu có
         if (donHang.khuyenMaiID) {
-          const km = await KhuyenMai.findOne({
-            where: { khuyenMaiID: donHang.khuyenMaiID },
+          const km = await KhuyenMai.findByPk(donHang.khuyenMaiID, {
             transaction: t,
           });
 
           if (km) {
-            km.soLuong = (km.soLuong || 0) + 1;
-            if (km.soLuong > 0) km.trangThai = true;
+            km.soLuong += 1;
+            km.trangThai = true;
             await km.save({ transaction: t });
           }
         }
       }
 
-      // Cập nhật trạng thái đơn hàng
-      await DonHang.update(
-        { trangThai },
-        { where: { donHangID: id }, transaction: t }
-      );
+      // 3. Cập nhật trạng thái đơn
+      await donHang.update({ trangThai }, { transaction: t });
+    });
 
-      await t.commit();
-
-      return res
-        .status(200)
-        .json({ message: "Cập nhật trạng thái đơn hàng thành công" });
-    } catch (err) {
-      await t.rollback();
-      console.error("Lỗi khi cập nhật trạng thái đơn trong transaction:", err);
-      return res.status(500).json({ message: err.message });
-    }
+    return res
+      .status(200)
+      .json({ message: "Cập nhật trạng thái đơn hàng thành công" });
   } catch (error) {
-    console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(500).json({ message: error.message });
   }
 };
+
 // Nhận đơn hàng theo tài khoản người dùng
 export const nhanDonHangCuaNguoiDung = async (req, res) => {
   try {
@@ -384,106 +290,73 @@ export const nhanDonHangTheoID = async (req, res) => {
   }
 };
 
-// Trả hàng - Khách hàng trả sản phẩm đã nhận
 export const traHang = async (req, res) => {
-  try {
-    const { donHangID, lyDoTraHang } = req.body;
+  const { donHangID, lyDoTraHang } = req.body;
 
-    // Kiểm tra đơn hàng tồn tại
-    const donHang = await DonHang.findOne({
-      where: { donHangID },
-      include: [
-        {
-          model: Sach,
-          through: { attributes: ["soLuong", "donGia"] },
-        },
-      ],
+  try {
+    const donHang = await DonHang.findByPk(donHangID, {
+      include: [{ model: Sach }],
     });
 
-    if (!donHang) {
+    if (!donHang)
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
-    }
 
-    // Kiểm tra trạng thái đơn hàng (phải là "Hoàn thành" mới được trả)
     if (donHang.trangThai !== "Hoàn thành") {
       return res.status(400).json({
-        message: `Không thể trả hàng. Trạng thái đơn hàng phải là "Hoàn thành", hiện tại là "${donHang.trangThai}"`,
+        message: `Chỉ được trả hàng khi đơn ở trạng thái "Hoàn thành"`,
       });
     }
 
-    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
-    const t = await sequelize.transaction();
-    try {
-      // 1. Cập nhật trạng thái đơn hàng thành "Đã trả hàng"
-      donHang.trangThai = "Đã trả hàng";
-      donHang.ghiChu = lyDoTraHang || donHang.ghiChu;
-      await donHang.save({ transaction: t });
+    let phieuXuatMoi;
 
-      // 2. Tạo phiếu xuất loại "Khách trả hàng"
-      const phieuXuatMoi = await PhieuXuat.create(
+    await sequelize.transaction(async (t) => {
+      // 1. Cập nhật trạng thái đơn hàng
+      await donHang.update(
         {
-          donHangID: donHangID,
-          nguoiDungID: donHang.nguoiDungID,
-          tenNguoiDung: donHang.tenNguoiDung,
-          ngayXuat: new Date(),
-          loaiXuat: "Khách trả hàng",
-          ghiChu: `Lí do trả hàng: ${lyDoTraHang || "Không có lí do"}`,
-          nguoiXuat: "Hệ thống tự động",
+          trangThai: "Đã trả hàng",
+          ghiChu: lyDoTraHang || donHang.ghiChu,
         },
         { transaction: t }
       );
 
-      // 3. Tạo chi tiết phiếu xuất và tăng số lượng tồn kho
-      for (const sach of donHang.Saches) {
-        const soLuong = sach.DonHang_Sach.soLuong;
+      // 2. Tạo phiếu xuất khách trả hàng
+      phieuXuatMoi = await PhieuXuat.create(
+        {
+          donHangID,
+          nguoiDungID: donHang.nguoiDungID,
+          tenNguoiDung: donHang.tenNguoiDung,
+          ngayXuat: new Date(),
+          loaiXuat: "Khách trả hàng",
+          nguoiXuat: "Hệ thống",
+          ghiChu: `Lý do trả hàng: ${lyDoTraHang || "Không có"}`,
+        },
+        { transaction: t }
+      );
 
-        // Tạo chi tiết phiếu xuất
-        // Lưu soLuongXuat là SỐ ÂM (-) để khi tính tồn kho: Nhập - Xuất sẽ cộng lại
-        // Ví dụ: 10 nhập - (-10 xuất) = 10 + 10 = 20
+      // 3. Ghi chi tiết phiếu xuất (số lượng âm để cộng tồn kho)
+      for (const sach of donHang.Saches) {
+        const { soLuong, donGia } = sach.DonHang_Sach;
+
         await ChiTietPhieuXuat.create(
           {
             phieuXuatID: phieuXuatMoi.phieuXuatID,
             sachID: sach.sachID,
-            soLuongXuat: -soLuong, // SỐ ÂM - để cộng lại tồn kho
-            donGiaBan: sach.DonHang_Sach.donGia,
-            thanhTien: soLuong * sach.DonHang_Sach.donGia, // Thành tiền giữ dương để dễ đọc (tiền hoàn lại)
+            soLuongXuat: -soLuong,
+            donGiaBan: donGia,
+            thanhTien: soLuong * donGia,
           },
           { transaction: t }
         );
       }
+    });
 
-      await t.commit();
-
-      res.status(200).json({
-        message: "Trả hàng thành công. Phiếu xuất đã được tạo",
-        donHangID,
-        phieuXuatID: phieuXuatMoi.phieuXuatID,
-      });
-    } catch (err) {
-      await t.rollback();
-      console.error("Lỗi transaction khi trả hàng:", err);
-      return res.status(500).json({ message: err.message });
-    }
+    return res.status(200).json({
+      message: "Trả hàng thành công",
+      donHangID,
+      phieuXuatID: phieuXuatMoi.phieuXuatID,
+    });
   } catch (error) {
-    console.error("Lỗi khi trả hàng:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Xóa đơn hàng theo ID
-export const xoaDonHangTheoID = async (req, res) => {
-  try {
-    const { id } = req.params; // Lấy ID đơn hàng từ tham số URL
-    const donHang = await DonHang.findOne({ where: { donHangID: id } });
-
-    if (!donHang) {
-      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
-    }
-
-    await donHang.destroy();
-    res.status(200).json({ message: "Đơn hàng đã được xóa thành công" });
-  } catch (error) {
-    console.error("Lỗi khi xóa đơn hàng theo ID:", error);
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(500).json({ message: error.message });
   }
 };
