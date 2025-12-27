@@ -13,6 +13,7 @@ import {
   capNhatDanhMucSach,
   nhanTatCaDanhMucSach,
 } from "../../lib/danh-muc-sach-apis";
+import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
 function QuanLyDanhMuc() {
@@ -31,6 +32,8 @@ function QuanLyDanhMuc() {
     );
   };
   const [categories, setCategories] = useState([]);
+  // lưu các danh mục đã được sử dụng ở sách
+  const [usedCategoryIds, setUsedCategoryIds] = useState([]);
   const [input, setInput] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
@@ -148,13 +151,22 @@ function QuanLyDanhMuc() {
     }
   };
 
-  // Load tất cả danh mục khi component mount
+  // Load tất cả danh mục và lấy danh mục đã dùng ở sách khi component mount
   useEffect(() => {
     const napTatCaDanhMucSach = async () => {
       const data = await nhanTatCaDanhMucSach();
       if (data) setCategories(data);
     };
+    // Lấy tất cả sách để xác định danh mục đã dùng
+    const napTatCaSach = async () => {
+      const sachList = await nhanTatCaCacQuyenSach();
+      if (Array.isArray(sachList)) {
+        const used = sachList.map(s => s.danhMucSachID).filter(Boolean);
+        setUsedCategoryIds(used);
+      }
+    };
     napTatCaDanhMucSach();
+    napTatCaSach();
   }, []);
 
   // Nếu số lượng danh mục thay đổi, đảm bảo trang hiện tại hợp lệ
@@ -310,12 +322,18 @@ function QuanLyDanhMuc() {
                         >
                           <FiEdit2 /> Sửa
                         </button>
-                        <button
-                          onClick={() => handleDelete(globalIdx)}
-                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200 transition"
-                        >
-                          <FiTrash2 /> Xóa
-                        </button>
+                          <button
+                            onClick={() => handleDelete(globalIdx)}
+                            disabled={usedCategoryIds.includes(cat.danhMucSachID)}
+                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border transition
+                              ${usedCategoryIds.includes(cat.danhMucSachID)
+                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+                                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'}
+                            `}
+                            title={usedCategoryIds.includes(cat.danhMucSachID) ? 'Danh mục đã được sử dụng ở sách, không thể xóa' : 'Xóa'}
+                          >
+                            <FiTrash2 /> Xóa
+                          </button>
                       </div>
                     </div>
                   )}
