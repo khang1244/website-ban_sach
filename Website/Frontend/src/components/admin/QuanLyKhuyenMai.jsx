@@ -120,7 +120,7 @@ function QuanLyKhuyenMai() {
       const res = await layTatCaDonHang();
       if (res && res.success && Array.isArray(res.data)) {
         // Lấy danh sách mã khuyến mãi đã dùng (loại bỏ null/undefined)
-        const used = res.data.map(dh => dh.khuyenMaiID).filter(Boolean);
+        const used = res.data.map((dh) => dh.khuyenMaiID).filter(Boolean);
         setUsedPromoIds(used);
       }
     };
@@ -484,11 +484,17 @@ function QuanLyKhuyenMai() {
                           onClick={() => handleDelete(promo.khuyenMaiID)}
                           disabled={usedPromoIds.includes(promo.khuyenMaiID)}
                           className={`px-3 py-1.5 text-xs font-semibold border rounded-lg transition-all
-                            ${usedPromoIds.includes(promo.khuyenMaiID)
-                              ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
-                              : 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100'}
+                            ${
+                              usedPromoIds.includes(promo.khuyenMaiID)
+                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
+                                : "text-red-600 bg-red-50 border-red-200 hover:bg-red-100"
+                            }
                           `}
-                          title={usedPromoIds.includes(promo.khuyenMaiID) ? 'Mã đã được sử dụng trong đơn hàng, không thể xóa' : 'Xóa'}
+                          title={
+                            usedPromoIds.includes(promo.khuyenMaiID)
+                              ? "Mã đã được sử dụng trong đơn hàng, không thể xóa"
+                              : "Xóa"
+                          }
                         >
                           Xóa
                         </button>
