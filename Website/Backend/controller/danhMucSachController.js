@@ -1,4 +1,5 @@
 import DanhMucSach from "../models/DanhMucSach.js";
+import Sach from "../models/Sach.js";
 
 // Lấy tất cả các danh mục sách
 export const nhanTatCaDanhMucSach = async (req, res) => {
@@ -50,6 +51,11 @@ export const xoaDanhMucSach = async (req, res) => {
     const danhMucSach = await DanhMucSach.findByPk(danhMucSachID);
     if (!danhMucSach) {
       return res.status(404).json({ error: "Danh mục sách không tồn tại." });
+    }
+    // Kiểm tra có sách nào thuộc danh mục này không
+    const sachCount = await Sach.count({ where: { danhMucSachID } });
+    if (sachCount > 0) {
+      return res.status(400).json({ error: "Không thể xóa danh mục này vì có sách thuộc danh mục này." });
     }
     await danhMucSach.destroy();
     res.json({ message: "Danh mục sách đã được xóa." });

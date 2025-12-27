@@ -78,26 +78,36 @@ function QuanLyDanhMuc() {
     const tenDanhMuc = getCatName(categories[idx]);
     const danhMucID = categories[idx]?.danhMucSachID;
 
-    console.log("Đang xóa danh mục:", { idx, danhMucID, tenDanhMuc });
-
     try {
-      // Gọi API xóa TRƯỚC
-      await xoaDanhMucSach(danhMucID);
-
-      // Sau khi xóa thành công, cập nhật UI
-      setCategories(categories.filter((_, i) => i !== idx));
-
-      showToast(
-        "success",
-        "Thành công",
-        "Xóa danh mục " + tenDanhMuc + " thành công!"
-      );
+      const res = await xoaDanhMucSach(danhMucID);
+      // Nếu trả về có message là xóa thành công
+      if (res && res.message) {
+        setCategories(categories.filter((_, i) => i !== idx));
+        showToast(
+          "success",
+          "Thành công",
+          "Xóa danh mục " + tenDanhMuc + " thành công!"
+        );
+      } else if (res && res.error) {
+        // Nếu trả về error từ backend
+        showToast(
+          "warning",
+          "Không thể xóa",
+          `Không thể xóa danh mục "${tenDanhMuc}" vì còn sách thuộc danh mục này!`
+        );
+      } else {
+        showToast(
+          "error",
+          "Lỗi",
+          "Có lỗi xảy ra khi xóa danh mục. Vui lòng thử lại!"
+        );
+      }
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
       showToast(
         "error",
         "Lỗi",
-        "Không thể xóa danh mục này vì có sách thuộc danh mục này. Vui lòng xóa các sách liên quan trước"
+        "Có lỗi xảy ra khi xóa danh mục. Vui lòng thử lại!"
       );
     }
   };
@@ -161,7 +171,7 @@ function QuanLyDanhMuc() {
   useEffect(() => {
     const tong = Math.max(1, Math.ceil(categories.length / danhMucMotTrang));
     if (trangHienTai > tong) setTrangHienTai(tong);
-  }, [categories]);
+  }, [categories, trangHienTai]);
 
   // hàm xử lý khi hủy sửa
   const handleCancel = () => {
