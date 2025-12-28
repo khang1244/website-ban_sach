@@ -55,6 +55,7 @@ function ChiTietSanPham() {
     }
   };
 
+  // Hàm tăng số lượng sản phẩm
   const tangSoLuong = () => {
     if (chuaNhapKho) {
       alert("Admin chưa nhập kho vui lòng quay lại sau. Xin cảm ơn");
@@ -291,6 +292,7 @@ function ChiTietSanPham() {
   if (!chiTietSanPham) {
     return <div>Đang tải chi tiết sản phẩm...</div>;
   }
+
   // Hàm định dạng ngày tháng từ ISO sang dd/mm/yyyy
   const formatDate = (isoDate) => {
     if (!isoDate) return "";

@@ -16,6 +16,7 @@ function DangKy() {
     message: "",
   });
 
+  // Hàm hiển thị toast thông báo
   const showToast = (type, title, message) => {
     setToast({ show: true, type, title, message });
     setTimeout(
@@ -56,6 +57,7 @@ function DangKy() {
     }
   };
 
+  // Xử lý đăng ký
   const xuLyDangKy = async () => {
     // Kiểm tra xem mật khẩu có khớp không
     if (!kiemTraMatKhau()) return;

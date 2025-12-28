@@ -22,7 +22,7 @@ function LichSuDonHang() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 5; // Số đơn hàng trên mỗi trang
 
-  // Helper function định dạng ngày + giờ
+  // Định dạng ngày tháng theo chuẩn Việt Nam
   function formatDate(dateString) {
     const options = {
       year: "numeric",
@@ -36,7 +36,7 @@ function LichSuDonHang() {
       .replace(",", "");
   }
 
-  // Helper function để lấy icon và màu sắc trạng thái (tách màu rõ ràng)
+  // Lấy kiểu hiển thị và màu sắc dựa trên trạng thái đơn hàng
   function getStatusStyle(status = "") {
     const s = (status || "").toLowerCase();
 
@@ -84,6 +84,7 @@ function LichSuDonHang() {
     };
   }
 
+  // Gọi API để lấy đơn hàng của người dùng khi component được mount
   useEffect(() => {
     // Gọi hàm có sẵn trong file don-hang-apis.js để lấy đơn hàng của người dùng từ server
     async function napDuLieuDonHangCuaNguoiDung() {

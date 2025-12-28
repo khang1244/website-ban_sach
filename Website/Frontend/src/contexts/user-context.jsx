@@ -14,22 +14,22 @@ const UserProvider = ({ children }) => {
 
   console.log("UserContext - user:", user);
 
-  // Kiểm tra và khôi phục thông tin user từ localStorage khi khởi động ứng dụng
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
+  // // Kiểm tra và khôi phục thông tin user từ localStorage khi khởi động ứng dụng
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("user");
+  //   if (savedUser) {
+  //     const parsedUser = JSON.parse(savedUser);
 
-      const avatarObject = parsedUser.avatar
-        ? JSON.parse(parsedUser.avatar)
-        : null;
+  //     const avatarObject = parsedUser.avatar
+  //       ? JSON.parse(parsedUser.avatar)
+  //       : null;
 
-      setUser({
-        ...parsedUser,
-        avatar: avatarObject,
-      });
-    }
-  }, []);
+  //     setUser({
+  //       ...parsedUser,
+  //       avatar: avatarObject,
+  //     });
+  //   }
+  // }, []);
 
   // Hàm tải số lượng sản phẩm (distinct) trong giỏ hàng từ server
   const refreshCartCount = async () => {
@@ -78,7 +78,7 @@ const UserProvider = ({ children }) => {
     }
   };
 
-  // Khi user thay đổi (ví dụ đăng nhập), cập nhật số lượng giỏ hàng
+  // Tự động tải lại số lượng giỏ hàng khi thông tin user thay đổi
   useEffect(() => {
     if (user) {
       refreshCartCount();

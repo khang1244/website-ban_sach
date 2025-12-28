@@ -26,6 +26,7 @@ function QuanLyBinhLuan() {
     napDuLieuBinhLuan();
   }, []);
 
+  // Xóa bình luận
   const deletebl = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa bình luận này?")) return;
 
@@ -49,6 +50,7 @@ function QuanLyBinhLuan() {
     }
   };
 
+  // Duyệt / Hủy duyệt bình luận
   const toggleDuyet = async (id, current) => {
     const thongBao = current
       ? "Bạn có chắc chắn muốn hủy duyệt bình luận này?"

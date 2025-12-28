@@ -62,6 +62,7 @@ function QuanLyTonKho() {
     }
   }, [tabHienTai]);
 
+  // Load dữ liệu khi component mount hoặc tab thay đổi
   useEffect(() => {
     loadData();
   }, [loadData]);

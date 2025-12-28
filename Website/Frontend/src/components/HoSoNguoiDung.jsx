@@ -74,7 +74,7 @@ function HoSoNguoiDung() {
       showToast("info", "Thất bại", "Cập nhật hồ sơ thất bại!");
     }
 
-    // Cập nhật thông tin người dùng trong localStorage để có thể hiển thị thông tin mới nhất (thực tế phải thay đổi giá trị biến trong context hoặc redux)
+    // Cập nhật lại dữ liệu người dùng trong localStorage
     const duLieuNguoiDungMoiDeLuuVaoLocalStorage = {
       ...user,
       ...duLieuNguoiDungMoi,
@@ -106,7 +106,7 @@ function HoSoNguoiDung() {
     }
   }, []);
 
-  // Lấy địa chỉ mặc định từ server
+  // Lấy địa chỉ mặc định của người dùng
   useEffect(() => {
     const fetchDefaultAddress = async () => {
       if (!user?.nguoiDungID) return;

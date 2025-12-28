@@ -16,9 +16,10 @@ const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
 
 function QuanLySach() {
-  const [books, setBooks] = useState([]);
-  const [boLocTrangThai, setBoLocTrangThai] = useState("tatCa");
+  const [books, setBooks] = useState([]); // Mảng tất cả các quyển sách
+  const [boLocTrangThai, setBoLocTrangThai] = useState("tatCa"); // "dangBan", "ngungBan", "tatCa"
   const [form, setForm] = useState({
+    // Dữ liệu form thêm / sửa sách
     sachID: null,
     images: [],
     tenSach: "",
@@ -34,7 +35,8 @@ function QuanLySach() {
     trangThaiBan: true,
     moTa: "",
   });
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState(null); // ID của sách đang sửa, null nếu không có
+  // Chuẩn hóa trạng thái bán của sách
   const chuanHoaTrangThaiBan = (value) => {
     if (value === undefined || value === null) return true;
     return (
@@ -45,7 +47,7 @@ function QuanLySach() {
       value === "dangBan"
     );
   };
-
+  // Chuẩn hóa dữ liệu sách nhận từ API
   const chuanHoaSachTuApi = (book) => ({
     ...book,
     images: Array.isArray(book.images)
@@ -63,6 +65,7 @@ function QuanLySach() {
     coPhieuNhap: Boolean(book.coPhieuNhap),
   });
 
+  // Hàm nạp lại danh sách sách từ server
   const napLaiDanhSachSach = async () => {
     const booksData = await nhanTatCaCacQuyenSach();
     if (!booksData) return;
@@ -91,6 +94,7 @@ function QuanLySach() {
       setForm({ ...form, [name]: value });
     }
   };
+
   // Xử lý submit form thêm / sửa sách
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -155,7 +159,6 @@ function QuanLySach() {
       // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
       alert("Thêm sách thành công!");
     }
-
     setForm({
       id: null,
       images: [],
@@ -174,6 +177,7 @@ function QuanLySach() {
     });
   };
 
+  // Xử lý khi nhấn nút sửa sách
   const handleEdit = (book) => {
     const ngayXuatBan = new Date(book.ngayXuatBan);
     const formatDate = ngayXuatBan.toISOString().split("T")[0];
@@ -219,6 +223,7 @@ function QuanLySach() {
     setEditId(null);
   };
 
+  // Xử lý xóa sách
   const handleDelete = async (sachID) => {
     // Tìm sách cần xóa trong state
     const bookToDelete = books.find((b) => b.sachID === sachID);
@@ -261,6 +266,7 @@ function QuanLySach() {
     }
   };
 
+  // Hàm định dạng ngày tháng từ ISO sang dd/mm/yyyy
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
 
@@ -275,6 +281,7 @@ function QuanLySach() {
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
 
+  // Xử lý ngừng bán sách
   const xuLyNgungBan = async (book) => {
     const ok = window.confirm("Bạn có chắc muốn ngừng bán sản phẩm này?");
     if (!ok) return;
@@ -287,6 +294,7 @@ function QuanLySach() {
     alert("Đã chuyển sách sang trạng thái ngừng bán.");
   };
 
+  // Xử lý bán lại sách
   const xuLyBanLai = async (book) => {
     const ok = window.confirm("Bạn có muốn mở bán lại sản phẩm này?");
     if (!ok) return;
@@ -299,11 +307,12 @@ function QuanLySach() {
     alert("Đã chuyển sách sang trạng thái đang bán.");
   };
 
-  // useEffect để gọi API lấy tất cả các quyển sách từ database khi component được mount (kết nối, hiển thị) lần đầu tiên
+  // Nạp lại danh sách sách khi component được gắn vào DOM
   useEffect(() => {
     napLaiDanhSachSach();
   }, []);
 
+  // --- LỌC SÁCH THEO TRẠNG THÁI ---
   const sachDaLoc = books.filter((book) => {
     const trangThai = chuanHoaTrangThaiBan(book.trangThaiBan);
     if (boLocTrangThai === "dangBan") return trangThai;
@@ -335,6 +344,7 @@ function QuanLySach() {
     return obj instanceof File;
   };
 
+  // Chuẩn hóa ảnh hiển thị (file hoặc url)
   const chuanHoaAnhHienThi = (anh) => {
     if (isFile(anh)) {
       return { url: URL.createObjectURL(anh) };
@@ -345,6 +355,7 @@ function QuanLySach() {
   // Modal xem ảnh (chỉ cho phần hình ảnh)
   const [anhModal, setAnhModal] = useState({ hien: false, dsAnh: [] });
 
+  // Mở modal xem ảnh với danh sách ảnh
   const moModalAnh = (dsAnh) => {
     const ds = Array.isArray(dsAnh) ? dsAnh : [];
     setAnhModal({

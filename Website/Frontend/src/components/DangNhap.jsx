@@ -23,8 +23,8 @@ function DangNhap() {
       3000
     );
   };
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(""); // State quản lý email
+  const [password, setPassword] = useState(""); // State quản lý mật khẩu
 
   // Sử dụng user context
   const { setUser } = useContext(UserContext);

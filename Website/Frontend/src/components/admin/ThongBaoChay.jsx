@@ -3,6 +3,7 @@ import React from "react";
 function ThongBaoChay({ show, type, title, message, onClose }) {
   if (!show) return null;
 
+  // Chọn màu nền dựa trên loại thông báo
   const tone =
     type === "success"
       ? "bg-green-600"

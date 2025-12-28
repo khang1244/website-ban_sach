@@ -23,6 +23,7 @@ function FormBinhLuan({ sachID, dongFormBinhLuan }) {
   const [noiDung, setNoiDung] = useState(""); // Nội dung bình luận
   const [danhGia, setDanhGia] = useState(5); // Đánh giá sao (1-5)
 
+  // Xử lý gửi bình luận
   const xuLyGuiBinhLuan = async (e) => {
     e.preventDefault();
 
@@ -140,6 +141,7 @@ function FormTraHang({ donHangID, dongForm, onTraHangSuccess }) {
   const [lyDoTraHang, setLyDoTraHang] = useState("");
   const [dangLoading, setDangLoading] = useState(false);
 
+  // Xử lý gửi yêu cầu trả hàng
   const xuLyTraHang = async (e) => {
     e.preventDefault();
 

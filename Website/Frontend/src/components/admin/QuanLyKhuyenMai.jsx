@@ -50,6 +50,7 @@ function QuanLyKhuyenMai() {
     setForm({ ...form, [name]: value });
   };
 
+  // Hàm xử lý gửi form (thêm hoặc cập nhật)
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Cập nhật khuyến mãi

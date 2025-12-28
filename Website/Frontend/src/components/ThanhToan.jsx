@@ -239,7 +239,7 @@ function ThanhToan() {
       alert("Đặt hàng thất bại!");
     }
   };
-  // Chuyển đến trang xác nhận đơn hàng
+  // Khởi tạo dữ liệu giỏ hàng từ server khi component được mount
   useEffect(() => {
     const napDuLieuGioHang = async () => {
       const user = JSON.parse(localStorage.getItem("user"));

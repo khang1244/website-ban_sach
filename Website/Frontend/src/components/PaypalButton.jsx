@@ -11,12 +11,14 @@ const PayPalButton = ({
   const amountInUSD = (amountInVND * vndToUsdRate).toFixed(2); // Tiền khi quy đổi sang USD, làm tròn đến 2 chữ số thập phân
   const router = useNavigate();
   return (
+    // Cung cấp PayPal Script Provider với clientId và cấu hình
     <PayPalScriptProvider
       options={{
         clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID, // Lấy từ biến môi trường, khóa bí mật
-        currency: "USD", // Use USD as the currency
+        currency: "USD", // Sử dụng USD cho PayPal
       }}
     >
+      // Cấu hình nút PayPal
       <PayPalButtons
         createOrder={(data, actions) => {
           if (!termIsAccepted) {
@@ -27,8 +29,8 @@ const PayPalButton = ({
             purchase_units: [
               {
                 amount: {
-                  currency_code: "USD", // Use USD
-                  value: amountInUSD, // Converted amount in USD
+                  currency_code: "USD", // Sử dụng USD
+                  value: amountInUSD, // Số tiền sau khi quy đổi sang USD
                 },
               },
             ],

@@ -19,6 +19,7 @@ function Navigation() {
     title: "",
     message: "",
   });
+  // Hàm hiển thị thông báo
   const showToast = (type, title, message) => {
     setToast({ show: true, type, title, message });
     setTimeout(
@@ -26,6 +27,7 @@ function Navigation() {
       3000
     );
   };
+  // Hàm xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);

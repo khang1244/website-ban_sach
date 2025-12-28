@@ -84,6 +84,7 @@ function QuanLyPhuongThucGiaoHang() {
     fetchUsedShipping();
   }, []);
 
+  // Xử lí thay đổi input form
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -92,6 +93,7 @@ function QuanLyPhuongThucGiaoHang() {
     }));
   };
 
+  // Đặt lại form và trạng thái chỉnh sửa
   const resetForm = () => {
     setFormData({
       tenPhuongThuc: "",
@@ -103,10 +105,12 @@ function QuanLyPhuongThucGiaoHang() {
     setEditingItem(null);
   };
 
+  // Xử lí thêm phương thức giao hàng mới
   const handleAdd = () => {
     resetForm();
     setShowModal(true);
   };
+
   // Xử lí kích hoạt lại phương thức giao hàng
   const handleActivate = async (item) => {
     try {
@@ -140,6 +144,7 @@ function QuanLyPhuongThucGiaoHang() {
     }
   };
 
+  // Xử lí sửa phương thức giao hàng
   const handleEdit = (item) => {
     setFormData({
       tenPhuongThuc: item.tenPhuongThuc,
@@ -248,9 +253,7 @@ function QuanLyPhuongThucGiaoHang() {
     }
   };
 
-  /**
-   * Lọc danh sách phương thức giao hàng theo từ khóa tìm kiếm và trạng thái
-   */
+  // --- LỌC VÀ TÌM KIẾM ---
   const filteredPhuongThucGiaoHangs = phuongThucGiaoHangs.filter((item) => {
     // Chuyển mọi trường sang chuỗi trước khi gọi toLowerCase() để tránh lỗi
     const ten = String(item.tenPhuongThuc || "").toLowerCase();
@@ -288,9 +291,7 @@ function QuanLyPhuongThucGiaoHang() {
     trangPhuongThucHienTai * phuongThucMotTrang
   );
 
-  /**
-   * Định dạng tiền tệ VND
-   */
+  // Định dạng tiền tệ VND
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -305,6 +306,8 @@ function QuanLyPhuongThucGiaoHang() {
     title: "",
     message: "",
   });
+
+  // Hàm hiển thị thông báo
   const showToast = (type, title, message) => {
     setToast({ show: true, type, title, message });
     setTimeout(

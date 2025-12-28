@@ -29,6 +29,7 @@ function GioHang() {
   const timeoutRef = useRef(null); // Ref để lưu timeout khi cập nhật số lượng
   const { refreshCartCount } = useContext(UserContext); // Hàm để làm mới số lượng sản phẩm trong giỏ hàng ở header
 
+  // Cập nhật số lượng sản phẩm trong giỏ hàng
   async function updateQuantity(index, delta) {
     const item = cart[index];
     const soLuongMoi = item.soLuong + delta;
@@ -82,7 +83,7 @@ function GioHang() {
       }
     }, 500);
   }
-
+  // Xoá sản phẩm khỏi giỏ hàng
   async function removeItem(index) {
     const sachID = cart[index].sachID;
     const newCart = cart.filter((_, i) => i !== index);
@@ -102,7 +103,7 @@ function GioHang() {
       console.error("Lỗi khi xoá sản phẩm:", error);
     }
   }
-
+  // Tải dữ liệu giỏ hàng khi component được mount
   useEffect(() => {
     const napDuLieuGioHang = async () => {
       const user = JSON.parse(localStorage.getItem("user"));

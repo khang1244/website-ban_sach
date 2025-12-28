@@ -5,9 +5,11 @@ import { kiemTraMaOTP } from "../lib/nguoi-dung-apis";
 function NhapMaOTP() {
   const [otp, setOtp] = useState("");
 
-  const location = useLocation();
-  const { email } = location.state || {};
-  const navigate = useNavigate();
+  const location = useLocation(); // Lấy thông tin từ location state
+  const { email } = location.state || {}; // Lấy email từ state
+  const navigate = useNavigate(); // Khai báo useNavigate để chuyển hướng
+
+  // Xử lý kiểm tra mã OTP
   const xuLyKiemTraMaOTP = async () => {
     // Gọi API để kiểm tra mã OTP
     const { status, message, userID } = await kiemTraMaOTP(email, otp);

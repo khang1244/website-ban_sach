@@ -16,12 +16,13 @@ import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
 // Trang quản lý địa chỉ: cho phép thêm, chỉnh sửa (thay mới), đặt mặc định, xóa.
 // Checkout sẽ chỉ cho phép thêm mới + chọn mặc định, còn chỉnh sửa/xóa nằm tại đây.
 function QuanLyDiaChi() {
-  const navigate = useNavigate();
-  const [addresses, setAddresses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
+  const navigate = useNavigate(); // Hook điều hướng
+  const [addresses, setAddresses] = useState([]); // Danh sách địa chỉ người dùng
+  const [loading, setLoading] = useState(false); // Trạng thái tải địa chỉ
+  const [editingId, setEditingId] = useState(null); // ID địa chỉ đang chỉnh sửa
+  const [selectedId, setSelectedId] = useState(null); // ID địa chỉ được chọn
   const [form, setForm] = useState({
+    // Dữ liệu form địa chỉ
     diaChiCuThe: "",
     tinhThanhPho: "",
     xaPhuong: "",
@@ -45,7 +46,7 @@ function QuanLyDiaChi() {
     }
     return null;
   });
-
+  // Nạp danh sách địa chỉ của người dùng
   const loadAddresses = useCallback(async () => {
     if (!user) return;
     try {
@@ -61,6 +62,7 @@ function QuanLyDiaChi() {
     }
   }, [user]);
 
+  // Tự động nạp địa chỉ khi component mount hoặc user thay đổi
   useEffect(() => {
     if (!user) {
       alert("Vui lòng đăng nhập để quản lý địa chỉ");
@@ -70,6 +72,7 @@ function QuanLyDiaChi() {
     loadAddresses();
   }, [user, navigate, loadAddresses]);
 
+  // Đặt lại form về mặc định
   const resetForm = () => {
     setForm({
       diaChiCuThe: "",
@@ -80,7 +83,7 @@ function QuanLyDiaChi() {
     setWards([]);
     setEditingId(null);
   };
-
+  // Xử lý submit form thêm/cập nhật địa chỉ
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -128,7 +131,7 @@ function QuanLyDiaChi() {
       alert("Không thể lưu địa chỉ. Vui lòng thử lại.");
     }
   };
-
+  // Xử lý xóa địa chỉ
   const handleDelete = async (id) => {
     if (!confirm("Xóa địa chỉ này?")) return;
     try {
@@ -139,7 +142,7 @@ function QuanLyDiaChi() {
       alert("Không thể xóa địa chỉ. Vui lòng thử lại.");
     }
   };
-
+  // Đặt địa chỉ làm mặc định
   const handleSetDefault = async (id) => {
     try {
       await datMacDinhDiaChi(id);
@@ -149,7 +152,7 @@ function QuanLyDiaChi() {
       alert("Không thể đặt mặc định. Vui lòng thử lại.");
     }
   };
-
+  // Chỉnh sửa địa chỉ
   const handleEdit = (addr) => {
     setEditingId(addr.diaChiID);
     setForm({

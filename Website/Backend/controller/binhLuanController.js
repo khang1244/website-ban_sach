@@ -26,7 +26,7 @@ export const nhanBinhLuanTheoSachID = async (req, res) => {
       ],
       order: [["createdAt", "DESC"]],
     });
-    // Chuyển đổi dữ liệu để bao gồm email từ bảng NguoiDung
+    // Kết hợp dữ liệu bình luận với email người dùng
     const data = binhLuans.map((bl) => ({
       ...bl.toJSON(),
       email: bl.NguoiDung?.email || null,

@@ -6,6 +6,7 @@ import ThongBaoChay from "./admin/ThongBaoChay";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/user-context";
 
+// Hàm đánh giá độ mạnh mật khẩu
 function passwordStrength(password) {
   let score = 0;
   if (!password) return { score: 0, label: "Rất yếu", color: "bg-red-500" };
@@ -19,7 +20,7 @@ function passwordStrength(password) {
   if (score <= 3) return { score, label: "Trung bình", color: "bg-yellow-400" };
   return { score, label: "Mạnh", color: "bg-green-500" };
 }
-
+// Component đổi mật khẩu
 export default function DoiMatKhau() {
   const { setUser } = useContext(UserContext);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -32,6 +33,7 @@ export default function DoiMatKhau() {
     title: "",
     message: "",
   });
+  // Hàm hiển thị thông báo
   const showToast = (type, title, message) => {
     setToast({ show: true, type, title, message });
     setTimeout(
@@ -40,11 +42,12 @@ export default function DoiMatKhau() {
     );
   };
 
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const navigate = useNavigate();
+  const [showCurrent, setShowCurrent] = useState(false); // Hiển thị mật khẩu hiện tại
+  const [showNew, setShowNew] = useState(false); // Hiển thị mật khẩu mới
+  const [showConfirm, setShowConfirm] = useState(false); // Hiển thị xác nhận mật khẩu mới
+  const navigate = useNavigate(); // Sử dụng useNavigate để chuyển hướng
 
+  // Xử lý gửi biểu mẫu đổi mật khẩu
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -93,7 +96,7 @@ export default function DoiMatKhau() {
       setLoading(false);
     }
   };
-
+  // Đánh giá độ mạnh mật khẩu mới
   const strength = passwordStrength(newPassword);
 
   return (

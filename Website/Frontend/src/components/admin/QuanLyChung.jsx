@@ -20,9 +20,9 @@ function QuanLyChung() {
     topNguoiDung: [],
   });
 
-  const [doanhThuTheoThang, setDoanhThuTheoThang] = useState([]);
-  const [loadingChart, setLoadingChart] = useState(true);
-  const [thangDuocChon, setThangDuocChon] = useState("");
+  const [doanhThuTheoThang, setDoanhThuTheoThang] = useState([]); // Dữ liệu doanh thu theo tháng
+  const [loadingChart, setLoadingChart] = useState(true); // Biến trạng thái để quản lý trạng thái tải biểu đồ
+  const [thangDuocChon, setThangDuocChon] = useState(""); // Tháng được chọn để hiển thị biểu đồ
 
   // Hàm định dạng tiền tệ
   const formatCurrency = (value) =>

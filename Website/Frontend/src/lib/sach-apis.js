@@ -6,7 +6,6 @@ import { BASE_URL } from "./baseUrl";
 export const themSach = async (sach) => {
   try {
     const response = await fetch(`${BASE_URL}/sach`, {
-      // axios
       method: "POST",
       headers: {
         "Content-Type": "application/json",

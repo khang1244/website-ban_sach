@@ -10,6 +10,7 @@ function NhapMatKhauMoi() {
   const { userID } = location.state || {};
   const router = useNavigate();
 
+  // Xử lý đặt lại mật khẩu
   const xuLyDatLaiMatKhau = async () => {
     if (matKhauMoi === xacNhanMatKhau) {
       // Gọi API để đặt lại mật khẩu

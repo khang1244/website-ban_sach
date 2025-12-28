@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { yeuCauNhanOTPCapNhatMatKhau } from "../lib/nguoi-dung-apis";
 
 const QuenMatKhau = () => {
-  const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+  const [email, setEmail] = useState(""); // State quản lý email
+  const navigate = useNavigate(); // Khai báo useNavigate để chuyển hướng
 
+  // Xử lý gửi yêu cầu nhận mã OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { status, message } = await yeuCauNhanOTPCapNhatMatKhau(email);
