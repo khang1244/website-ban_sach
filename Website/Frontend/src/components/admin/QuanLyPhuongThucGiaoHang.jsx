@@ -10,13 +10,16 @@ import {
   FaSearch, // Icon tìm kiếm
   FaMoneyBillWave, // Icon cho phí giao hàng
   FaClock, // Icon cho thời gian giao hàng
+  FaTimesCircle, // Icon cho ngừng hoạt động
+  FaCheckCircle, // Icon cho kích hoạt lại
 } from "react-icons/fa";
 import {
   layTatCaPhuongThucGiaoHang,
   taoPhuongThucGiaoHang,
   capNhatPhuongThucGiaoHang,
   xoaVinhVienPhuongThucGiaoHang,
-} from "../../lib/phuong-thuc-giao-hang-apis"; // Giữ nguyên imports API
+} from "../../lib/phuong-thuc-giao-hang-apis";
+import { layTatCaDonHang } from "../../lib/don-hang-apis";
 import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
 
 /**
@@ -24,6 +27,8 @@ import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường d�
  * Cho phép admin thêm, sửa, xóa và quản lý các phương thức giao hàng
  */
 function QuanLyPhuongThucGiaoHang() {
+  // Lưu các phương thức đã được sử dụng ở đơn hàng
+  const [usedShippingIds, setUsedShippingIds] = useState([]);
   // GIỮ NGUYÊN TẤT CẢ LOGIC VÀ STATE CỦA BẠN
   const [phuongThucGiaoHangs, setPhuongThucGiaoHangs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +68,20 @@ function QuanLyPhuongThucGiaoHang() {
       setLoading(false);
     }
   };
-
+  // Tải danh sách phương thức giao hàng khi component mount
   useEffect(() => {
     loadPhuongThucGiaoHangs();
+    // Lấy tất cả đơn hàng để xác định phương thức đã dùng
+    const fetchUsedShipping = async () => {
+      const res = await layTatCaDonHang();
+      if (res && res.success && Array.isArray(res.data)) {
+        const used = res.data
+          .map((dh) => dh.phuongThucGiaoHangID)
+          .filter(Boolean);
+        setUsedShippingIds(used);
+      }
+    };
+    fetchUsedShipping();
   }, []);
 
   const handleInputChange = (e) => {
@@ -90,6 +106,38 @@ function QuanLyPhuongThucGiaoHang() {
   const handleAdd = () => {
     resetForm();
     setShowModal(true);
+  };
+  // Xử lí kích hoạt lại phương thức giao hàng
+  const handleActivate = async (item) => {
+    try {
+      setLoading(true);
+      await capNhatPhuongThucGiaoHang(item.phuongThucGiaoHangID, {
+        ...item,
+        trangThai: "active",
+      });
+      await loadPhuongThucGiaoHangs();
+      setSuccessMessage("Đã kích hoạt lại phương thức giao hàng!");
+    } catch {
+      setError("Không thể kích hoạt lại phương thức giao hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Xử lí ngừng sử dụng phương thức giao hàng
+  const handleDeactivate = async (item) => {
+    try {
+      setLoading(true);
+      await capNhatPhuongThucGiaoHang(item.phuongThucGiaoHangID, {
+        ...item,
+        trangThai: "inactive",
+      });
+      await loadPhuongThucGiaoHangs();
+      setSuccessMessage("Đã ngừng sử dụng phương thức giao hàng!");
+    } catch {
+      setError("Không thể ngừng sử dụng phương thức giao hàng");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEdit = (item) => {
@@ -413,7 +461,7 @@ function QuanLyPhuongThucGiaoHang() {
                       >
                         {item.trangThai === "active"
                           ? "Hoạt động"
-                          : "Vô hiệu hóa"}
+                          : "Ngừng hoạt động"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -428,25 +476,51 @@ function QuanLyPhuongThucGiaoHang() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center space-x-3">
-                        {/* Nút chỉnh sửa */}
-                        <button
-                          onClick={() => handleEdit(item)}
-                          className="text-blue-600 hover:text-blue-800 p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition duration-150"
-                          title="Chỉnh sửa"
-                        >
-                          <FaEdit className="text-lg" />
-                        </button>
+                        {item.trangThai === "inactive" ? (
+                          <button
+                            className="flex items-center gap-1 px-3 py-2 rounded-md bg-green-100 text-green-800 hover:bg-green-200 transition duration-150 font-medium"
+                            title="Kích hoạt lại"
+                            onClick={() => handleActivate(item)}
+                          >
+                            <FaCheckCircle className="text-lg" />
+                            <span className="ml-1">Kích hoạt</span>
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="text-blue-600 hover:text-blue-800 p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition duration-150"
+                              title="Chỉnh sửa"
+                            >
+                              <FaEdit className="text-lg" />
+                            </button>
 
-                        {/* Nút xóa vĩnh viễn */}
-                        <button
-                          onClick={() =>
-                            handleDeleteXoaVinhVien(item.phuongThucGiaoHangID)
-                          }
-                          className="text-red-600 hover:text-red-800 p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-150"
-                          title="Xóa Vĩnh Viễn"
-                        >
-                          <FaTrash className="text-lg" />
-                        </button>
+                            {usedShippingIds.includes(
+                              item.phuongThucGiaoHangID
+                            ) ? (
+                              <button
+                                className="flex items-center gap-1 px-3 py-2 rounded-md bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition duration-150 font-medium"
+                                title="Ngừng sử dụng"
+                                onClick={() => handleDeactivate(item)}
+                              >
+                                <FaTimesCircle className="text-lg" />
+                                <span className="ml-1">Ngừng hoạt động</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleDeleteXoaVinhVien(
+                                    item.phuongThucGiaoHangID
+                                  )
+                                }
+                                className="text-red-600 hover:text-red-800 p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-150"
+                                title="Xóa Vĩnh Viễn"
+                              >
+                                <FaTrash className="text-lg" />
+                              </button>
+                            )}
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

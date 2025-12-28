@@ -776,9 +776,9 @@ function QuanLySach() {
                           {book.trangThaiBan ? (
                             <button
                               onClick={() => xuLyNgungBan(book)}
-                              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm"
+                              className="px-3 py-1.5 bg-amber-400 hover:bg-amber-600 text-black text-xs font-semibold rounded-lg transition-all shadow-sm"
                             >
-                              Ngừng
+                              Ngừng bán
                             </button>
                           ) : (
                             <button
