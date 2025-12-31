@@ -7,7 +7,7 @@ import {
 } from "../../lib/binh-luan-apis";
 
 function QuanLyBinhLuan() {
-  const [binhLuanXoa, setBinhLuanXoa] = useState([]); // Dữ liệu bình luận
+  const [binhLuan, setBinhLuan] = useState([]); // Dữ liệu bình luận
   const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
   const [trangHienTai, setTrangHienTai] = useState(1); // Trang hiện tại
   const [soItemMoiTrang] = useState(5); // Số item mỗi trang
@@ -17,7 +17,7 @@ function QuanLyBinhLuan() {
     const napDuLieuBinhLuan = async () => {
       const phanHoiTuSever = await layTatCaBinhLuan();
       if (phanHoiTuSever && phanHoiTuSever.success) {
-        setBinhLuanXoa(phanHoiTuSever.data); // Cập nhật danh sách bình luận từ server
+        setBinhLuan(phanHoiTuSever.data); // Cập nhật danh sách bình luận từ server
         setTrangHienTai(1); // Reset về trang 1
       } else {
         console.error("Lỗi khi tải bình luận:", phanHoiTuSever.message);
@@ -40,7 +40,7 @@ function QuanLyBinhLuan() {
       }
 
       // CẬP NHẬT STATE binhLuan → UI đổi ngay, không cần F5
-      setBinhLuanXoa((prev) => prev.filter((bl) => bl.binhLuanID !== id));
+      setBinhLuan((prev) => prev.filter((bl) => bl.binhLuanID !== id));
       setTrangHienTai(1); // Reset về trang 1
 
       alert("Bình luận đã được xóa.");
@@ -66,7 +66,7 @@ function QuanLyBinhLuan() {
       }
 
       // Cập nhật state ngay
-      setBinhLuanXoa((prev) =>
+      setBinhLuan((prev) =>
         prev.map((bl) =>
           bl.binhLuanID === id ? { ...bl, duyet: phanHoi.data.duyet } : bl
         )
@@ -83,7 +83,7 @@ function QuanLyBinhLuan() {
   };
 
   // Lọc bình luận
-  const binhLuanLoc = binhLuanXoa.filter((c) =>
+  const binhLuanLoc = binhLuan.filter((c) =>
     loctheodanhgia ? c.danhGia === loctheodanhgia : true
   );
 
@@ -326,33 +326,8 @@ function QuanLyBinhLuan() {
                   if (!hienThi && trang !== 2 && trang !== tongSoTrang - 1) {
                     return null;
                   }
-
-                  // Thêm dấu "..." giữa các trang
-                  if (trang === 2 && trangHienTaiLocal > 3) {
-                    return (
-                      <span
-                        key={`dots-${trang}`}
-                        className="px-2 text-gray-500"
-                      >
-                        ...
-                      </span>
-                    );
-                  }
-                  if (
-                    trang === tongSoTrang - 1 &&
-                    trangHienTaiLocal < tongSoTrang - 2
-                  ) {
-                    return (
-                      <span
-                        key={`dots-${trang}`}
-                        className="px-2 text-gray-500"
-                      >
-                        ...
-                      </span>
-                    );
-                  }
-
                   return (
+                    // Nút số trang
                     <button
                       key={trang}
                       onClick={() => chuyenTrang(trang)}

@@ -15,7 +15,7 @@ const sidebarLinks = [
 ];
 
 function LogoutButton() {
-  const { setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext); // Lấy hàm setUser từ context
   const navigate = useNavigate();
   // State hiển thị ô xác nhận ngắn gọn (compact)
   const [open, setOpen] = useState(false);

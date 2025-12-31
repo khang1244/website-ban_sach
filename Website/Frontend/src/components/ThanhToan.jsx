@@ -392,7 +392,7 @@ function ThanhToan() {
 
   // Hàm kiểm tra và áp dụng mã giảm giá
   const hamKiemTraMaGiamGia = async () => {
-    const response = await nhanMaKhuyenMaiTheoID(coupon); // response = { success: true/false, khuyenMai: { ... } }
+    const response = await nhanMaKhuyenMaiTheoID(coupon); // Gọi API lấy thông tin mã giảm giá
     console.log("Phản hồi từ server về mã giảm giá:", response);
     if (response && response.success) {
       // Kiểm tra mã khuyến mãi còn hạn (so sánh ngày đến cuối ngày)
@@ -401,6 +401,7 @@ function ThanhToan() {
         alert("Mã giảm giá không hợp lệ");
         return;
       }
+      // Đặt thời gian hết hạn là cuối ngày
       const expiryEnd = new Date(expiry);
       expiryEnd.setHours(23, 59, 59, 999);
       if (new Date() > expiryEnd) {
@@ -412,7 +413,6 @@ function ThanhToan() {
         alert("Đơn hàng của bạn chưa đủ điều kiện để sử dụng mã giảm giá này!");
         return;
       }
-
       // Kiểm tra xem số lượng còn lại của mã khuyến mãi có đủ sử dụng không
       if (response.khuyenMai.soLuong <= 0) {
         alert("Mã giảm giá đã hết số lượng sử dụng!");

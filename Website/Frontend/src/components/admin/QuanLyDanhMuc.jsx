@@ -31,15 +31,14 @@ function QuanLyDanhMuc() {
       3000
     );
   };
-  const [categories, setCategories] = useState([]);
-  // lưu các danh mục đã được sử dụng ở sách
-  const [usedCategoryIds, setUsedCategoryIds] = useState([]);
-  const [input, setInput] = useState("");
-  const [editIndex, setEditIndex] = useState(null);
-  const [editValue, setEditValue] = useState("");
+  const [categories, setCategories] = useState([]); // tất cả danh mục
+  const [usedCategoryIds, setUsedCategoryIds] = useState([]); // lưu các danh mục đã được sử dụng ở sách
+  const [input, setInput] = useState(""); // input thêm danh mục mới
+  const [editIndex, setEditIndex] = useState(null); // chỉ mục danh mục đang sửa
+  const [editValue, setEditValue] = useState(""); // giá trị đang sửa
   // --- PHÂN TRANG ---
   const danhMucMotTrang = 4; // số mục trên mỗi trang (giống quản lý đơn hàng)
-  const [trangHienTai, setTrangHienTai] = useState(1);
+  const [trangHienTai, setTrangHienTai] = useState(1); // trang hiện tại
 
   // Hàm lấy tên danh mục dù là object hay string
   const getCatName = (cat) =>
@@ -48,10 +47,10 @@ function QuanLyDanhMuc() {
   // hàm xử lý khi nhấn nút thêm
   const handleAdd = async (e) => {
     e.preventDefault();
-    const name = input.trim();
-    if (!name) return;
+    const name = input.trim(); // loại bỏ khoảng trắng thừa
+    if (!name) return; // nếu rỗng thì không làm gì
 
-    // categories là mảng object: {danhMucSachID, tenDanhMuc}
+    // kiểm tra trùng tên
     const isDup = categories.some(
       (c) => (c.tenDanhMuc || c)?.toLowerCase() === name.toLowerCase()
     );

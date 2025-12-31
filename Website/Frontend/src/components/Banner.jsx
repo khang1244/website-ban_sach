@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/user-context";
 
 function Banner() {
-  const [currentIndex, setCurrentIndex] = useState(0); // Hook của React
-  const [giaTriTimkiem, setGiaTriTimKiem] = useState(""); //Lưu trữ giá trị tìm kiếm
+  const [currentIndex, setCurrentIndex] = useState(0); // Chỉ mục slide hiện tại
+  const [giaTriTimkiem, setGiaTriTimKiem] = useState(""); // Giá trị tìm kiếm
 
   // Khai báo useNavigate để chuyển hướng
   const navigate = useNavigate();
@@ -108,7 +108,7 @@ function Banner() {
           }
         `}</style>
 
-        {/* Slides */}
+        {/* Slides chạy */}
         <div
           className="flex transition-transform ease-in-out duration-700"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}

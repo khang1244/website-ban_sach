@@ -149,6 +149,7 @@ function QuanLyKhuyenMai() {
     // 3. Trả về định dạng mong muốn
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
+
   // tính toán phân trang
   const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
   const promosHienThi = promos.slice(

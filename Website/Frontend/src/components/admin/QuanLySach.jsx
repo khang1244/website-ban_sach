@@ -98,10 +98,6 @@ function QuanLySach() {
   // Xử lý submit form thêm / sửa sách
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    //Kiểm tra dữ liệu form
-    console.log("Dữ liệu form ", form);
-
     if (editId) {
       setBooks(
         books.map((b) => (b.id === editId ? { ...form, id: editId } : b)) //Tìm và cập nhật sách có id trùng với editId để cập nhật

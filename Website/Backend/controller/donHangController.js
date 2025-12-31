@@ -92,20 +92,21 @@ export const taoDonHangMoi = async (req, res) => {
         const sach = await Sach.findByPk(sachID, { transaction: t });
         if (!sach) throw new Error(`Sách ${sachID} không tồn tại`);
 
+        //
         const [nhap] = await sequelize.query(
           `SELECT COALESCE(SUM(soLuongNhap),0) AS tong FROM chi_tiet_phieu_nhap WHERE sachID=:sachID`,
           { replacements: { sachID }, transaction: t }
         );
-
+        // Tính tổng số lượng xuất
         const [xuat] = await sequelize.query(
           `SELECT COALESCE(SUM(soLuongXuat),0) AS tong FROM chi_tiet_phieu_xuat WHERE sachID=:sachID`,
           { replacements: { sachID }, transaction: t }
         );
-
+        // Tồn kho
         const tonKho = nhap[0].tong - xuat[0].tong;
         if (tonKho < soLuong)
           throw new Error(`Sách '${sach.tenSach}' không đủ. Tồn kho ${tonKho}`);
-
+        // Thêm vào đơn hàng - sách
         await DonHang_Sach.create(
           {
             donHangID: donHang.donHangID,
@@ -157,8 +158,8 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-      // 1. Hoàn thành đơn → tạo phiếu xuất (trừ kho)
-      if (trangThai === "Hoàn thành" && trangThaiCu !== "Hoàn thành") {
+      // 1. Đơn hàng đang giao → tạo phiếu xuất (trừ kho)
+      if (trangThai === "Đang giao" && trangThaiCu !== "Đang giao") {
         const daCoPhieuXuat = await PhieuXuat.findOne({
           where: { donHangID: id, loaiXuat: "bán hàng" },
           transaction: t,
@@ -226,7 +227,7 @@ export const capNhatTrangThaiDonHang = async (req, res) => {
   }
 };
 
-// Nhận đơn hàng theo tài khoản người dùng
+// Nhận đơn hàng theo tài khoản người dùng ( danh sách đơn hàng )
 export const nhanDonHangCuaNguoiDung = async (req, res) => {
   try {
     const { nguoiDungID } = req.params;
@@ -245,7 +246,7 @@ export const nhanDonHangCuaNguoiDung = async (req, res) => {
   }
 };
 
-// Nhận đơn hàng theo ID
+// Nhận đơn hàng theo ID ( chi tiết đơn hàng )
 export const nhanDonHangTheoID = async (req, res) => {
   try {
     const { id } = req.params; // Lấy ID đơn hàng từ tham số URL
@@ -289,7 +290,7 @@ export const nhanDonHangTheoID = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+//TRẢ HÀNG
 export const traHang = async (req, res) => {
   const { donHangID, lyDoTraHang } = req.body;
 

@@ -34,7 +34,7 @@ function HoSoNguoiDung() {
       3000
     );
   };
-  //Hàm kiểm ta có phải là 1 file ảnh hay không
+  //Hàm kiểm tra có phải là 1 file ảnh hay không
   function isFile(variable) {
     return variable instanceof File;
   }
@@ -44,7 +44,7 @@ function HoSoNguoiDung() {
     e.preventDefault();
     setEdit(false);
 
-    // Nếu người dùng có thay đổi avatar thì mình phải upload avatar lên Cloudinary
+    // Nếu người dùng có thay đổi avatar thì mình phải upload avatar lên s3
     let hinhAnhDaTa = user.avatar;
     if (isFile(user.avatar)) {
       hinhAnhDaTa = await uploadHinhAnh(user.avatar);

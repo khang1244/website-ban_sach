@@ -168,7 +168,7 @@ function ChiTietSanPham() {
         setChuaNhapKho((data?.soLuongNhap ?? 0) === 0);
 
         // Cập nhật stockStatus ngay sau khi có tonKho
-        const LOW_STOCK_THRESHOLD = 10;
+        const LOW_STOCK_THRESHOLD = 10; // ngưỡng cảnh báo sắp hết hàng
         const newStatus =
           (data?.soLuongNhap ?? 0) === 0
             ? "not-imported"

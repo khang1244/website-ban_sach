@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { FiGift, FiPhoneCall } from "react-icons/fi";
+import { FaFacebook, FaFacebookMessenger } from "react-icons/fa";
+import { SiZalo } from "react-icons/si";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import {
@@ -203,7 +205,19 @@ function Homepage() {
     }
   };
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen">
+      {/* Nút liên hệ Zalo & Facebook ở góc phải dưới, chỉ logo */}
+      <div className="fixed bottom-28 right-8 z-50 flex flex-col gap-4 items-end">
+        <a
+          href="https://www.facebook.com/profile.php?id=61585698846406"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shake bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400 text-white rounded-full border-2 border-white shadow-2xl p-3 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-blue-700"
+          style={{ width: 56, height: 56 }}
+        >
+          <FaFacebook className="text-4xl drop-shadow" />
+        </a>
+      </div>
       {/* Navigation */}
       <Navigation />
 

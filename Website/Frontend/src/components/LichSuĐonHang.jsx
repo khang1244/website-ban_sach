@@ -19,7 +19,7 @@ import { nhanDonHangCuaMotNguoiDung } from "../lib/don-hang-apis.js";
 function LichSuDonHang() {
   // Biến trạng thái để lưu trữ danh sách đơn hàng của người dùng
   const [userOrders, setUserOrders] = React.useState([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [currentPage, setCurrentPage] = React.useState(1); // Trang hiện tại
   const itemsPerPage = 5; // Số đơn hàng trên mỗi trang
 
   // Định dạng ngày tháng theo chuẩn Việt Nam
@@ -86,7 +86,7 @@ function LichSuDonHang() {
 
   // Gọi API để lấy đơn hàng của người dùng khi component được mount
   useEffect(() => {
-    // Gọi hàm có sẵn trong file don-hang-apis.js để lấy đơn hàng của người dùng từ server
+    // Hàm bất đồng bộ để tải dữ liệu đơn hàng
     async function napDuLieuDonHangCuaNguoiDung() {
       try {
         // Lấy ID người dùng từ localStorage
@@ -107,10 +107,10 @@ function LichSuDonHang() {
   }, []);
 
   // Tính toán phân trang
-  const totalPages = Math.ceil(userOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentOrders = userOrders.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(userOrders.length / itemsPerPage); // Tổng số trang
+  const startIndex = (currentPage - 1) * itemsPerPage; // Chỉ mục bắt đầu
+  const endIndex = startIndex + itemsPerPage; // Chỉ mục kết thúc
+  const currentOrders = userOrders.slice(startIndex, endIndex); // Đơn hàng hiển thị trên trang hiện tại
 
   // BẮT ĐẦU PHẦN SỬA ĐỔI GIAO DIỆN CHUYÊN NGHIỆP TRONG RETURN
   return (

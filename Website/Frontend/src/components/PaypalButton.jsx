@@ -18,7 +18,7 @@ const PayPalButton = ({
         currency: "USD", // Sử dụng USD cho PayPal
       }}
     >
-      // Cấu hình nút PayPal
+      {/* // Cấu hình nút PayPal */}
       <PayPalButtons
         createOrder={(data, actions) => {
           if (!termIsAccepted) {
@@ -44,7 +44,7 @@ const PayPalButton = ({
           return actions.order.capture().then((details) => {
             console.log(
               "Transaction completed by " +
-                (details.payer?.name?.given_name || "Unknown")
+                (details.payer?.name?.given_name || "Unknown") // Sử dụng toán tử optional chaining để tránh lỗi nếu details.payer hoặc details.payer.name là undefined
             );
 
             submitForm(); // Gọi hàm submitForm để xử lý đặt hàng

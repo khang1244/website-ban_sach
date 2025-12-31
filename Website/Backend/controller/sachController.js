@@ -39,35 +39,45 @@ const layMapSachCoPhieuNhap = async () => {
   return map;
 };
 
-// Hàm tiện ích: lấy danh sách images cho 1 sách
-const getImages = async (sachID) => {
-  const imgs = await HinhAnh.findAll({
-    where: { sachID },
-    order: [["hinhAnhID", "ASC"]],
-  });
-  return imgs.map((i) => ({ url: i.url, public_id: i.public_id }));
-};
-
-// Lấy tất cả sách, kèm images và trạng thái nhập kho
 export const nhanTatCaCacQuyenSach = async (req, res) => {
   try {
+    // 1. Lấy toàn bộ sách
     const danhSachSach = await Sach.findAll();
+
+    // 2. Lấy map trạng thái có phiếu nhập (key: sachID, value: boolean)
     const mapCoPhieuNhap = await layMapSachCoPhieuNhap();
-    // Gắn images, trạng thái bán, trạng thái nhập kho cho từng sách
-    await Promise.all(
-      danhSachSach.map(async (s) => {
-        s.dataValues.images = await getImages(s.sachID);
-        s.dataValues.trangThaiBan =
-          chuanHoaTrangThaiBan(s.trangThaiBan) ?? true;
-        s.dataValues.coPhieuNhap = mapCoPhieuNhap.get(s.sachID) || false;
-      })
-    );
+
+    // 3. Gắn thêm dữ liệu cho từng sách (viết tuần tự cho dễ hiểu)
+    for (const sach of danhSachSach) {
+      // Lấy hình ảnh của sách
+      const hinhAnh = await HinhAnh.findAll({
+        where: { sachID: sach.sachID },
+        order: [["hinhAnhID", "ASC"]],
+      });
+
+      sach.dataValues.images = hinhAnh.map((img) => ({
+        url: img.url,
+        public_id: img.public_id,
+      }));
+
+      // Chuẩn hóa trạng thái bán
+      sach.dataValues.trangThaiBan =
+        chuanHoaTrangThaiBan(sach.trangThaiBan) ?? true;
+
+      // Trạng thái có phiếu nhập
+      sach.dataValues.coPhieuNhap = mapCoPhieuNhap.get(sach.sachID) || false;
+    }
+
+    // 4. Trả kết quả
     res.json(danhSachSach);
   } catch (error) {
     console.error("Lỗi khi lấy danh sách sách:", error);
-    res.status(500).json({ error: "Đã xảy ra lỗi khi lấy danh sách sách." });
+    res.status(500).json({
+      error: "Đã xảy ra lỗi khi lấy danh sách sách.",
+    });
   }
 };
+
 // Hàm để thêm một quyển sách vào cửa hàng
 export const taoSachMoi = async (req, res) => {
   try {
@@ -295,27 +305,45 @@ export const xoaSach = async (req, res) => {
       .json({ success: false, message: "Đã xảy ra lỗi khi xóa sách." });
   }
 };
-// Hàm để lấy thông tin chi tiết của một quyển sách dựa trên ID của quyển sách
+// Lấy thông tin chi tiết của một quyển sách theo ID
 export const layChiTietSach = async (req, res) => {
   try {
     const { sachID } = req.params;
+
+    // 1. Lấy sách theo ID
     const sach = await Sach.findByPk(sachID);
     if (!sach) {
       return res.status(404).json({ error: "Sách không tồn tại." });
     }
-    // Lấy images và trạng thái nhập kho
-    const imagesForReturn = await getImages(sach.sachID);
+
+    // 2. Lấy hình ảnh của sách
+    const hinhAnh = await HinhAnh.findAll({
+      where: { sachID },
+      order: [["hinhAnhID", "ASC"]],
+    });
+    // Chuyển đổi dữ liệu hình ảnh
+    const images = hinhAnh.map((img) => ({
+      url: img.url,
+      public_id: img.public_id,
+    }));
+
+    // 3. Kiểm tra sách có phiếu nhập hay không
     const coPhieuNhap =
-      (await ChiTietPhieuNhap.count({ where: { sachID: sach.sachID } })) > 0;
+      (await ChiTietPhieuNhap.count({ where: { sachID } })) > 0;
+
+    // 4. Gộp dữ liệu trả về
     const result = {
       ...sach.toJSON(),
-      images: imagesForReturn,
+      images,
       coPhieuNhap,
     };
+
     res.json(result);
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết sách:", error);
-    res.status(500).json({ error: "Đã xảy ra lỗi khi lấy chi tiết sách." });
+    res.status(500).json({
+      error: "Đã xảy ra lỗi khi lấy chi tiết sách.",
+    });
   }
 };
 
