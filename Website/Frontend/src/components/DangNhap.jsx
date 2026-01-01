@@ -37,7 +37,7 @@ function DangNhap() {
     e.preventDefault();
 
     // Gọi API để đăng nhập
-    const { status, message, user } = await dangNhapTaiKhoan(email, password); //
+    const { status, message, user } = await dangNhapTaiKhoan(email, password); // Gọi API đăng nhập
 
     if (status) {
       // Đăng nhập thành công
@@ -70,7 +70,6 @@ function DangNhap() {
     try {
       // Giải mã JWT token từ Google
       const decoded = jwtDecode(credentialResponse.credential);
-      console.log("Google user info:", decoded);
 
       // Tạo đối tượng user từ thông tin Google
       const googleUser = {

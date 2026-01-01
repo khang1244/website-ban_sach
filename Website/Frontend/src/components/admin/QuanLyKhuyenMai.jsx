@@ -42,7 +42,7 @@ function QuanLyKhuyenMai() {
     soLuong: 0,
     typeof: "%",
   });
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState(null); // lưu ID của mã khuyến mãi đang chỉnh sửa
 
   // Hàm xử lý thay đổi trong form
   const handleChange = (e) => {
@@ -91,9 +91,6 @@ function QuanLyKhuyenMai() {
   // Hàm chỉnh sửa mã khuyến mãi
   const handleEdit = (promo) => {
     const ngayHetHan = new Date(promo.ngayHetHan); // Thu Sep 25 2025 07:00:00 GMT+0700 (Indochina Time)
-
-    console.log("Ngày hết hạn:", ngayHetHan);
-
     const formattedDate = ngayHetHan.toISOString().split("T")[0]; // Định dạng lại ngày thành "YYYY-MM-DD"
     setForm({ ...promo, ngayHetHan: formattedDate });
 

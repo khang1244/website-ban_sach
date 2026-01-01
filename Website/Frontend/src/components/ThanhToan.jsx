@@ -77,6 +77,7 @@ function ThanhToan() {
   // Điều hướng
   const router = useNavigate(); // Sử dụng useNavigate điều hướng trang
 
+  // Phương thức thanh toán
   const [payment, setPayment] = useState({
     method: PAYMENT_METHODS[0].value,
   });
@@ -212,8 +213,6 @@ function ThanhToan() {
       tongTienBanDau: tongTien || total || 0,
     };
 
-    console.log(duLieuDonHang);
-
     // Gọi API để tạo đơn hàng (sử dụng hàm có sẵn bên lib/don-hang-apis.js)
     const response = await taoDonHangMoi(duLieuDonHang);
     if (response && response.success) {
@@ -249,7 +248,6 @@ function ThanhToan() {
       if (data && data.success) {
         setCart(data.gioHang.ChiTietGioHangs || []);
         setTongTien(data.gioHang.tongTien || 0);
-        console.log("Dữ liệu giỏ hàng từ server:", data);
       }
     };
     napDuLieuGioHang();
@@ -315,7 +313,6 @@ function ThanhToan() {
   useEffect(() => {
     const duLieuXaPhuong = nhanDanhSachXaPhuong(shipping.tinhThanhPho);
     setWards(duLieuXaPhuong);
-    console.log("Hàm tính toán lại xã phường đã chạy lại");
   }, [shipping.tinhThanhPho]);
 
   // Hàm xây dựng chuỗi địa chỉ đầy đủ từ các trường nhập liệu

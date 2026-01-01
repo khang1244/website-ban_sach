@@ -12,8 +12,6 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Thông tin người dùng hiện tại
   const [cartCount, setCartCount] = useState(0); // Số lượng sản phẩm (distinct) trong giỏ
 
-  console.log("UserContext - user:", user);
-
   // // Kiểm tra và khôi phục thông tin user từ localStorage khi khởi động ứng dụng
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -40,9 +38,7 @@ const UserProvider = ({ children }) => {
         return;
       }
       const parsedUser = JSON.parse(storedUser);
-      console.log("refreshCartCount - nguoiDungID:", parsedUser.nguoiDungID);
       const data = await demSoLuongSanPhamTrongGioHang(parsedUser.nguoiDungID);
-      console.log("refreshCartCount - response:", data);
 
       // Nếu endpoint trả về số hoặc object chứa count/soLuong thì dùng trực tiếp
       let count = null;
@@ -56,7 +52,6 @@ const UserProvider = ({ children }) => {
       if (count === null) {
         try {
           const full = await layGioHangTheoNguoiDung(parsedUser.nguoiDungID);
-          console.log("refreshCartCount - fallback full cart:", full);
           if (
             full &&
             full.gioHang &&

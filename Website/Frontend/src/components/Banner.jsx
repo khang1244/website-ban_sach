@@ -20,13 +20,13 @@ function Banner() {
     return () => clearInterval(interval);
   }, [currentIndex]);
 
-  //  chuyển về sidle phía trước
-  const goToPrev = () => {
-    // Previous
-    const isFirst = currentIndex === 0;
-    const newIndex = isFirst ? bannerBooks.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
-  };
+  // //  chuyển về sidle phía trước
+  // const goToPrev = () => {
+  //   // Previous
+  //   const isFirst = currentIndex === 0;
+  //   const newIndex = isFirst ? bannerBooks.length - 1 : currentIndex - 1;
+  //   setCurrentIndex(newIndex);
+  // };
   // chuyển về slide phía sau
   const goToNext = () => {
     const isLast = currentIndex === bannerBooks.length - 1;
@@ -128,7 +128,7 @@ function Banner() {
           ))}
         </div>
 
-        {/* Nút điều khiển trái phải */}
+        {/* Nút điều khiển trái phải
         <button
           onClick={goToPrev}
           className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/70 hover:bg-white text-black w-[30px] h-[30px] rounded-full"
@@ -140,7 +140,7 @@ function Banner() {
           className="absolute top-1/2 right-3 -translate-y-1/2 bg-white/70 hover:bg-white text-black w-[30px] h-[30px] rounded-full"
         >
           ›
-        </button>
+        </button> */}
 
         {/* Dots điều khiển */}
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">

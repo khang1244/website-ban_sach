@@ -83,9 +83,17 @@ function GioHang() {
       }
     }, 500);
   }
-  // Xoá sản phẩm khỏi giỏ hàng
   async function removeItem(index) {
+    // THÔNG BÁO XÁC NHẬN TRƯỚC
+    const isConfirm = window.confirm(
+      "Bạn có chắc chắn muốn xoá sản phẩm này khỏi giỏ hàng không?"
+    );
+
+    // Nếu người dùng bấm Huỷ → dừng luôn
+    if (!isConfirm) return;
+
     const sachID = cart[index].sachID;
+
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
 
@@ -97,12 +105,19 @@ function GioHang() {
 
     try {
       await xoaSanPhamKhoiGioHang(gioHangID, sachID);
-      // Cập nhật lại badge số lượng sản phẩm
-      if (typeof refreshCartCount === "function") refreshCartCount();
+
+      // THÔNG BÁO XOÁ THÀNH CÔNG
+      alert("Đã xoá sản phẩm khỏi giỏ hàng!");
+
+      refreshCartCount();
     } catch (error) {
       console.error("Lỗi khi xoá sản phẩm:", error);
+
+      // THÔNG BÁO LỖI
+      alert("Xoá sản phẩm thất bại, vui lòng thử lại!");
     }
   }
+
   // Tải dữ liệu giỏ hàng khi component được mount
   useEffect(() => {
     const napDuLieuGioHang = async () => {

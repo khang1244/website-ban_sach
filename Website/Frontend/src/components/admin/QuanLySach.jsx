@@ -5,7 +5,7 @@ import {
   themSach,
   xoaSach,
 } from "../../lib/sach-apis";
-import { uploadHinhAnh, xoaHinhAnhCloudinary } from "../../lib/hinh-anh-apis";
+import { uploadHinhAnh, xoaHinhAnhKhoiS3 } from "../../lib/hinh-anh-apis";
 import { useEffect } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
@@ -239,7 +239,7 @@ function QuanLySach() {
       if (Array.isArray(bookToDelete.images)) {
         for (const img of bookToDelete.images) {
           try {
-            await xoaHinhAnhCloudinary(img.public_id);
+            await xoaHinhAnhKhoiS3(img.public_id);
           } catch (e) {
             console.warn("Không xóa được file cloudinary:", img, e);
           }

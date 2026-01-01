@@ -40,7 +40,7 @@ function QuanLyDonHang() {
     }
     return null;
   };
-  // Update order status
+  // Xử lý thay đổi trạng thái đơn hàng
   const handleStatusChange = async (donHangID, newStatus) => {
     const updatedOrders = userOrder.map((order) => {
       if (order.donHangID === donHangID) {
@@ -67,7 +67,6 @@ function QuanLyDonHang() {
   useEffect(() => {
     async function napDuLieuDonHang() {
       const res = await layTatCaDonHang();
-      console.log("Đơn hàng lấy từ server:", res);
       // Tùy cấu trúc trả về:
       setUserOrder(Array.isArray(res) ? res : res.data || []);
     }
@@ -78,8 +77,6 @@ function QuanLyDonHang() {
     const napDonHang = async () => {
       const duLieuDonHang = await layDonHangTheoID(selectedOrder?.donHangID);
       if (duLieuDonHang && duLieuDonHang.success) {
-        // Xử lý dữ liệu đơn hàng nhận được từ server
-        console.log("Dữ liệu đơn hàng:", duLieuDonHang.data);
         setDuLieuDonHang(duLieuDonHang.data);
       }
     };
@@ -126,7 +123,7 @@ function QuanLyDonHang() {
     (trangHienTai - 1) * donHangMotTrang, // start index
     trangHienTai * donHangMotTrang // end index
   );
-
+  // Helper function để định dạng tiền tệ
   const formatMoney = (value) =>
     typeof value === "number"
       ? value.toLocaleString("vi-VN", { minimumFractionDigits: 0 })

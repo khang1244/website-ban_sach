@@ -214,15 +214,14 @@ function QuanLyBinhLuan() {
                       {/* Đánh giá */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
+                          {[1, 2, 3, 4, 5].map((n) => (
                             <FaStar
-                              key={i}
+                              key={n}
                               className={
-                                i < c.danhGia
+                                n <= c.danhGia
                                   ? "text-yellow-400"
                                   : "text-gray-300"
                               }
-                              size={14}
                             />
                           ))}
                           <span className="ml-1 text-xs text-gray-500">

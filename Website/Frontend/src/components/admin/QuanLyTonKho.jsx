@@ -7,16 +7,17 @@ import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 function QuanLyTonKho() {
   // State chung
   const [tabHienTai, setTabHienTai] = useState("tonkho"); // tonkho, phieunhap, phieuxuat
-  const [danhSachSach, setDanhSachSach] = useState([]);
-  const [tonKho, setTonKho] = useState([]);
-  const [phieuNhaps, setPhieuNhaps] = useState([]);
-  const [phieuXuats, setPhieuXuats] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [danhSachSach, setDanhSachSach] = useState([]); // Tất cả sách
+  const [tonKho, setTonKho] = useState([]); // Dữ liệu tồn kho
+  const [phieuNhaps, setPhieuNhaps] = useState([]); // Dữ liệu phiếu nhập
+  const [phieuXuats, setPhieuXuats] = useState([]); // Dữ liệu phiếu xuất
+  const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
 
   // State cho form phiếu nhập
-  const [showFormNhap, setShowFormNhap] = useState(false);
-  const [ghiChuNhap, setGhiChuNhap] = useState("");
+  const [showFormNhap, setShowFormNhap] = useState(false); // Hiển thị form tạo phiếu nhập
+  const [ghiChuNhap, setGhiChuNhap] = useState(""); // Ghi chú phiếu nhập
   const [chiTietNhap, setChiTietNhap] = useState([
+    // Chi tiết phiếu nhập
     { sachID: "", soLuongNhap: 0, donGiaNhap: 0 },
   ]);
 
@@ -62,7 +63,7 @@ function QuanLyTonKho() {
     }
   }, [tabHienTai]);
 
-  // Load dữ liệu khi component mount hoặc tab thay đổi
+  // Reload dữ liệu khi tab thay đổi
   useEffect(() => {
     loadData();
   }, [loadData]);

@@ -359,7 +359,7 @@ export const yeuCauNhanOTPCapNhatMatKhau = async (req, res) => {
               <p style="font-size: 11px; color: #9ca3af; margin: 0;">
                 Nếu bạn không thực hiện yêu cầu quên mật khẩu, bạn có thể bỏ qua email này.
                 <br/>
-                Email được gửi tự động từ hệ thống Bookstore. Vui lòng không trả lời email này.
+                Email được gửi tự động từ hệ thống Nhà sách Hoàng Khang. Vui lòng không trả lời email này.
               </p>
             </div>
           </div>

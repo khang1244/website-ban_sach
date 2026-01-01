@@ -302,10 +302,8 @@ function ChiTietDonHang() {
   const getFirstImage = (hinhAnhs) => {
     try {
       if (Array.isArray(hinhAnhs) && hinhAnhs.length > 0) {
-        console.log("Hình ảnh của sản phẩm:", hinhAnhs);
         return hinhAnhs[0]?.url || null;
       }
-      console.log("Không có hình ảnh:", hinhAnhs);
       return null;
     } catch (error) {
       console.error("Lỗi khi lấy hình ảnh:", error);

@@ -43,14 +43,14 @@ function QuanLyPhuongThucGiaoHang() {
     trangThai: "active",
     macDinh: false,
   });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState(""); // Từ khoá tìm kiếm
+  const [statusFilter, setStatusFilter] = useState("all"); // Bộ lọc trạng thái: all, active, inactive
   // --- PHÂN TRANG ---
   // Số phương thức hiển thị mỗi trang (yêu cầu: 4)
   const phuongThucMotTrang = 4; // 4 mục/trang
   // Trang hiện tại (1-based)
   const [trangPhuongThucHienTai, setTrangPhuongThucHienTai] = useState(1);
-
+  // Hàm tải tất cả phương thức giao hàng từ API
   const loadPhuongThucGiaoHangs = async () => {
     try {
       setLoading(true);

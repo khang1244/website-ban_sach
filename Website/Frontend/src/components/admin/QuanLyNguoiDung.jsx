@@ -109,7 +109,7 @@ function QuanLyNguoiDung() {
     trangNguoiDungHienTai * nguoiDungMotTrang
   );
 
-  // Lấy tất cả người dùng khi component mount
+  // Tải tất cả người dùng khi component được mount
   useEffect(() => {
     const fetchAll = async () => {
       const list = await layTatCaNguoiDung(); // trả về mảng
@@ -184,6 +184,7 @@ function QuanLyNguoiDung() {
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
+            {/* // Hiển thị danh sách người dùng đã lọc */}
             {filteredUsers.length > 0 ? (
               // Hiển thị chỉ những người trong trang hiện tại
               nguoiHienThi.map((user) => {

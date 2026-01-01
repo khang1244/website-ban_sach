@@ -17,7 +17,7 @@ export const uploadHinhAnh = async (file) => {
   }
 };
 // Hàm để xóa hình ảnh khỏi Cloudinary
-export const xoaHinhAnhCloudinary = async (publicId) => {
+export const xoaHinhAnhKhoiS3 = async (publicId) => {
   try {
     const response = await fetch(`${BASE_URL}/hinhAnh/xoaanh`, {
       method: "POST",

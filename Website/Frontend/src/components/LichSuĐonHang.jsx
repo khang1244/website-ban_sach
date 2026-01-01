@@ -20,7 +20,6 @@ function LichSuDonHang() {
   // Biến trạng thái để lưu trữ danh sách đơn hàng của người dùng
   const [userOrders, setUserOrders] = React.useState([]);
   const [currentPage, setCurrentPage] = React.useState(1); // Trang hiện tại
-  const itemsPerPage = 5; // Số đơn hàng trên mỗi trang
 
   // Định dạng ngày tháng theo chuẩn Việt Nam
   function formatDate(dateString) {
@@ -105,7 +104,7 @@ function LichSuDonHang() {
     }
     napDuLieuDonHangCuaNguoiDung();
   }, []);
-
+  const itemsPerPage = 5; // Số đơn hàng trên mỗi trang
   // Tính toán phân trang
   const totalPages = Math.ceil(userOrders.length / itemsPerPage); // Tổng số trang
   const startIndex = (currentPage - 1) * itemsPerPage; // Chỉ mục bắt đầu
