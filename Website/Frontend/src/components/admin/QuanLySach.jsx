@@ -351,10 +351,7 @@ function QuanLySach() {
 
   // --- TÍNH PHÂN TRANG ---
   const tongSoSach = sachDaLoc.length;
-  const tongSoTrang = Math.max(
-    1,
-    Math.ceil(tongSoSach / soLuongSachMotTrang)
-  );
+  const tongSoTrang = Math.max(1, Math.ceil(tongSoSach / soLuongSachMotTrang));
   const trangDangXem = Math.min(trangSachHienTai, tongSoTrang);
   const viTriBatDau = (trangDangXem - 1) * soLuongSachMotTrang;
   const sachTrongTrang = sachDaLoc.slice(
@@ -908,9 +905,7 @@ function QuanLySach() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() =>
-                    chuyenTrang(trangDangXem - 1)
-                  }
+                  onClick={() => chuyenTrang(trangDangXem - 1)}
                   disabled={trangDangXem === 1}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
                     trangDangXem === 1
@@ -956,9 +951,7 @@ function QuanLySach() {
                   })}
                 </div>
                 <button
-                  onClick={() =>
-                    chuyenTrang(trangDangXem + 1)
-                  }
+                  onClick={() => chuyenTrang(trangDangXem + 1)}
                   disabled={trangDangXem === tongSoTrang}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
                     trangDangXem === tongSoTrang

@@ -181,10 +181,7 @@ function QuanLyDanhMuc() {
 
   // --- Phân trang gom gọn ---
   const tongSoDanhMuc = danhSachDanhMuc.length;
-  const tongSoTrang = Math.max(
-    1,
-    Math.ceil(tongSoDanhMuc / danhMucMotTrang)
-  );
+  const tongSoTrang = Math.max(1, Math.ceil(tongSoDanhMuc / danhMucMotTrang));
   const trangDangXem = Math.min(trangHienTai, tongSoTrang);
   const viTriBatDau = (trangDangXem - 1) * danhMucMotTrang;
   const danhMucTrongTrang = danhSachDanhMuc.slice(
@@ -369,7 +366,7 @@ function QuanLyDanhMuc() {
         <div className="px-6 py-4">
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
-              Trang {trangDangXem}/{tongSoTrang} · Hiển thị {" "}
+              Trang {trangDangXem}/{tongSoTrang} · Hiển thị{" "}
               {danhMucTrongTrang.length}/{danhSachDanhMuc.length || 0} danh mục
             </p>
             <div className="flex items-center gap-2 text-black">
@@ -386,17 +383,17 @@ function QuanLyDanhMuc() {
               </button>
               {Array.from({ length: tongSoTrang }, (_, idx) => idx + 1).map(
                 (soTrang) => (
-                <button
-                  key={soTrang}
-                  onClick={() => chuyenTrang(soTrang)}
-                  className={`px-3 py-1 rounded-md border transition ${
+                  <button
+                    key={soTrang}
+                    onClick={() => chuyenTrang(soTrang)}
+                    className={`px-3 py-1 rounded-md border transition ${
                       trangDangXem === soTrang
-                      ? "bg-[#004C61] text-white border-[#004C61]"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  {soTrang}
-                </button>
+                        ? "bg-[#004C61] text-white border-[#004C61]"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {soTrang}
+                  </button>
                 )
               )}
               <button

@@ -130,10 +130,7 @@ function QuanLyKhuyenMai() {
 
   // Phân trang gom gọn
   const tongSoKhuyenMai = promos.length;
-  const tongSoTrang = Math.max(
-    1,
-    Math.ceil(tongSoKhuyenMai / promosMotTrang)
-  );
+  const tongSoTrang = Math.max(1, Math.ceil(tongSoKhuyenMai / promosMotTrang));
   const trangDangXem = Math.min(trangHienTai, tongSoTrang);
   const viTriBatDau = (trangDangXem - 1) * promosMotTrang;
   const promosTrongTrang = promos.slice(
@@ -553,13 +550,12 @@ function QuanLyKhuyenMai() {
                 </span>{" "}
                 -{" "}
                 <span className="font-semibold text-slate-900">
-                  {Math.min(
-                    trangDangXem * promosMotTrang,
-                    tongSoKhuyenMai
-                  )}
+                  {Math.min(trangDangXem * promosMotTrang, tongSoKhuyenMai)}
                 </span>{" "}
                 của{" "}
-                <span className="font-semibold text-slate-900">{tongSoKhuyenMai}</span>{" "}
+                <span className="font-semibold text-slate-900">
+                  {tongSoKhuyenMai}
+                </span>{" "}
                 mã
               </div>
               <div className="flex items-center gap-2">

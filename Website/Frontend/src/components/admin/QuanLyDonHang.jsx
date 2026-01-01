@@ -157,10 +157,7 @@ function QuanLyDonHang() {
   // --- Phân trang gom gọn ---
   const donHangLoc = filteredOrders;
   const tongSoDonHang = donHangLoc.length;
-  const tongSoTrang = Math.max(
-    1,
-    Math.ceil(tongSoDonHang / donHangMotTrang)
-  );
+  const tongSoTrang = Math.max(1, Math.ceil(tongSoDonHang / donHangMotTrang));
   const trangDangXem = Math.min(trangHienTai, tongSoTrang);
   const viTriBatDau = (trangDangXem - 1) * donHangMotTrang;
   const donHangTrongTrang = donHangLoc.slice(

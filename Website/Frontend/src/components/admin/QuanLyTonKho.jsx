@@ -294,7 +294,9 @@ function QuanLyTonKho() {
               </thead>
               <tbody>
                 {tonKhoPage.duLieuTrongTrang.map((item) => {
-                  const sach = danhSachSach.find((s) => s.sachID === item.sachID);
+                  const sach = danhSachSach.find(
+                    (s) => s.sachID === item.sachID
+                  );
                   let firstImg = null;
                   try {
                     const imgs = Array.isArray(sach?.images)
@@ -376,7 +378,9 @@ function QuanLyTonKho() {
                   key={i + 1}
                   onClick={() => chuyenTrangTonKho(i + 1)}
                   className={`px-3 py-1 border rounded ${
-                    tonKhoPage.trangHopLe === i + 1 ? "bg-blue-500 text-white" : ""
+                    tonKhoPage.trangHopLe === i + 1
+                      ? "bg-blue-500 text-white"
+                      : ""
                   }`}
                 >
                   {i + 1}
