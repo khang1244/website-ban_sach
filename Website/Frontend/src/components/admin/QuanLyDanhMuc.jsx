@@ -14,89 +14,95 @@ import {
   nhanTatCaDanhMucSach,
 } from "../../lib/danh-muc-sach-apis";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
-import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
+import ThongBaoChay from "../../components/admin/ThongBaoChay"; // duong dan tuy vi tri file
 
 function QuanLyDanhMuc() {
-  // thông báo chạy khi thêm, sửa, xóa
-  const [toast, setToast] = useState({
+  // thong bao chay khi them, sua, xoa
+  const [thongBao, setThongBao] = useState({
     show: false,
     type: "",
     title: "",
     message: "",
   });
-  const showToast = (type, title, message) => {
-    setToast({ show: true, type, title, message });
+  const hienThongBao = (type, title, message) => {
+    setThongBao({ show: true, type, title, message });
     setTimeout(
-      () => setToast({ show: false, type: "", title: "", message: "" }),
+      () => setThongBao({ show: false, type: "", title: "", message: "" }),
       3000
     );
   };
-  const [categories, setCategories] = useState([]); // tất cả danh mục
-  const [usedCategoryIds, setUsedCategoryIds] = useState([]); // lưu các danh mục đã được sử dụng ở sách
-  const [input, setInput] = useState(""); // input thêm danh mục mới
-  const [editIndex, setEditIndex] = useState(null); // chỉ mục danh mục đang sửa
-  const [editValue, setEditValue] = useState(""); // giá trị đang sửa
-  // --- PHÂN TRANG ---
-  const danhMucMotTrang = 4; // số mục trên mỗi trang (giống quản lý đơn hàng)
-  const [trangHienTai, setTrangHienTai] = useState(1); // trang hiện tại
+  const [danhSachDanhMuc, setDanhSachDanhMuc] = useState([]); // toan bo danh muc
+  const [danhMucDangDuocDung, setDanhMucDangDuocDung] = useState([]); // danh muc da gan cho sach
+  const [tenDanhMucMoi, setTenDanhMucMoi] = useState(""); // o nhap them danh muc moi
+  const [chiSoDangSua, setChiSoDangSua] = useState(null); // chi so danh muc dang sua
+  const [giaTriDangSua, setGiaTriDangSua] = useState(""); // ten danh muc dang sua
+  // --- PHAN TRANG ---
+  const danhMucMotTrang = 4; // so muc tren moi trang (giong quan ly don hang)
+  const [trangHienTai, setTrangHienTai] = useState(1); // trang hien tai
 
-  // Hàm lấy tên danh mục dù là object hay string
-  const getCatName = (cat) =>
+  // Ham lay ten danh muc du la object hay string
+  const layTenDanhMuc = (cat) =>
     typeof cat === "string" ? cat : cat?.tenDanhMuc || "";
 
-  // hàm xử lý khi nhấn nút thêm
-  const handleAdd = async (e) => {
+  // Ham xu ly khi nhan nut them
+  const xuLyThemDanhMuc = async (e) => {
     e.preventDefault();
-    const name = input.trim(); // loại bỏ khoảng trắng thừa
-    if (!name) return; // nếu rỗng thì không làm gì
+    const tenMoiDaCat = tenDanhMucMoi.trim(); // loai bo khoang trang thua
+    if (!tenMoiDaCat) return; // neu rong thi dung xu ly
 
-    // kiểm tra trùng tên
-    const isDup = categories.some(
-      (c) => (c.tenDanhMuc || c)?.toLowerCase() === name.toLowerCase()
+    // Kiem tra trung ten
+    const biTrungTen = danhSachDanhMuc.some(
+      (danhMuc) =>
+        (danhMuc.tenDanhMuc || danhMuc)?.toLowerCase() ===
+        tenMoiDaCat.toLowerCase()
     );
-    if (isDup) {
-      showToast("warning", "Chú ý", `Danh mục "${name}" đã tồn tại!`);
+    if (biTrungTen) {
+      hienThongBao("warning", "Chú ý", `Danh mục "${tenMoiDaCat}" đã tồn tại!`);
       return;
     }
 
     try {
-      setInput(""); // clear input ngay cho mượt
-      const created = await taoDanhMucSachMoi(name); // <- lấy object có ID
-      setCategories((prev) => [...prev, created]); // <- append object => hiện ID liền
-      showToast("success", "Thành công", `Thêm danh mục "${name}" thành công!`);
+      setTenDanhMucMoi(""); // xoa truong nhap ngay cho muot
+      const danhMucMoi = await taoDanhMucSachMoi(tenMoiDaCat); // <- lay object co ID
+      setDanhSachDanhMuc((truocDo) => [...truocDo, danhMucMoi]); // <- them vao mang de hien ID lien
+      hienThongBao(
+        "success",
+        "Thành công",
+        `Thêm danh mục "${tenMoiDaCat}" thành công!`
+      );
     } catch (err) {
       console.error("Lỗi khi thêm danh mục:", err);
-      showToast("error", "Lỗi", "Không thể thêm danh mục, thử lại nhé!");
+      hienThongBao("error", "Lỗi", "Không thể thêm danh mục, thử lại nhé!");
     }
   };
 
-  // hàm xử lý khi nhấn nút xóa
-  const handleDelete = async (idx) => {
-    const confirmDelete = window.confirm(
+  // Ham xu ly khi nhan nut xoa
+  const xuLyXoaDanhMuc = async (chiSo) => {
+    const xacNhanXoa = window.confirm(
       "Bạn có chắc chắn muốn xóa danh mục này?"
     );
-    if (!confirmDelete) return;
+    if (!xacNhanXoa) return;
 
-    const tenDanhMuc = getCatName(categories[idx]);
-    const danhMucID = categories[idx]?.danhMucSachID;
+    const tenDanhMuc = layTenDanhMuc(danhSachDanhMuc[chiSo]);
+    const danhMucID = danhSachDanhMuc[chiSo]?.danhMucSachID;
 
-    console.log("Đang xóa danh mục:", { idx, danhMucID, tenDanhMuc });
+    console.log("Dang xoa danh muc:", { chiSo, danhMucID, tenDanhMuc });
 
     try {
-      // Gọi API xóa TRƯỚC
+      // Goi API xoa truoc
       await xoaDanhMucSach(danhMucID);
 
-      // Sau khi xóa thành công, cập nhật UI
-      setCategories(categories.filter((_, i) => i !== idx));
+      // Sau khi xoa thanh cong, cap nhat giao dien
+      setDanhSachDanhMuc(danhSachDanhMuc.filter((_, viTri) => viTri !== chiSo));
 
-      showToast(
+      hienThongBao(
         "success",
         "Thành công",
         "Xóa danh mục " + tenDanhMuc + " thành công!"
       );
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
-      showToast(
+      hienThongBao(
         "error",
         "Lỗi",
         "Có lỗi xảy ra khi xóa danh mục. Vui lòng thử lại!"
@@ -104,45 +110,40 @@ function QuanLyDanhMuc() {
     }
   };
 
-  // hàm xử lý khi nhấn nút sửa
-  const handleEdit = async (idx) => {
-    setEditIndex(idx);
-    setEditValue(getCatName(categories[idx]));
-  };
-  // hàm xử lý khi lưu
-  const handleLuu = async (e) => {
-    e.preventDefault();
-    showToast("success", "Thành công", "Cập nhật danh mục thành công!");
+  // Ham xu ly khi nhan nut sua
+  const batCheDoSua = (idx) => {
+    setChiSoDangSua(idx);
+    setGiaTriDangSua(layTenDanhMuc(danhSachDanhMuc[idx]));
   };
 
-  // hàm xử lý khi lưu cập nhật danh mục
-  const handleUpdate = async (e) => {
+  // Ham xu ly khi luu cap nhat danh muc
+  const xuLyCapNhatDanhMuc = async (e) => {
     e.preventDefault();
-    const value = editValue.trim();
-    if (!value) return;
+    const tenMoi = giaTriDangSua.trim();
+    if (!tenMoi) return;
 
-    const danhMucID = categories[editIndex]?.danhMucSachID;
+    const danhMucID = danhSachDanhMuc[chiSoDangSua]?.danhMucSachID;
 
     try {
-      // Gọi API cập nhật TRƯỚC
+      // Goi API cap nhat truoc
       await capNhatDanhMucSach(danhMucID, {
-        tenDanhMuc: value,
+        tenDanhMuc: tenMoi,
       });
 
-      // Sau khi cập nhật thành công, cập nhật UI
-      const danhMucDaDuocSua = categories.map((cat, i) =>
-        i === editIndex ? { ...cat, tenDanhMuc: value } : cat
+      // Sau khi cap nhat thanh cong, cap nhat giao dien
+      const danhMucDaDuocSua = danhSachDanhMuc.map((cat, i) =>
+        i === chiSoDangSua ? { ...cat, tenDanhMuc: tenMoi } : cat
       );
-      setCategories(danhMucDaDuocSua);
+      setDanhSachDanhMuc(danhMucDaDuocSua);
 
-      showToast("success", "Thành công", "Cập nhật danh mục thành công!");
+      hienThongBao("success", "Thành công", "Cập nhật danh mục thành công!");
 
       // Đóng chế độ sửa
-      setEditIndex(null);
-      setEditValue("");
+      setChiSoDangSua(null);
+      setGiaTriDangSua("");
     } catch (err) {
       console.error("Lỗi khi cập nhật danh mục:", err);
-      showToast(
+      hienThongBao(
         "error",
         "Lỗi",
         "Cập nhật danh mục thất bại, vui lòng thử lại!"
@@ -150,57 +151,76 @@ function QuanLyDanhMuc() {
     }
   };
 
-  // Load tất cả danh mục và lấy danh mục đã dùng ở sách khi component mount
+  // Nap tat ca danh muc va lay danh muc da dung o sach khi component mount
   useEffect(() => {
     const napTatCaDanhMucSach = async () => {
-      const data = await nhanTatCaDanhMucSach();
-      if (data) setCategories(data);
+      const tatCaDanhMuc = await nhanTatCaDanhMucSach();
+      if (tatCaDanhMuc) setDanhSachDanhMuc(tatCaDanhMuc);
     };
-    // Lấy tất cả sách để xác định danh mục đã dùng
+    // Lay tat ca sach de xac dinh danh muc da dung
     const napTatCaSach = async () => {
-      const sachList = await nhanTatCaCacQuyenSach();
-      if (Array.isArray(sachList)) {
-        const used = sachList.map((s) => s.danhMucSachID).filter(Boolean);
-        setUsedCategoryIds(used);
+      const tatCaSach = await nhanTatCaCacQuyenSach();
+      if (Array.isArray(tatCaSach)) {
+        const cacDanhMucDaDung = tatCaSach
+          .map((sach) => sach.danhMucSachID)
+          .filter(Boolean);
+        setDanhMucDangDuocDung(cacDanhMucDaDung);
       }
     };
     napTatCaDanhMucSach();
     napTatCaSach();
   }, []);
 
-  // Nếu số lượng danh mục thay đổi, đảm bảo trang hiện tại hợp lệ
-  useEffect(() => {
-    const tong = Math.max(1, Math.ceil(categories.length / danhMucMotTrang));
-    if (trangHienTai > tong) setTrangHienTai(tong);
-  }, [categories, trangHienTai]);
-
-  // hàm xử lý khi hủy sửa
-  const handleCancel = () => {
-    setEditIndex(null);
-    setEditValue("");
-    showToast("success", "Thành công", "Hủy sửa thành công!");
+  // Ham xu ly khi huy sua
+  const huyChinhSua = () => {
+    setChiSoDangSua(null);
+    setGiaTriDangSua("");
+    hienThongBao("success", "Thành công", "Hủy sửa thành công!");
   };
 
-  // Tính phân trang cho danh mục
-  const tongTrang = Math.max(1, Math.ceil(categories.length / danhMucMotTrang));
-  const danhMucHienThi = categories.slice(
+  // Khi danh sach thay doi (them xoa) thi kep lai trang hien tai de tranh vuot tong trang moi
+  useEffect(() => {
+    const tong = Math.max(
+      1,
+      Math.ceil(danhSachDanhMuc.length / danhMucMotTrang)
+    );
+    if (trangHienTai > tong) setTrangHienTai(tong);
+  }, [danhSachDanhMuc, trangHienTai]);
+
+  // --- Logic phan trang: tach bien trung gian de doc de hon ---
+  const tongTrang = Math.max(
+    1,
+    Math.ceil(danhSachDanhMuc.length / danhMucMotTrang)
+  );
+  const danhMucHienThi = danhSachDanhMuc.slice(
     (trangHienTai - 1) * danhMucMotTrang,
     trangHienTai * danhMucMotTrang
   );
+  const danhSachSoTrang = Array.from(
+    { length: tongTrang },
+    (_, chiSo) => chiSo + 1
+  );
+  const chuyenTrang = (soTrang) => {
+    if (!soTrang) return;
+    const trangTiepTheo = Math.min(Math.max(soTrang, 1), tongTrang);
+    setTrangHienTai(trangTiepTheo);
+  };
+  const trangTruoc = () => chuyenTrang(trangHienTai - 1);
+  const trangSau = () => chuyenTrang(trangHienTai + 1);
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
-      {/* Toast */}
+      {/* Thong bao */}
       <ThongBaoChay
-        show={toast.show}
-        type={toast.type}
-        title={toast.title}
-        message={toast.message}
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
         onClose={() =>
-          setToast({ show: false, type: "", title: "", message: "" })
+          setThongBao({ show: false, type: "", title: "", message: "" })
         }
       />
-      {/* Header */}
+      {/* Tieu de */}
       <div className="mb-6">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-lg bg-linear-to-br from-indigo-600 to-teal-500 text-white shadow-lg">
@@ -214,8 +234,8 @@ function QuanLyDanhMuc() {
         </div>
       </div>
 
-      {/* Add form */}
-      <form onSubmit={handleAdd} className="mb-8">
+      {/* Form them danh muc */}
+      <form onSubmit={xuLyThemDanhMuc} className="mb-8">
         <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-5 md:p-6">
           <label className="block text-sm font-semibold text-slate-700 mb-3">
             Thêm danh mục mới
@@ -223,8 +243,8 @@ function QuanLyDanhMuc() {
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={tenDanhMucMoi}
+              onChange={(e) => setTenDanhMucMoi(e.target.value)}
               placeholder="Ví dụ: Văn học thiếu nhi"
               className="flex-1 rounded-lg border border-slate-200 px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               required
@@ -239,18 +259,18 @@ function QuanLyDanhMuc() {
         </div>
       </form>
 
-      {/* List */}
+      {/* Danh sach */}
       <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
         <div className="px-6 pt-5 pb-3 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
           <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
             Danh sách danh mục
           </h2>
           <div className="text-sm text-slate-500">
-            Tổng: {categories.length} mục
+            Tổng: {danhSachDanhMuc.length} mục
           </div>
         </div>
 
-        {/* Header row */}
+        {/* Hang tieu de */}
         <div className="hidden md:grid grid-cols-12 gap-3 px-6 py-3 bg-slate-800 text-white">
           <div className="col-span-1 font-semibold text-sm">#</div>
           <div className="col-span-8 font-semibold text-sm">Tên danh mục</div>
@@ -259,36 +279,41 @@ function QuanLyDanhMuc() {
           </div>
         </div>
 
-        {/* Items */}
+        {/* Tung danh muc */}
         <ul className="divide-y divide-slate-100">
-          {categories && categories.length > 0 ? (
-            danhMucHienThi.map((cat, idx) => {
-              const globalIdx = (trangHienTai - 1) * danhMucMotTrang + idx;
+          {danhSachDanhMuc && danhSachDanhMuc.length > 0 ? (
+            danhMucHienThi.map((danhMuc, chiSoTrongTrang) => {
+              // chiSoThuc giu dung vi tri cua danh muc trong mang goc o moi trang
+              const chiSoThuc =
+                (trangHienTai - 1) * danhMucMotTrang + chiSoTrongTrang;
+              const dangSua = chiSoDangSua === chiSoThuc;
+              const dangDuocSuDung = danhMucDangDuocDung.includes(
+                danhMuc.danhMucSachID
+              );
               return (
                 <li
-                  key={cat.danhMucSachID ?? globalIdx}
+                  key={danhMuc.danhMucSachID ?? chiSoThuc}
                   className="px-6 py-3 hover:bg-slate-50 transition"
                 >
-                  {editIndex === globalIdx ? (
+                  {dangSua ? (
                     <form
-                      onSubmit={handleUpdate}
+                      onSubmit={xuLyCapNhatDanhMuc}
                       className="grid grid-cols-12 gap-3 items-center"
                     >
                       <div className="col-span-1 text-slate-500 font-medium">
-                        {cat.danhMucSachID}
+                        {danhMuc.danhMucSachID}
                       </div>
                       <div className="col-span-7">
                         <input
                           type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
+                          value={giaTriDangSua}
+                          onChange={(e) => setGiaTriDangSua(e.target.value)}
                           className="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           required
                         />
                       </div>
                       <div className="col-span-4 flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleLuu(globalIdx)}
                           type="submit"
                           className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-600 text-white font-medium shadow hover:bg-emerald-700 transition"
                         >
@@ -296,7 +321,7 @@ function QuanLyDanhMuc() {
                         </button>
                         <button
                           type="button"
-                          onClick={handleCancel}
+                          onClick={huyChinhSua}
                           className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition"
                         >
                           <FiX /> Hủy
@@ -306,33 +331,33 @@ function QuanLyDanhMuc() {
                   ) : (
                     <div className="grid grid-cols-12 gap-3 items-center">
                       <div className="col-span-1 text-slate-500 font-medium">
-                        {cat.danhMucSachID}
+                        {danhMuc.danhMucSachID}
                       </div>
                       <div className="col-span-8">
                         <span className="inline-flex items-center gap-2 text-slate-800 font-medium">
                           <span className="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
-                          {getCatName(cat) || "-"}
+                          {layTenDanhMuc(danhMuc) || "-"}
                         </span>
                       </div>
                       <div className="col-span-3 flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleEdit(globalIdx)}
+                          onClick={() => batCheDoSua(chiSoThuc)}
                           className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 border border-blue-200 transition"
                         >
                           <FiEdit2 /> Sửa
                         </button>
                         <button
-                          onClick={() => handleDelete(globalIdx)}
-                          disabled={usedCategoryIds.includes(cat.danhMucSachID)}
+                          onClick={() => xuLyXoaDanhMuc(chiSoThuc)}
+                          disabled={dangDuocSuDung}
                           className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border transition
                               ${
-                                usedCategoryIds.includes(cat.danhMucSachID)
+                                dangDuocSuDung
                                   ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
                                   : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
                               }
                             `}
                           title={
-                            usedCategoryIds.includes(cat.danhMucSachID)
+                            dangDuocSuDung
                               ? "Danh mục đã được sử dụng ở sách, không thể xóa"
                               : "Xóa"
                           }
@@ -352,45 +377,44 @@ function QuanLyDanhMuc() {
           )}
         </ul>
 
-        {/* Pagination controls */}
+        {/* Dieu khien phan trang */}
         <div className="px-6 py-4">
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-slate-600">
-              Trang {trangHienTai} / {tongTrang}
-            </div>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-600">
+              Trang {trangHienTai}/{tongTrang} · Hiển thị{" "}
+              {danhMucHienThi.length}/{danhSachDanhMuc.length || 0} danh mục
+            </p>
             <div className="flex items-center gap-2 text-black">
               <button
-                onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
+                onClick={trangTruoc}
                 disabled={trangHienTai === 1}
-                className={`px-3 py-1 rounded-md border ${
+                className={`px-3 py-1 rounded-md border transition ${
                   trangHienTai === 1
-                    ? "opacity-50 cursor-not-allowed"
+                    ? "opacity-50 cursor-not-allowed border-slate-200"
                     : "hover:bg-gray-100"
                 }`}
               >
                 Trước
               </button>
-              {Array.from({ length: tongTrang }).map((_, i) => (
+              {danhSachSoTrang.map((soTrang) => (
                 <button
-                  key={i}
-                  onClick={() => setTrangHienTai(i + 1)}
-                  className={`px-3 py-1 rounded-md border ${
-                    trangHienTai === i + 1
-                      ? "bg-[#004C61] text-white"
+                  key={soTrang}
+                  onClick={() => chuyenTrang(soTrang)}
+                  className={`px-3 py-1 rounded-md border transition ${
+                    trangHienTai === soTrang
+                      ? "bg-[#004C61] text-white border-[#004C61]"
                       : "hover:bg-gray-100"
                   }`}
                 >
-                  {i + 1}
+                  {soTrang}
                 </button>
               ))}
               <button
-                onClick={() =>
-                  setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
-                }
+                onClick={trangSau}
                 disabled={trangHienTai === tongTrang}
-                className={`px-3 py-1 rounded-md border ${
+                className={`px-3 py-1 rounded-md border transition ${
                   trangHienTai === tongTrang
-                    ? "opacity-50 cursor-not-allowed"
+                    ? "opacity-50 cursor-not-allowed border-slate-200"
                     : "hover:bg-gray-100"
                 }`}
               >
