@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { dangNhapTaiKhoan, dangNhapGoogle } from "../lib/nguoi-dung-apis.js";
-import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import ThongBaoChay from "./admin/ThongBaoChay";
 import { UserContext } from "../contexts/user-context";
 
 import { GoogleLogin } from "@react-oauth/google";
@@ -107,18 +107,26 @@ function DangNhap() {
           avatar: newAvatar,
         });
 
-        alert("Đăng nhập Google thành công!");
+        showToast("success", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
         if (user && user.vaiTro === "admin") {
           router("/admin");
         } else {
           router("/");
         }
       } else {
-        alert("Đăng nhập Google thất bại! " + message);
+        showToast(
+          "error",
+          "Đăng nhập thất bại",
+          message || "Không thể đăng nhập với Google"
+        );
       }
     } catch (error) {
       console.error("Lỗi đăng nhập Google:", error);
-      alert("Đăng nhập Google thất bại!");
+      showToast(
+        "error",
+        "Đăng nhập thất bại",
+        "Có lỗi xảy ra với Google, bạn thử lại nhé!"
+      );
     }
   };
   return (
@@ -237,7 +245,11 @@ function DangNhap() {
                   onSuccess={xuLyDangNhapGoogle}
                   onError={() => {
                     console.log("Đăng nhập Google thất bại");
-                    alert("Đăng nhập Google thất bại!");
+                    showToast(
+                      "error",
+                      "Đăng nhập thất bại",
+                      "Google đang gặp sự cố, vui lòng thử lại."
+                    );
                   }}
                   useOneTap
                   text="signin_with"

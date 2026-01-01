@@ -7,7 +7,7 @@ import {
 } from "../../lib/khuyenmai-apis";
 import { layTatCaDonHang } from "../../lib/don-hang-apis";
 import { useEffect } from "react";
-import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
+import ThongBaoChay from "./ThongBaoChay";
 
 function QuanLyKhuyenMai() {
   // thông báo chạy khi thêm, sửa, xóa
@@ -17,6 +17,8 @@ function QuanLyKhuyenMai() {
     title: "",
     message: "",
   });
+
+  // Hàm hiển thị thông báo
   const showToast = (type, title, message) => {
     setToast({ show: true, type, title, message });
     setTimeout(
@@ -126,7 +128,7 @@ function QuanLyKhuyenMai() {
     napDonHang();
   }, []);
 
-  // Khi `promos` thay đổi, đảm bảo trang hiện tại không vượt quá tổng trang
+  // đảm bảo trang hiện tại không vượt quá tổng số trang khi danh sách thay đổi
   useEffect(() => {
     const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
     setTrangHienTai((prev) => Math.min(prev, tongTrang));

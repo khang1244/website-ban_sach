@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   capNhatTrangThaiDonHang,
   layTatCaDonHang,
   layDonHangTheoID,
 } from "../../lib/don-hang-apis";
+import ThongBaoChay from "./ThongBaoChay";
 
 const STATUS_OPTIONS = [
   "Chờ xác nhận",
@@ -21,6 +21,18 @@ function QuanLyDonHang() {
   const [userOrder, setUserOrder] = useState([]);
   // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
   const [duLieuDonHang, setDuLieuDonHang] = useState(null);
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = useCallback((type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(() => {
+      setThongBao({ show: false, type: "info", title: "", message: "" });
+    }, 3000);
+  }, []);
 
   // --- CẤU HÌNH PHÂN TRANG ---
   // Số đơn hàng hiển thị mỗi trang (theo yêu cầu: 4)
@@ -42,6 +54,7 @@ function QuanLyDonHang() {
   };
   // Xử lý thay đổi trạng thái đơn hàng
   const handleStatusChange = async (donHangID, newStatus) => {
+    const trangThaiCu = userOrder;
     const updatedOrders = userOrder.map((order) => {
       if (order.donHangID === donHangID) {
         return { ...order, trangThai: newStatus };
@@ -51,24 +64,50 @@ function QuanLyDonHang() {
     });
     setUserOrder(updatedOrders);
 
-    // Gọi API để cập nhật trạng thái đơn hàng trên server
-    const phanHoiTuSever = await capNhatTrangThaiDonHang(donHangID, newStatus);
+    try {
+      const phanHoiTuSever = await capNhatTrangThaiDonHang(
+        donHangID,
+        newStatus
+      );
 
-    if (phanHoiTuSever && phanHoiTuSever.success) {
-      alert("Cập nhật trạng thái đơn hàng thành công!");
-    } else {
-      alert(
-        "Lỗi khi cập nhật trạng thái đơn hàng trên server:",
-        phanHoiTuSever.message
+      if (phanHoiTuSever && phanHoiTuSever.success) {
+        hienThongBao(
+          "success",
+          "Thành công",
+          "Cập nhật trạng thái đơn hàng thành công!"
+        );
+      } else {
+        setUserOrder(trangThaiCu);
+        hienThongBao(
+          "error",
+          "Thất bại",
+          phanHoiTuSever?.message || "Không thể cập nhật trạng thái đơn hàng."
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
+      setUserOrder(trangThaiCu);
+      hienThongBao(
+        "error",
+        "Có lỗi",
+        "Không thể cập nhật trạng thái đơn hàng, thử lại sau nhé!"
       );
     }
   };
   // Lấy danh sách đơn hàng từ server khi component được gắn vào DOM
   useEffect(() => {
     async function napDuLieuDonHang() {
-      const res = await layTatCaDonHang();
-      // Tùy cấu trúc trả về:
-      setUserOrder(Array.isArray(res) ? res : res.data || []);
+      try {
+        const res = await layTatCaDonHang();
+        setUserOrder(Array.isArray(res) ? res : res.data || []);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách đơn hàng:", error);
+        hienThongBao(
+          "error",
+          "Có lỗi",
+          "Không thể tải danh sách đơn hàng, vui lòng thử lại!"
+        );
+      }
     }
     napDuLieuDonHang();
   }, []);
@@ -90,8 +129,17 @@ function QuanLyDonHang() {
 
   // Reload danh sách đơn hàng từ server
   const reloadDonHang = async () => {
-    const res = await layTatCaDonHang();
-    setUserOrder(Array.isArray(res) ? res : res.data || []);
+    try {
+      const res = await layTatCaDonHang();
+      setUserOrder(Array.isArray(res) ? res : res.data || []);
+    } catch (error) {
+      console.error("Lỗi khi tải lại đơn hàng:", error);
+      hienThongBao(
+        "error",
+        "Có lỗi",
+        "Không thể tải lại danh sách đơn hàng, thử lại sau nhé!"
+      );
+    }
   };
 
   // Đóng modal
@@ -131,6 +179,15 @@ function QuanLyDonHang() {
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-[#f7f9fc]">
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       <h1 className="text-3xl font-bold mb-6 text-[#004C61]">
         Quản Lý Đơn Hàng
       </h1>

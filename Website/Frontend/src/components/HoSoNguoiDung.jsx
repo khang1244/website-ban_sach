@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { capNhatThongTinNguoiDung } from "../lib/nguoi-dung-apis.js";
 import { uploadHinhAnh } from "../lib/hinh-anh-apis.js";
-import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import ThongBaoChay from "./admin/ThongBaoChay";
 import { layDiaChiTheoNguoiDung } from "../lib/dia-chi-apis.js";
 
 function HoSoNguoiDung() {

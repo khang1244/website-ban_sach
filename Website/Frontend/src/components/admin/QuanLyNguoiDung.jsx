@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   layTatCaNguoiDung,
   xoaNguoiDungTheoID,
   thayDoiTrangThaiNguoiDung,
 } from "../../lib/nguoi-dung-apis";
+import ThongBaoChay from "./ThongBaoChay";
 
 function QuanLyNguoiDung() {
   const [users, setUsers] = useState([]); // Danh sách người dùng
   const [searchTerm, setSearchTerm] = useState(""); // Từ khóa tìm kiếm
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = useCallback((type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  }, []);
 
   // --- PHÂN TRANG ---
   // Số người dùng hiển thị mỗi trang (yêu cầu: 4)
@@ -21,14 +35,31 @@ function QuanLyNguoiDung() {
     );
     if (!confirmDelete) return;
 
-    const res = await xoaNguoiDungTheoID(nguoiDungID);
-    if (res.ok) {
-      setUsers((prev) =>
-        prev.filter((user) => user.nguoiDungID !== nguoiDungID)
+    try {
+      const res = await xoaNguoiDungTheoID(nguoiDungID);
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.filter((user) => user.nguoiDungID !== nguoiDungID)
+        );
+        hienThongBao(
+          "success",
+          "Thành công",
+          "Đã xóa tài khoản người dùng thành công."
+        );
+      } else {
+        hienThongBao(
+          "error",
+          "Thất bại",
+          res.data?.message || "Xóa tài khoản thất bại."
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa tài khoản:", error);
+      hienThongBao(
+        "error",
+        "Có lỗi",
+        "Không thể xóa tài khoản, vui lòng thử lại sau!"
       );
-      alert("Đã xóa tài khoản người dùng thành công.");
-    } else {
-      alert(res.data?.message || "Xóa tài khoản thất bại.");
     }
   };
 
@@ -56,7 +87,6 @@ function QuanLyNguoiDung() {
     try {
       const res = await thayDoiTrangThaiNguoiDung(nguoiDungID, newTrangThai);
       if (res.ok) {
-        // Cập nhật local state khi server trả về thành công
         setUsers((prev) =>
           prev.map((u) =>
             u.nguoiDungID === nguoiDungID
@@ -67,13 +97,17 @@ function QuanLyNguoiDung() {
         const thongBaoThanhCong = isActive
           ? "Khóa tài khoản thành công!"
           : "Mở khóa tài khoản thành công!";
-        alert(thongBaoThanhCong);
+        hienThongBao("success", "Thành công", thongBaoThanhCong);
       } else {
-        alert(res.data?.message || "Cập nhật trạng thái thất bại.");
+        hienThongBao(
+          "error",
+          "Thất bại",
+          res.data?.message || "Cập nhật trạng thái thất bại."
+        );
       }
     } catch (error) {
       console.error("Lỗi khi gọi API thay đổi trạng thái:", error);
-      alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+      hienThongBao("error", "Có lỗi", "Có lỗi xảy ra, vui lòng thử lại sau.");
     }
   };
   // Lọc người dùng theo tên hoặc email
@@ -120,6 +154,15 @@ function QuanLyNguoiDung() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       {/* Header */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h1 className="text-3xl font-extrabold text-gray-800 flex items-center">

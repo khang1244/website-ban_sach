@@ -20,7 +20,7 @@ import {
   xoaVinhVienPhuongThucGiaoHang,
 } from "../../lib/phuong-thuc-giao-hang-apis";
 import { layTatCaDonHang } from "../../lib/don-hang-apis";
-import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường dẫn tuỳ vị trí file
+import ThongBaoChay from "./ThongBaoChay";
 
 /**
  * Component quản lý phương thức giao hàng
@@ -29,14 +29,15 @@ import ThongBaoChay from "../../components/admin/ThongBaoChay"; // đường d�
 function QuanLyPhuongThucGiaoHang() {
   // Lưu các phương thức đã được sử dụng ở đơn hàng
   const [usedShippingIds, setUsedShippingIds] = useState([]);
-  // GIỮ NGUYÊN TẤT CẢ LOGIC VÀ STATE CỦA BẠN
+
   const [phuongThucGiaoHangs, setPhuongThucGiaoHangs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
+  const [error, setError] = useState(""); // Thông báo lỗi
+  const [successMessage, setSuccessMessage] = useState(""); // Thông báo thành công
+  const [showModal, setShowModal] = useState(false); // Hiển thị modal thêm/sửa
+  const [editingItem, setEditingItem] = useState(null); // Phương thức đang chỉnh sửa
   const [formData, setFormData] = useState({
+    // Dữ liệu form
     tenPhuongThuc: "",
     phiGiaoHang: "",
     thoiGianGiaoHang: "",

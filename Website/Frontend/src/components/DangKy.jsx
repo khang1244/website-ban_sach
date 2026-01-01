@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { dangKyTaiKhoan, kiemTraEmailTonTai } from "../lib/nguoi-dung-apis.js";
-import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import ThongBaoChay from "./admin/ThongBaoChay";
 
 function DangKy() {
   const [tenNguoiDung, setTenNguoiDung] = useState("");

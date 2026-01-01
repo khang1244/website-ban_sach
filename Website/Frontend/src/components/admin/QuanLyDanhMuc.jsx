@@ -14,7 +14,7 @@ import {
   nhanTatCaDanhMucSach,
 } from "../../lib/danh-muc-sach-apis";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
-import ThongBaoChay from "../../components/admin/ThongBaoChay"; // duong dan tuy vi tri file
+import ThongBaoChay from "./ThongBaoChay";
 
 function QuanLyDanhMuc() {
   // thong bao chay khi them, sua, xoa
@@ -33,7 +33,7 @@ function QuanLyDanhMuc() {
   };
   const [danhSachDanhMuc, setDanhSachDanhMuc] = useState([]); // toan bo danh muc
   const [danhMucDangDuocDung, setDanhMucDangDuocDung] = useState([]); // danh muc da gan cho sach
-  const [tenDanhMucMoi, setTenDanhMucMoi] = useState(""); // o nhap them danh muc moi
+  const [tenDanhMucMoi, setTenDanhMucMoi] = useState(""); // ten danh muc moi
   const [chiSoDangSua, setChiSoDangSua] = useState(null); // chi so danh muc dang sua
   const [giaTriDangSua, setGiaTriDangSua] = useState(""); // ten danh muc dang sua
   // --- PHAN TRANG ---
@@ -65,11 +65,7 @@ function QuanLyDanhMuc() {
       setTenDanhMucMoi(""); // xoa truong nhap ngay cho muot
       const danhMucMoi = await taoDanhMucSachMoi(tenMoiDaCat); // <- lay object co ID
       setDanhSachDanhMuc((truocDo) => [...truocDo, danhMucMoi]); // <- them vao mang de hien ID lien
-      hienThongBao(
-        "success",
-        "Thành công",
-        `Thêm danh mục "${tenMoiDaCat}" thành công!`
-      );
+      hienThongBao("success", "Thành công", `Thêm danh mục thành công!`);
     } catch (err) {
       console.error("Lỗi khi thêm danh mục:", err);
       hienThongBao("error", "Lỗi", "Không thể thêm danh mục, thử lại nhé!");
@@ -95,11 +91,7 @@ function QuanLyDanhMuc() {
       // Sau khi xoa thanh cong, cap nhat giao dien
       setDanhSachDanhMuc(danhSachDanhMuc.filter((_, viTri) => viTri !== chiSo));
 
-      hienThongBao(
-        "success",
-        "Thành công",
-        "Xóa danh mục " + tenDanhMuc + " thành công!"
-      );
+      hienThongBao("success", "Thành công", "Xóa danh mục thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
       hienThongBao(
@@ -178,7 +170,7 @@ function QuanLyDanhMuc() {
     hienThongBao("success", "Thành công", "Hủy sửa thành công!");
   };
 
-  // Khi danh sach thay doi (them xoa) thi kep lai trang hien tai de tranh vuot tong trang moi
+  // Dieu chinh trang hien tai neu so trang khong hop le
   useEffect(() => {
     const tong = Math.max(
       1,

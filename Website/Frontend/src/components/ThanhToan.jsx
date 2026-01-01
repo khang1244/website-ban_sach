@@ -32,6 +32,7 @@ import {
 } from "../lib/dia-chi-apis";
 import { taoDonHangMoi } from "../lib/don-hang-apis";
 import PayPalButton from "./PaypalButton";
+import ThongBaoChay from "./admin/ThongBaoChay";
 const PAYMENT_METHODS = [
   // Phương thức thanh toán
   {
@@ -73,6 +74,19 @@ function ThanhToan() {
   // Hiện/ẩn danh sách địa chỉ đã lưu (collapsed by default)
   const [hienDanhSachDiaChi, setHienDanhSachDiaChi] = useState(false);
   const [note, setNote] = useState(""); // Ghi chú đơn hàng
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = (type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  };
 
   // Điều hướng
   const router = useNavigate(); // Sử dụng useNavigate điều hướng trang
@@ -170,12 +184,16 @@ function ThanhToan() {
 
     // Kiểm tra người dùng chọn phương thức giao hàng chưa
     if (!shipping.phuongThucGiaoHang) {
-      alert("Vui lòng chọn phương thức giao hàng!");
+      hienThongBao(
+        "warning",
+        "Thiếu thông tin",
+        "Vui lòng chọn phương thức giao hàng!"
+      );
       return;
     }
     // Kiểm tra giỏ hàng có trống không
     if (cart.length === 0) {
-      alert("Giỏ hàng của bạn đang trống!");
+      hienThongBao("warning", "Giỏ hàng", "Giỏ hàng của bạn đang trống!");
       return;
     }
     // Lấy dữ liệu người dùng từ localStorage để chuẩn bị dữ liệu đẩy lên sever
@@ -232,10 +250,11 @@ function ThanhToan() {
       // Cập nhật số lượng giỏ hàng ở thanh điều hướng
       if (typeof refreshCartCount === "function") refreshCartCount();
 
-      alert("Đặt hàng thành công!");
+      hienThongBao("success", "Đặt hàng", "Đặt hàng thành công!");
+      await new Promise((resolve) => setTimeout(resolve, 1200));
       router("/xacnhandonhang");
     } else {
-      alert("Đặt hàng thất bại!");
+      hienThongBao("error", "Đặt hàng", "Đặt hàng thất bại!");
     }
   };
   // Khởi tạo dữ liệu giỏ hàng từ server khi component được mount
@@ -330,10 +349,23 @@ function ThanhToan() {
   const luuDiaChiHienTai = async () => {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (!storedUser) return alert("Vui lòng đăng nhập để lưu địa chỉ.");
+      if (!storedUser) {
+        hienThongBao(
+          "warning",
+          "Đăng nhập",
+          "Vui lòng đăng nhập để lưu địa chỉ."
+        );
+        return;
+      }
       const diaChiFull = xayDungChuoiDiaChi();
-      if (!diaChiFull || diaChiFull.trim().length === 0)
-        return alert("Vui lòng nhập địa chỉ trước khi lưu.");
+      if (!diaChiFull || diaChiFull.trim().length === 0) {
+        hienThongBao(
+          "warning",
+          "Địa chỉ",
+          "Vui lòng nhập địa chỉ trước khi lưu."
+        );
+        return;
+      }
       const res = await taoDiaChi({
         nguoiDungID: storedUser.nguoiDungID,
         diaChi: diaChiFull,
@@ -349,13 +381,13 @@ function ThanhToan() {
           // Sau khi lưu thành công, ẩn form nhập địa chỉ để tránh chiếm chỗ
           setHienFormDiaChi(false);
         }
-        alert("Đã lưu địa chỉ thành công");
+        hienThongBao("success", "Địa chỉ", "Đã lưu địa chỉ thành công");
       } else {
-        alert("Lưu địa chỉ thất bại");
+        hienThongBao("error", "Địa chỉ", "Lưu địa chỉ thất bại");
       }
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi lưu địa chỉ");
+      hienThongBao("error", "Địa chỉ", "Lỗi khi lưu địa chỉ");
     }
   };
 
@@ -383,7 +415,7 @@ function ThanhToan() {
       await taiLaiDiaChiDaLuu();
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi đặt mặc định");
+      hienThongBao("error", "Địa chỉ", "Lỗi khi đặt mặc định");
     }
   };
 
@@ -395,38 +427,55 @@ function ThanhToan() {
       // Kiểm tra mã khuyến mãi còn hạn (so sánh ngày đến cuối ngày)
       const expiry = new Date(response.khuyenMai.ngayHetHan);
       if (isNaN(expiry.getTime())) {
-        alert("Mã giảm giá không hợp lệ");
+        hienThongBao("error", "Mã giảm giá", "Mã giảm giá không hợp lệ");
         return;
       }
       // Đặt thời gian hết hạn là cuối ngày
       const expiryEnd = new Date(expiry);
       expiryEnd.setHours(23, 59, 59, 999);
       if (new Date() > expiryEnd) {
-        alert("Mã giảm giá đã hết hạn sử dụng!");
+        hienThongBao("warning", "Mã giảm giá", "Mã giảm giá đã hết hạn!");
         return;
       }
       // Kiểm tra xem với giá trị đơn hiện tại có thể sử dụng được không
       if (total1 < response.khuyenMai.giaCoBan) {
-        alert("Đơn hàng của bạn chưa đủ điều kiện để sử dụng mã giảm giá này!");
+        hienThongBao(
+          "warning",
+          "Mã giảm giá",
+          "Đơn hàng của bạn chưa đủ điều kiện để sử dụng mã giảm giá này!"
+        );
         return;
       }
       // Kiểm tra xem số lượng còn lại của mã khuyến mãi có đủ sử dụng không
       if (response.khuyenMai.soLuong <= 0) {
-        alert("Mã giảm giá đã hết số lượng sử dụng!");
+        hienThongBao(
+          "warning",
+          "Mã giảm giá",
+          "Mã giảm giá đã hết số lượng sử dụng!"
+        );
         return;
       }
       // Nếu tất cả điều kiện đều thỏa mãn, áp dụng mã giảm giá
       const phanTramGiamGia = response.khuyenMai.giaTriGiam || 0;
       const soTienDuocGiam = Math.round(tongTien * (phanTramGiamGia / 100));
       setDiscount(soTienDuocGiam);
-      alert("Áp dụng mã giảm giá thành công!");
+      hienThongBao("success", "Mã giảm giá", "Áp dụng mã giảm giá thành công!");
     } else {
-      alert("Mã giảm giá không hợp lệ!");
+      hienThongBao("error", "Mã giảm giá", "Mã giảm giá không hợp lệ!");
     }
   };
   return (
     <div className="min-h-screen w-full bg-[#f7f9fc]">
       <Navigation />
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
 
       {/* Banner + Progress */}
       <div className="bg-white">

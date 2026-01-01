@@ -12,6 +12,7 @@ import {
 import { FaPlus, FaCheckCircle, FaTrash, FaEdit, FaHome } from "react-icons/fa";
 import tinhTP from "../lib/du-Lieu-TinhTP";
 import { nhanDanhSachXaPhuong } from "../lib/dia-chi-apis";
+import ThongBaoChay from "./admin/ThongBaoChay";
 
 // Trang quản lý địa chỉ: cho phép thêm, chỉnh sửa (thay mới), đặt mặc định, xóa.
 // Checkout sẽ chỉ cho phép thêm mới + chọn mặc định, còn chỉnh sửa/xóa nằm tại đây.
@@ -29,6 +30,19 @@ function QuanLyDiaChi() {
     macDinh: false,
   });
   const [wards, setWards] = useState([]);
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = useCallback((type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  }, []);
 
   const [user] = useState(() => {
     const storedUser = localStorage.getItem("user");
@@ -57,20 +71,30 @@ function QuanLyDiaChi() {
       setSelectedId(def?.diaChiID || list?.[0]?.diaChiID || null);
     } catch (err) {
       console.error("Không tải được địa chỉ:", err);
+      hienThongBao(
+        "error",
+        "Địa chỉ",
+        "Không tải được địa chỉ, vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, hienThongBao]);
 
   // Tự động nạp địa chỉ khi component mount hoặc user thay đổi
   useEffect(() => {
     if (!user) {
-      alert("Vui lòng đăng nhập để quản lý địa chỉ");
-      navigate("/dangnhap");
-      return;
+      hienThongBao(
+        "warning",
+        "Đăng nhập",
+        "Vui lòng đăng nhập để quản lý địa chỉ"
+      );
+      const timeoutId = setTimeout(() => navigate("/dangnhap"), 1200);
+      return () => clearTimeout(timeoutId);
     }
     loadAddresses();
-  }, [user, navigate, loadAddresses]);
+    return undefined;
+  }, [user, navigate, loadAddresses, hienThongBao]);
 
   // Đặt lại form về mặc định
   const resetForm = () => {
@@ -90,7 +114,7 @@ function QuanLyDiaChi() {
 
     const diaChiCuThe = form.diaChiCuThe?.trim();
     if (!diaChiCuThe) {
-      alert("Vui lòng nhập địa chỉ đầy đủ");
+      hienThongBao("warning", "Địa chỉ", "Vui lòng nhập địa chỉ đầy đủ");
       return;
     }
 
@@ -125,10 +149,18 @@ function QuanLyDiaChi() {
 
       await loadAddresses();
       resetForm();
-      alert(editingId ? "Đã cập nhật địa chỉ" : "Đã thêm địa chỉ mới");
+      hienThongBao(
+        "success",
+        "Địa chỉ",
+        editingId ? "Đã cập nhật địa chỉ" : "Đã thêm địa chỉ mới"
+      );
     } catch (err) {
       console.error("Lỗi khi lưu địa chỉ:", err);
-      alert("Không thể lưu địa chỉ. Vui lòng thử lại.");
+      hienThongBao(
+        "error",
+        "Địa chỉ",
+        "Không thể lưu địa chỉ. Vui lòng thử lại."
+      );
     }
   };
   // Xử lý xóa địa chỉ
@@ -137,9 +169,14 @@ function QuanLyDiaChi() {
     try {
       await xoaDiaChi(id);
       await loadAddresses();
+      hienThongBao("success", "Địa chỉ", "Đã xóa địa chỉ");
     } catch (err) {
       console.error("Lỗi khi xóa địa chỉ:", err);
-      alert("Không thể xóa địa chỉ. Vui lòng thử lại.");
+      hienThongBao(
+        "error",
+        "Địa chỉ",
+        "Không thể xóa địa chỉ. Vui lòng thử lại."
+      );
     }
   };
   // Đặt địa chỉ làm mặc định
@@ -147,9 +184,14 @@ function QuanLyDiaChi() {
     try {
       await datMacDinhDiaChi(id);
       await loadAddresses();
+      hienThongBao("success", "Địa chỉ", "Đã đặt làm mặc định");
     } catch (err) {
       console.error("Lỗi khi đặt mặc định:", err);
-      alert("Không thể đặt mặc định. Vui lòng thử lại.");
+      hienThongBao(
+        "error",
+        "Địa chỉ",
+        "Không thể đặt mặc định. Vui lòng thử lại."
+      );
     }
   };
   // Chỉnh sửa địa chỉ
@@ -175,6 +217,15 @@ function QuanLyDiaChi() {
   return (
     <div className="min-h-screen bg-[#f7fbff]">
       <Navigation />
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex items-center gap-2 mb-6 text-[#0b3b4c]">
           <FaHome />

@@ -3,6 +3,7 @@ import { layTonKho } from "../../lib/phieu-nhap-apis";
 import { layTatCaPhieuNhap, taoPhieuNhap } from "../../lib/phieu-nhap-apis";
 import { layTatCaPhieuXuat } from "../../lib/phieu-xuat-apis";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
+import ThongBaoChay from "./ThongBaoChay";
 
 function QuanLyTonKho() {
   // State chung
@@ -12,6 +13,19 @@ function QuanLyTonKho() {
   const [phieuNhaps, setPhieuNhaps] = useState([]); // Dữ liệu phiếu nhập
   const [phieuXuats, setPhieuXuats] = useState([]); // Dữ liệu phiếu xuất
   const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = useCallback((type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  }, []);
 
   // State cho form phiếu nhập
   const [showFormNhap, setShowFormNhap] = useState(false); // Hiển thị form tạo phiếu nhập
@@ -57,7 +71,11 @@ function QuanLyTonKho() {
       }
     } catch (error) {
       console.error("Lỗi khi load dữ liệu:", error);
-      alert("Lỗi khi tải dữ liệu: " + error.message);
+      hienThongBao(
+        "error",
+        "Có lỗi",
+        "Không thể tải dữ liệu kho, vui lòng thử lại!"
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +94,11 @@ function QuanLyTonKho() {
         (ct) => ct.sachID && ct.soLuongNhap > 0 && ct.donGiaNhap > 0
       );
       if (chiTietHopLe.length === 0) {
-        alert("Vui lòng thêm ít nhất 1 sản phẩm hợp lệ");
+        hienThongBao(
+          "warning",
+          "Thiếu dữ liệu",
+          "Vui lòng thêm ít nhất 1 sản phẩm hợp lệ."
+        );
         return;
       }
 
@@ -94,7 +116,9 @@ function QuanLyTonKho() {
         return !trangThaiBan;
       });
       if (sachNgungBan) {
-        alert(
+        hienThongBao(
+          "warning",
+          "Không hợp lệ",
           "Sản phẩm đang ngừng bán, không thể tạo phiếu nhập cho sản phẩm đó."
         );
         return;
@@ -110,13 +134,17 @@ function QuanLyTonKho() {
       };
 
       await taoPhieuNhap(payload);
-      alert("Tạo phiếu nhập thành công!");
+      hienThongBao("success", "Thành công", "Tạo phiếu nhập thành công!");
       setShowFormNhap(false);
       setGhiChuNhap("");
       setChiTietNhap([{ sachID: "", soLuongNhap: 0, donGiaNhap: 0 }]);
       loadData();
     } catch (error) {
-      alert("Lỗi: " + error.message);
+      hienThongBao(
+        "error",
+        "Có lỗi",
+        error.message || "Không thể tạo phiếu nhập, thử lại sau nhé!"
+      );
     }
   };
 
@@ -143,6 +171,15 @@ function QuanLyTonKho() {
 
   return (
     <div className="p-6 bg-white min-h-screen">
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Quản Lý Tồn Kho</h1>
 
       {/* Tabs */}

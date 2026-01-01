@@ -62,7 +62,7 @@ function LogoutButton() {
 }
 
 function AdminLayout() {
-  const location = useLocation();
+  const location = useLocation(); // Lấy thông tin vị trí hiện tại
   const { user } = useContext(UserContext);
 
   return (

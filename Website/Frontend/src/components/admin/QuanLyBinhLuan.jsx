@@ -5,12 +5,26 @@ import {
   xoaBinhLuanTheoID,
   duyetBinhLuanTheoID,
 } from "../../lib/binh-luan-apis";
+import ThongBaoChay from "./ThongBaoChay";
 
 function QuanLyBinhLuan() {
   const [binhLuan, setBinhLuan] = useState([]); // Dữ liệu bình luận
   const [loctheodanhgia, setLocTheoDanhGia] = useState(null); // Lọc theo đánh giá
   const [trangHienTai, setTrangHienTai] = useState(1); // Trang hiện tại
   const [soItemMoiTrang] = useState(5); // Số item mỗi trang
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = (type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  };
 
   useEffect(() => {
     // Gọi API để lấy danh sách bình luận từ server
@@ -21,6 +35,11 @@ function QuanLyBinhLuan() {
         setTrangHienTai(1); // Reset về trang 1
       } else {
         console.error("Lỗi khi tải bình luận:", phanHoiTuSever.message);
+        hienThongBao(
+          "error",
+          "Có lỗi",
+          "Không thể tải danh sách bình luận, thử lại sau nhé!"
+        );
       }
     };
     napDuLieuBinhLuan();
@@ -35,7 +54,11 @@ function QuanLyBinhLuan() {
 
       // Nếu API trả success, xóa luôn trên UI
       if (!res || res.success === false) {
-        alert(res?.message || "Xóa thất bại.");
+        hienThongBao(
+          "error",
+          "Thất bại",
+          res?.message || "Xóa bình luận thất bại."
+        );
         return;
       }
 
@@ -43,10 +66,10 @@ function QuanLyBinhLuan() {
       setBinhLuan((prev) => prev.filter((bl) => bl.binhLuanID !== id));
       setTrangHienTai(1); // Reset về trang 1
 
-      alert("Bình luận đã được xóa.");
+      hienThongBao("success", "Thành công", "Bình luận đã được xóa.");
     } catch (error) {
       console.error(error);
-      alert("Có lỗi xảy ra khi xóa bình luận.");
+      hienThongBao("error", "Có lỗi", "Có lỗi xảy ra khi xóa bình luận.");
     }
   };
 
@@ -61,7 +84,11 @@ function QuanLyBinhLuan() {
     try {
       const phanHoi = await duyetBinhLuanTheoID(id, !current);
       if (!phanHoi || phanHoi.success === false) {
-        alert(phanHoi?.message || "Cập nhật trạng thái duyệt thất bại.");
+        hienThongBao(
+          "error",
+          "Thất bại",
+          phanHoi?.message || "Cập nhật trạng thái duyệt thất bại."
+        );
         return;
       }
 
@@ -75,10 +102,10 @@ function QuanLyBinhLuan() {
       const thongBaoThanhCong = !current
         ? "Duyệt bình luận thành công!"
         : "Hủy duyệt bình luận thành công!";
-      alert(thongBaoThanhCong);
+      hienThongBao("success", "Thành công", thongBaoThanhCong);
     } catch (error) {
       console.error(error);
-      alert("Có lỗi khi cập nhật trạng thái duyệt.");
+      hienThongBao("error", "Có lỗi", "Có lỗi khi cập nhật trạng thái duyệt.");
     }
   };
 
@@ -105,6 +132,15 @@ function QuanLyBinhLuan() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

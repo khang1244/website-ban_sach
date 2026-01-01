@@ -16,6 +16,7 @@ import {
 } from "../lib/gio-hang-apis";
 import { UserContext } from "../contexts/user-context";
 import { layTonKhoTheoSach } from "../lib/phieu-nhap-apis";
+import ThongBaoChay from "./admin/ThongBaoChay";
 
 // Hàm định dạng tiền tệ
 const formatCurrency = (amount) => {
@@ -28,6 +29,19 @@ function GioHang() {
   const [gioHangID, setGioHangID] = useState(null); // Lưu trữ ID giỏ hàng
   const timeoutRef = useRef(null); // Ref để lưu timeout khi cập nhật số lượng
   const { refreshCartCount } = useContext(UserContext); // Hàm để làm mới số lượng sản phẩm trong giỏ hàng ở header
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = (type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  };
 
   // Cập nhật số lượng sản phẩm trong giỏ hàng
   async function updateQuantity(index, delta) {
@@ -44,14 +58,20 @@ function GioHang() {
         const tonKho = tonKhoData?.tonKho ?? 0;
 
         if (soLuongMoi > tonKho) {
-          alert(
+          hienThongBao(
+            "warning",
+            "Tồn kho",
             `Không thể thêm! Sản phẩm "${item.Sach?.tenSach}" chỉ còn ${tonKho} cuốn trong kho.`
           );
           return;
         }
       } catch (error) {
         console.error("Lỗi khi kiểm tra tồn kho:", error);
-        alert("Không thể kiểm tra số lượng tồn kho. Vui lòng thử lại.");
+        hienThongBao(
+          "error",
+          "Tồn kho",
+          "Không thể kiểm tra số lượng tồn kho. Vui lòng thử lại."
+        );
         return;
       }
     }
@@ -107,14 +127,18 @@ function GioHang() {
       await xoaSanPhamKhoiGioHang(gioHangID, sachID);
 
       // THÔNG BÁO XOÁ THÀNH CÔNG
-      alert("Đã xoá sản phẩm khỏi giỏ hàng!");
+      hienThongBao("success", "Giỏ hàng", "Đã xoá sản phẩm khỏi giỏ hàng!");
 
       refreshCartCount();
     } catch (error) {
       console.error("Lỗi khi xoá sản phẩm:", error);
 
       // THÔNG BÁO LỖI
-      alert("Xoá sản phẩm thất bại, vui lòng thử lại!");
+      hienThongBao(
+        "error",
+        "Giỏ hàng",
+        "Xoá sản phẩm thất bại, vui lòng thử lại!"
+      );
     }
   }
 
@@ -138,6 +162,15 @@ function GioHang() {
     // Nền: Màu xám sáng nhẹ (tinh tế)
     <div className="min-h-screen font-sans">
       <Navigation />
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         {/* Tiêu đề chính: Cỡ lớn, đậm, màu Indigo nổi bật */}
         <h1 className="text-5xl font-extrabold text-white text-center mb-14 tracking-tight">

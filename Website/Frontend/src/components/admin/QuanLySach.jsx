@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   capNhatSach,
   capNhatTrangThaiBanSach,
@@ -6,11 +6,11 @@ import {
   xoaSach,
 } from "../../lib/sach-apis";
 import { uploadHinhAnh, xoaHinhAnhKhoiS3 } from "../../lib/hinh-anh-apis";
-import { useEffect } from "react";
 import { nhanTatCaCacQuyenSach } from "../../lib/sach-apis";
 import { nhanTatCaDanhMucSach } from "../../lib/danh-muc-sach-apis";
 import { MdOutlineDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
+import ThongBaoChay from "./ThongBaoChay";
 
 const DINH_DANG = ["Bìa mềm", "Bìa cứng", "PDF", "Epub"];
 const NGON_NGU = ["Tiếng Việt", "Tiếng Anh"];
@@ -36,6 +36,19 @@ function QuanLySach() {
     moTa: "",
   });
   const [editId, setEditId] = useState(null); // ID của sách đang sửa, null nếu không có
+  const [thongBao, setThongBao] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const hienThongBao = useCallback((type, title, message) => {
+    setThongBao({ show: true, type, title, message });
+    setTimeout(
+      () => setThongBao({ show: false, type: "info", title: "", message: "" }),
+      3000
+    );
+  }, []);
   // Chuẩn hóa trạng thái bán của sách
   const chuanHoaTrangThaiBan = (value) => {
     if (value === undefined || value === null) return true;
@@ -128,7 +141,7 @@ function QuanLySach() {
       // Refresh lại danh sách sách từ server để đảm bảo dữ liệu đồng bộ
       await napLaiDanhSachSach();
 
-      alert("Cập nhật sách thành công!");
+      hienThongBao("success", "Thành công", "Cập nhật sách thành công!");
       setEditId(null);
     } else {
       setBooks([...books, { ...form, id: Date.now(), images: form.images }]);
@@ -153,7 +166,7 @@ function QuanLySach() {
       await napLaiDanhSachSach();
       // Gọi API để thêm sách vào database
       // Sau khi thêm sách thành công, chúng ta có thể làm gì đó, ví dụ như hiển thị thông báo
-      alert("Thêm sách thành công!");
+      hienThongBao("success", "Thành công", "Thêm sách thành công!");
     }
     setForm({
       id: null,
@@ -224,7 +237,7 @@ function QuanLySach() {
     // Tìm sách cần xóa trong state
     const bookToDelete = books.find((b) => b.sachID === sachID);
     if (!bookToDelete) {
-      alert("Không tìm thấy sách để xóa.");
+      hienThongBao("warning", "Chú ý", "Không tìm thấy sách để xóa.");
       return;
     }
 
@@ -256,9 +269,13 @@ function QuanLySach() {
         console.warn("Không thể dispatch event booksUpdated:", e);
       }
 
-      alert("Xóa sách thành công!");
+      hienThongBao("success", "Thành công", "Xóa sách thành công!");
     } else {
-      alert("Xóa sách thất bại: " + (resp?.message || "Lỗi server"));
+      hienThongBao(
+        "error",
+        "Thất bại",
+        resp?.message || "Xóa sách thất bại, vui lòng thử lại."
+      );
     }
   };
 
@@ -283,11 +300,19 @@ function QuanLySach() {
     if (!ok) return;
     const resp = await capNhatTrangThaiBanSach(book.sachID, false);
     if (!resp || resp.success === false) {
-      alert(resp?.message || "Không thể ngừng bán sản phẩm.");
+      hienThongBao(
+        "error",
+        "Thất bại",
+        resp?.message || "Không thể ngừng bán sản phẩm."
+      );
       return;
     }
     await napLaiDanhSachSach();
-    alert("Đã chuyển sách sang trạng thái ngừng bán.");
+    hienThongBao(
+      "success",
+      "Thành công",
+      "Đã chuyển sách sang trạng thái ngừng bán."
+    );
   };
 
   // Xử lý bán lại sách
@@ -296,11 +321,19 @@ function QuanLySach() {
     if (!ok) return;
     const resp = await capNhatTrangThaiBanSach(book.sachID, true);
     if (!resp || resp.success === false) {
-      alert(resp?.message || "Không thể mở bán lại sản phẩm.");
+      hienThongBao(
+        "error",
+        "Thất bại",
+        resp?.message || "Không thể mở bán lại sản phẩm."
+      );
       return;
     }
     await napLaiDanhSachSach();
-    alert("Đã chuyển sách sang trạng thái đang bán.");
+    hienThongBao(
+      "success",
+      "Thành công",
+      "Đã chuyển sách sang trạng thái đang bán."
+    );
   };
 
   // Nạp lại danh sách sách khi component được gắn vào DOM
@@ -379,6 +412,15 @@ function QuanLySach() {
 
   return (
     <div className="w-full space-y-6">
+      <ThongBaoChay
+        show={thongBao.show}
+        type={thongBao.type}
+        title={thongBao.title}
+        message={thongBao.message}
+        onClose={() =>
+          setThongBao({ show: false, type: "info", title: "", message: "" })
+        }
+      />
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>

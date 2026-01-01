@@ -53,8 +53,8 @@ const giasach = [
 ];
 
 function Homepage() {
-  const [selectedCategory, setSelectedCategory] = useState(0);
-  const [selectedPrice, setSelectedPrice] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState(0); // Hook của React danh mục được chọn bộ lọc sách mới
+  const [selectedPrice, setSelectedPrice] = useState("all"); // Hook của React giá được chọn của
   // bộ lộc sách bán chạy
   const [selectedCategoryBC, setSelectedCategoryBC] = useState(0); // Hook của React danh mục được chọn bộ lọc sách bán chạy
   const [selectedPriceBC, setSelectedPriceBC] = useState("all"); // Hook của React giá được chọn của bộ lọc sách bán chạy

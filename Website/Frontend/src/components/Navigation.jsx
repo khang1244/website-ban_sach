@@ -5,7 +5,7 @@ import SangToi from "./sangtoi";
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { UserContext } from "../contexts/user-context";
-import ThongBaoChay from "./admin/ThongBaoChay.jsx";
+import ThongBaoChay from "./admin/ThongBaoChay";
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
