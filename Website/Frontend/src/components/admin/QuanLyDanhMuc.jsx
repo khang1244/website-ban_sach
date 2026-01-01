@@ -172,33 +172,30 @@ function QuanLyDanhMuc() {
 
   // Dieu chinh trang hien tai neu so trang khong hop le
   useEffect(() => {
-    const tong = Math.max(
+    const tongSoTrang = Math.max(
       1,
       Math.ceil(danhSachDanhMuc.length / danhMucMotTrang)
     );
-    if (trangHienTai > tong) setTrangHienTai(tong);
+    if (trangHienTai > tongSoTrang) setTrangHienTai(tongSoTrang);
   }, [danhSachDanhMuc, trangHienTai]);
 
-  // --- Logic phan trang: tach bien trung gian de doc de hon ---
-  const tongTrang = Math.max(
+  // --- Phân trang gom gọn ---
+  const tongSoDanhMuc = danhSachDanhMuc.length;
+  const tongSoTrang = Math.max(
     1,
-    Math.ceil(danhSachDanhMuc.length / danhMucMotTrang)
+    Math.ceil(tongSoDanhMuc / danhMucMotTrang)
   );
-  const danhMucHienThi = danhSachDanhMuc.slice(
-    (trangHienTai - 1) * danhMucMotTrang,
-    trangHienTai * danhMucMotTrang
+  const trangDangXem = Math.min(trangHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * danhMucMotTrang;
+  const danhMucTrongTrang = danhSachDanhMuc.slice(
+    viTriBatDau,
+    viTriBatDau + danhMucMotTrang
   );
-  const danhSachSoTrang = Array.from(
-    { length: tongTrang },
-    (_, chiSo) => chiSo + 1
-  );
-  const chuyenTrang = (soTrang) => {
-    if (!soTrang) return;
-    const trangTiepTheo = Math.min(Math.max(soTrang, 1), tongTrang);
-    setTrangHienTai(trangTiepTheo);
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) {
+      setTrangHienTai(trang);
+    }
   };
-  const trangTruoc = () => chuyenTrang(trangHienTai - 1);
-  const trangSau = () => chuyenTrang(trangHienTai + 1);
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
@@ -274,10 +271,9 @@ function QuanLyDanhMuc() {
         {/* Tung danh muc */}
         <ul className="divide-y divide-slate-100">
           {danhSachDanhMuc && danhSachDanhMuc.length > 0 ? (
-            danhMucHienThi.map((danhMuc, chiSoTrongTrang) => {
+            danhMucTrongTrang.map((danhMuc, chiSoTrongTrang) => {
               // chiSoThuc giu dung vi tri cua danh muc trong mang goc o moi trang
-              const chiSoThuc =
-                (trangHienTai - 1) * danhMucMotTrang + chiSoTrongTrang;
+              const chiSoThuc = viTriBatDau + chiSoTrongTrang;
               const dangSua = chiSoDangSua === chiSoThuc;
               const dangDuocSuDung = danhMucDangDuocDung.includes(
                 danhMuc.danhMucSachID
@@ -373,39 +369,41 @@ function QuanLyDanhMuc() {
         <div className="px-6 py-4">
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
-              Trang {trangHienTai}/{tongTrang} · Hiển thị{" "}
-              {danhMucHienThi.length}/{danhSachDanhMuc.length || 0} danh mục
+              Trang {trangDangXem}/{tongSoTrang} · Hiển thị {" "}
+              {danhMucTrongTrang.length}/{danhSachDanhMuc.length || 0} danh mục
             </p>
             <div className="flex items-center gap-2 text-black">
               <button
-                onClick={trangTruoc}
-                disabled={trangHienTai === 1}
+                onClick={() => chuyenTrang(trangDangXem - 1)}
+                disabled={trangDangXem === 1}
                 className={`px-3 py-1 rounded-md border transition ${
-                  trangHienTai === 1
+                  trangDangXem === 1
                     ? "opacity-50 cursor-not-allowed border-slate-200"
                     : "hover:bg-gray-100"
                 }`}
               >
                 Trước
               </button>
-              {danhSachSoTrang.map((soTrang) => (
+              {Array.from({ length: tongSoTrang }, (_, idx) => idx + 1).map(
+                (soTrang) => (
                 <button
                   key={soTrang}
                   onClick={() => chuyenTrang(soTrang)}
                   className={`px-3 py-1 rounded-md border transition ${
-                    trangHienTai === soTrang
+                      trangDangXem === soTrang
                       ? "bg-[#004C61] text-white border-[#004C61]"
                       : "hover:bg-gray-100"
                   }`}
                 >
                   {soTrang}
                 </button>
-              ))}
+                )
+              )}
               <button
-                onClick={trangSau}
-                disabled={trangHienTai === tongTrang}
+                onClick={() => chuyenTrang(trangDangXem + 1)}
+                disabled={trangDangXem === tongSoTrang}
                 className={`px-3 py-1 rounded-md border transition ${
-                  trangHienTai === tongTrang
+                  trangDangXem === tongSoTrang
                     ? "opacity-50 cursor-not-allowed border-slate-200"
                     : "hover:bg-gray-100"
                 }`}

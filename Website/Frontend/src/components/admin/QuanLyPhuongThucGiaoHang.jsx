@@ -268,11 +268,21 @@ function QuanLyPhuongThucGiaoHang() {
     return matchesSearch && matchesStatus;
   });
 
-  // --- TÍNH PHÂN TRANG TỪ filteredPhuongThucGiaoHangs ---
-  const tongTrangPhuongThuc = Math.max(
+  // --- Phân trang gom gọn ---
+  const tongSoPhuongThuc = filteredPhuongThucGiaoHangs.length;
+  const tongSoTrang = Math.max(
     1,
-    Math.ceil(filteredPhuongThucGiaoHangs.length / phuongThucMotTrang)
+    Math.ceil(tongSoPhuongThuc / phuongThucMotTrang)
   );
+  const trangDangXem = Math.min(trangPhuongThucHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * phuongThucMotTrang;
+  const phuongThucTrongTrang = filteredPhuongThucGiaoHangs.slice(
+    viTriBatDau,
+    viTriBatDau + phuongThucMotTrang
+  );
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) setTrangPhuongThucHienTai(trang);
+  };
 
   // Nếu tìm kiếm hoặc bộ lọc thay đổi, quay về trang 1
   useEffect(() => {
@@ -281,16 +291,10 @@ function QuanLyPhuongThucGiaoHang() {
 
   // Nếu tổng trang giảm (ví dụ sau khi xóa), điều chỉnh trang hiện tại
   useEffect(() => {
-    if (trangPhuongThucHienTai > tongTrangPhuongThuc) {
-      setTrangPhuongThucHienTai(tongTrangPhuongThuc);
+    if (trangPhuongThucHienTai > tongSoTrang) {
+      setTrangPhuongThucHienTai(tongSoTrang);
     }
-  }, [tongTrangPhuongThuc, trangPhuongThucHienTai]);
-
-  // Mảng phương thức sẽ hiển thị trên trang hiện tại
-  const phuongThucHienThi = filteredPhuongThucGiaoHangs.slice(
-    (trangPhuongThucHienTai - 1) * phuongThucMotTrang,
-    trangPhuongThucHienTai * phuongThucMotTrang
-  );
+  }, [tongSoTrang, trangPhuongThucHienTai]);
 
   // Định dạng tiền tệ VND
   const formatCurrency = (amount) => {
@@ -434,7 +438,7 @@ function QuanLyPhuongThucGiaoHang() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {/* Hiển thị chỉ các phương thức trong trang hiện tại */}
-                {phuongThucHienThi.map((item) => (
+                {phuongThucTrongTrang.map((item) => (
                   <tr
                     key={item.phuongThucGiaoHangID}
                     className="hover:bg-blue-50 transition duration-150 ease-in-out"
@@ -537,28 +541,26 @@ function QuanLyPhuongThucGiaoHang() {
       {/* PHÂN TRANG: Trước / số trang / Tiếp */}
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Trang {trangPhuongThucHienTai} / {tongTrangPhuongThuc}
+          Trang {trangDangXem} / {tongSoTrang}
         </div>
         <div className="flex items-center gap-2 text-black">
           <button
-            onClick={() =>
-              setTrangPhuongThucHienTai(Math.max(1, trangPhuongThucHienTai - 1))
-            }
-            disabled={trangPhuongThucHienTai === 1}
+            onClick={() => chuyenTrang(trangDangXem - 1)}
+            disabled={trangDangXem === 1}
             className={`px-3 py-1 rounded-md border ${
-              trangPhuongThucHienTai === 1
+              trangDangXem === 1
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}
           >
             Trước
           </button>
-          {Array.from({ length: tongTrangPhuongThuc }).map((_, i) => (
+          {Array.from({ length: tongSoTrang }).map((_, i) => (
             <button
               key={i}
-              onClick={() => setTrangPhuongThucHienTai(i + 1)}
+              onClick={() => chuyenTrang(i + 1)}
               className={`px-3 py-1 rounded-md border ${
-                trangPhuongThucHienTai === i + 1
+                trangDangXem === i + 1
                   ? "bg-blue-600 text-white"
                   : "hover:bg-gray-100"
               }`}
@@ -567,14 +569,10 @@ function QuanLyPhuongThucGiaoHang() {
             </button>
           ))}
           <button
-            onClick={() =>
-              setTrangPhuongThucHienTai(
-                Math.min(tongTrangPhuongThuc, trangPhuongThucHienTai + 1)
-              )
-            }
-            disabled={trangPhuongThucHienTai === tongTrangPhuongThuc}
+            onClick={() => chuyenTrang(trangDangXem + 1)}
+            disabled={trangDangXem === tongSoTrang}
             className={`px-3 py-1 rounded-md border ${
-              trangPhuongThucHienTai === tongTrangPhuongThuc
+              trangDangXem === tongSoTrang
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}

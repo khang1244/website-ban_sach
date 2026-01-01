@@ -119,11 +119,21 @@ function QuanLyNguoiDung() {
     );
   });
 
-  // Tổng số trang dựa trên filteredUsers
-  const tongTrangNguoiDung = Math.max(
+  // Phân trang gom gọn
+  const tongSoNguoiDung = filteredUsers.length;
+  const tongSoTrang = Math.max(
     1,
-    Math.ceil(filteredUsers.length / nguoiDungMotTrang)
+    Math.ceil(tongSoNguoiDung / nguoiDungMotTrang)
   );
+  const trangDangXem = Math.min(trangNguoiDungHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * nguoiDungMotTrang;
+  const nguoiDungTrongTrang = filteredUsers.slice(
+    viTriBatDau,
+    viTriBatDau + nguoiDungMotTrang
+  );
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) setTrangNguoiDungHienTai(trang);
+  };
 
   // Nếu tìm kiếm thay đổi, quay về trang 1 để tránh trang không hợp lệ
   useEffect(() => {
@@ -132,16 +142,10 @@ function QuanLyNguoiDung() {
 
   // Nếu số trang giảm (ví dụ sau khi xóa hoặc lọc), điều chỉnh trang hiện tại cho hợp lệ
   useEffect(() => {
-    if (trangNguoiDungHienTai > tongTrangNguoiDung) {
-      setTrangNguoiDungHienTai(tongTrangNguoiDung);
+    if (trangNguoiDungHienTai > tongSoTrang) {
+      setTrangNguoiDungHienTai(tongSoTrang);
     }
-  }, [tongTrangNguoiDung, trangNguoiDungHienTai]);
-
-  // Mảng người dùng thực tế sẽ hiển thị cho trang hiện tại
-  const nguoiHienThi = filteredUsers.slice(
-    (trangNguoiDungHienTai - 1) * nguoiDungMotTrang,
-    trangNguoiDungHienTai * nguoiDungMotTrang
-  );
+  }, [tongSoTrang, trangNguoiDungHienTai]);
 
   // Tải tất cả người dùng khi component được mount
   useEffect(() => {
@@ -230,7 +234,7 @@ function QuanLyNguoiDung() {
             {/* // Hiển thị danh sách người dùng đã lọc */}
             {filteredUsers.length > 0 ? (
               // Hiển thị chỉ những người trong trang hiện tại
-              nguoiHienThi.map((user) => {
+              nguoiDungTrongTrang.map((user) => {
                 const isActive =
                   user.trangThaiTaiKhoan === 1 ||
                   user.trangThaiTaiKhoan === true ||
@@ -315,28 +319,26 @@ function QuanLyNguoiDung() {
       {/* PHÂN TRANG: Hiển thị controls nếu có nhiều hơn 1 trang */}
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Trang {trangNguoiDungHienTai} / {tongTrangNguoiDung}
+          Trang {trangDangXem} / {tongSoTrang}
         </div>
         <div className="flex items-center gap-2 text-black">
           <button
-            onClick={() =>
-              setTrangNguoiDungHienTai(Math.max(1, trangNguoiDungHienTai - 1))
-            }
-            disabled={trangNguoiDungHienTai === 1}
+            onClick={() => chuyenTrang(trangDangXem - 1)}
+            disabled={trangDangXem === 1}
             className={`px-3 py-1 rounded-md border ${
-              trangNguoiDungHienTai === 1
+              trangDangXem === 1
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}
           >
             Trước
           </button>
-          {Array.from({ length: tongTrangNguoiDung }).map((_, i) => (
+          {Array.from({ length: tongSoTrang }).map((_, i) => (
             <button
               key={i}
-              onClick={() => setTrangNguoiDungHienTai(i + 1)}
+              onClick={() => chuyenTrang(i + 1)}
               className={`px-3 py-1 rounded-md border ${
-                trangNguoiDungHienTai === i + 1
+                trangDangXem === i + 1
                   ? "bg-indigo-600 text-white"
                   : "hover:bg-gray-100"
               }`}
@@ -345,14 +347,10 @@ function QuanLyNguoiDung() {
             </button>
           ))}
           <button
-            onClick={() =>
-              setTrangNguoiDungHienTai(
-                Math.min(tongTrangNguoiDung, trangNguoiDungHienTai + 1)
-              )
-            }
-            disabled={trangNguoiDungHienTai === tongTrangNguoiDung}
+            onClick={() => chuyenTrang(trangDangXem + 1)}
+            disabled={trangDangXem === tongSoTrang}
             className={`px-3 py-1 rounded-md border ${
-              trangNguoiDungHienTai === tongTrangNguoiDung
+              trangDangXem === tongSoTrang
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-gray-100"
             }`}

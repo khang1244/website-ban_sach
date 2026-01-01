@@ -52,6 +52,24 @@ function QuanLyTonKho() {
   // State cho phân trang Phiếu Xuất (danh sách tóm gọn)
   const [trangPhieuXuat, setTrangPhieuXuat] = useState(1);
 
+  // Helper phân trang gom gọn
+  const taoPhanTrang = (duLieu, trang, soLuongMotTrang) => {
+    const tongSo = duLieu.length;
+    const tongSoTrang = Math.max(1, Math.ceil(tongSo / soLuongMotTrang));
+    const trangHopLe = Math.min(Math.max(trang, 1), tongSoTrang);
+    const viTriBatDau = (trangHopLe - 1) * soLuongMotTrang;
+    return {
+      tongSo,
+      tongSoTrang,
+      trangHopLe,
+      viTriBatDau,
+      duLieuTrongTrang: duLieu.slice(
+        viTriBatDau,
+        viTriBatDau + soLuongMotTrang
+      ),
+    };
+  };
+
   // Load dữ liệu khi component mount
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -85,6 +103,41 @@ function QuanLyTonKho() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Phân trang gom gọn cho từng danh sách
+  const tonKhoPage = taoPhanTrang(tonKho, trangTonKho, 5);
+  const phieuNhapPage = taoPhanTrang(phieuNhaps, trangPhieuNhap, 5);
+  const phieuXuatPage = taoPhanTrang(phieuXuats, trangPhieuXuat, 5);
+
+  const chuyenTrangTonKho = (trang) => {
+    if (trang >= 1 && trang <= tonKhoPage.tongSoTrang) setTrangTonKho(trang);
+  };
+  const chuyenTrangPhieuNhap = (trang) => {
+    if (trang >= 1 && trang <= phieuNhapPage.tongSoTrang)
+      setTrangPhieuNhap(trang);
+  };
+  const chuyenTrangPhieuXuat = (trang) => {
+    if (trang >= 1 && trang <= phieuXuatPage.tongSoTrang)
+      setTrangPhieuXuat(trang);
+  };
+
+  useEffect(() => {
+    if (trangTonKho !== tonKhoPage.trangHopLe) {
+      setTrangTonKho(tonKhoPage.trangHopLe);
+    }
+  }, [tonKhoPage.trangHopLe, trangTonKho]);
+
+  useEffect(() => {
+    if (trangPhieuNhap !== phieuNhapPage.trangHopLe) {
+      setTrangPhieuNhap(phieuNhapPage.trangHopLe);
+    }
+  }, [phieuNhapPage.trangHopLe, trangPhieuNhap]);
+
+  useEffect(() => {
+    if (trangPhieuXuat !== phieuXuatPage.trangHopLe) {
+      setTrangPhieuXuat(phieuXuatPage.trangHopLe);
+    }
+  }, [phieuXuatPage.trangHopLe, trangPhieuXuat]);
 
   // Xử lý tạo phiếu nhập
   const handleTaoPhieuNhap = async () => {
@@ -224,140 +277,120 @@ function QuanLyTonKho() {
           <h2 className="text-xl font-semibold mb-3 text-gray-800">
             Danh Sách Tồn Kho
           </h2>
-          {(() => {
-            const itemsPerPage = 5;
-            const totalPages = Math.ceil(tonKho.length / itemsPerPage);
-            const startIdx = (trangTonKho - 1) * itemsPerPage;
-            const endIdx = startIdx + itemsPerPage;
-            const currentData = tonKho.slice(startIdx, endIdx);
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border">
+              <thead>
+                <tr className="bg-gray-200 border-black">
+                  <th className="border  text-black">ID</th>
+                  <th className="border  text-black">Hình Ảnh</th>
+                  <th className="border  text-black">Tên Sách</th>
+                  <th className="border  text-black">Tác Giả</th>
+                  <th className="border text-black">Giá Giảm</th>
+                  <th className="border text-black">Trạng thái</th>
+                  <th className="border  text-black">Số Lượng Nhập</th>
+                  <th className="border  text-black">Số Lượng Xuất</th>
+                  <th className="border  text-black">Tồn Kho</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tonKhoPage.duLieuTrongTrang.map((item) => {
+                  const sach = danhSachSach.find((s) => s.sachID === item.sachID);
+                  let firstImg = null;
+                  try {
+                    const imgs = Array.isArray(sach?.images)
+                      ? sach.images
+                      : JSON.parse(sach?.images || "null");
+                    firstImg = Array.isArray(imgs) ? imgs[0]?.url : null;
+                  } catch {
+                    firstImg = null;
+                  }
 
-            return (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border">
-                    <thead>
-                      <tr className="bg-gray-200 border-black">
-                        <th className="border  text-black">ID</th>
-                        <th className="border  text-black">Hình Ảnh</th>
-                        <th className="border  text-black">Tên Sách</th>
-                        <th className="border  text-black">Tác Giả</th>
-                        <th className="border text-black">Giá Giảm</th>
-                        <th className="border text-black">Trạng thái</th>
-                        <th className="border  text-black">Số Lượng Nhập</th>
-                        <th className="border  text-black">Số Lượng Xuất</th>
-                        <th className="border  text-black">Tồn Kho</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentData.map((item) => {
-                        const sach = danhSachSach.find(
-                          (s) => s.sachID === item.sachID
-                        );
-                        let firstImg = null;
-                        try {
-                          const imgs = Array.isArray(sach?.images)
-                            ? sach.images
-                            : JSON.parse(sach?.images || "null");
-                          firstImg = Array.isArray(imgs) ? imgs[0]?.url : null;
-                        } catch {
-                          firstImg = null;
-                        }
-
-                        return (
-                          <tr className="text-black" key={item.sachID}>
-                            <td className="border p-2 text-center">
-                              {item.sachID}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {firstImg ? (
-                                <img
-                                  src={firstImg}
-                                  alt={item.tenSach}
-                                  className="mx-auto h-14 w-13 object-cover rounded"
-                                />
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </td>
-                            <td className="border p-2">{item.tenSach}</td>
-                            <td className="border p-2">{item.tacGia}</td>
-                            <td className="border p-2 text-right">
-                              {item.giaGiam?.toLocaleString()} đ
-                            </td>
-                            <td className="border p-2 text-center">
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-semibold ${
-                                  item.trangThaiBan
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
-                              >
-                                {item.trangThaiBan ? "Đang bán" : "Ngừng bán"}
-                              </span>
-                            </td>
-                            <td className="border p-2 text-center text-black  ">
-                              {item.soLuongNhap}
-                            </td>
-                            <td className="border p-2 text-center text-black  ">
-                              {item.soLuongXuat < 0
-                                ? `+${Math.abs(item.soLuongXuat)}`
-                                : item.soLuongXuat}
-                            </td>
-                            <td
-                              className={`border p-2 text-center font-semibold ${
-                                item.tonKho < 5
-                                  ? "text-red-600"
-                                  : item.tonKho < 10
-                                  ? "text-yellow-600"
-                                  : "text-green-600"
-                              }`}
-                            >
-                              {item.tonKho}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Phân trang Tồn Kho */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-4 text-black">
-                    <button
-                      onClick={() =>
-                        setTrangTonKho(Math.max(1, trangTonKho - 1))
-                      }
-                      disabled={trangTonKho === 1}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      ← Trước
-                    </button>
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => setTrangTonKho(i + 1)}
-                        className={`px-3 py-1 border rounded ${
-                          trangTonKho === i + 1 ? "bg-blue-500 text-white" : ""
+                  return (
+                    <tr className="text-black" key={item.sachID}>
+                      <td className="border p-2 text-center">{item.sachID}</td>
+                      <td className="border p-2 text-center">
+                        {firstImg ? (
+                          <img
+                            src={firstImg}
+                            alt={item.tenSach}
+                            className="mx-auto h-14 w-13 object-cover rounded"
+                          />
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border p-2">{item.tenSach}</td>
+                      <td className="border p-2">{item.tacGia}</td>
+                      <td className="border p-2 text-right">
+                        {item.giaGiam?.toLocaleString()} đ
+                      </td>
+                      <td className="border p-2 text-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                            item.trangThaiBan
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {item.trangThaiBan ? "Đang bán" : "Ngừng bán"}
+                        </span>
+                      </td>
+                      <td className="border p-2 text-center text-black  ">
+                        {item.soLuongNhap}
+                      </td>
+                      <td className="border p-2 text-center text-black  ">
+                        {item.soLuongXuat < 0
+                          ? `+${Math.abs(item.soLuongXuat)}`
+                          : item.soLuongXuat}
+                      </td>
+                      <td
+                        className={`border p-2 text-center font-semibold ${
+                          item.tonKho < 5
+                            ? "text-red-600"
+                            : item.tonKho < 10
+                            ? "text-yellow-600"
+                            : "text-green-600"
                         }`}
                       >
-                        {i + 1}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() =>
-                        setTrangTonKho(Math.min(totalPages, trangTonKho + 1))
-                      }
-                      disabled={trangTonKho === totalPages}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      Sau →
-                    </button>
-                  </div>
-                )}
-              </>
-            );
-          })()}
+                        {item.tonKho}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Phân trang Tồn Kho */}
+          {tonKhoPage.tongSoTrang > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4 text-black">
+              <button
+                onClick={() => chuyenTrangTonKho(tonKhoPage.trangHopLe - 1)}
+                disabled={tonKhoPage.trangHopLe === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                ← Trước
+              </button>
+              {Array.from({ length: tonKhoPage.tongSoTrang }).map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => chuyenTrangTonKho(i + 1)}
+                  className={`px-3 py-1 border rounded ${
+                    tonKhoPage.trangHopLe === i + 1 ? "bg-blue-500 text-white" : ""
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => chuyenTrangTonKho(tonKhoPage.trangHopLe + 1)}
+                disabled={tonKhoPage.trangHopLe === tonKhoPage.tongSoTrang}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Sau →
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -390,94 +423,84 @@ function QuanLyTonKho() {
                 </div>
               </div>
 
-              {(() => {
-                const itemsPerPage = 5;
-                const totalPages = Math.ceil(phieuNhaps.length / itemsPerPage);
-                const startIdx = (trangPhieuNhap - 1) * itemsPerPage;
-                const endIdx = startIdx + itemsPerPage;
-                const currentData = phieuNhaps.slice(startIdx, endIdx);
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border text-black">
+                    <thead>
+                      <tr className="bg-gray-200">
+                        <th className="border p-2">ID</th>
+                        <th className="border p-2">Ngày Nhập</th>
+                        <th className="border p-2">Ghi Chú</th>
+                        <th className="border p-2">Số Lượng SP</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {phieuNhapPage.duLieuTrongTrang.map((phieu) => (
+                        <tr key={phieu.phieuNhapID}>
+                          <td className="border p-2 text-center font-semibold">
+                            {phieu.phieuNhapID}
+                          </td>
+                          <td className="border p-2">
+                            {new Date(phieu.ngayNhap).toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          </td>
+                          <td className="border p-2">{phieu.ghiChu || "-"}</td>
+                          <td className="border p-2 text-center">
+                            {phieu.chiTietPhieuNhaps?.length || 0}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {phieuNhaps.length === 0 && (
+                    <p className="text-center text-gray-500 py-4">
+                      Chưa có phiếu nhập nào
+                    </p>
+                  )}
+                </div>
 
-                return (
-                  <>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border text-black">
-                        <thead>
-                          <tr className="bg-gray-200">
-                            <th className="border p-2">ID</th>
-                            <th className="border p-2">Ngày Nhập</th>
-                            <th className="border p-2">Ghi Chú</th>
-                            <th className="border p-2">Số Lượng SP</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentData.map((phieu) => (
-                            <tr key={phieu.phieuNhapID}>
-                              <td className="border p-2 text-center font-semibold">
-                                {phieu.phieuNhapID}
-                              </td>
-                              <td className="border p-2">
-                                {new Date(phieu.ngayNhap).toLocaleDateString(
-                                  "vi-VN"
-                                )}
-                              </td>
-                              <td className="border p-2">
-                                {phieu.ghiChu || "-"}
-                              </td>
-                              <td className="border p-2 text-center">
-                                {phieu.chiTietPhieuNhaps?.length || 0}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {phieuNhaps.length === 0 && (
-                        <p className="text-center text-gray-500 py-4">
-                          Chưa có phiếu nhập nào
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Phân trang Phiếu Nhập */}
-                    {totalPages > 1 && (
-                      <div className="flex justify-center items-center gap-2 mt-4 text-black">
+                {/* Phân trang Phiếu Nhập */}
+                {phieuNhapPage.tongSoTrang > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-4 text-black">
+                    <button
+                      onClick={() =>
+                        chuyenTrangPhieuNhap(phieuNhapPage.trangHopLe - 1)
+                      }
+                      disabled={phieuNhapPage.trangHopLe === 1}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      ← Trước
+                    </button>
+                    {Array.from({ length: phieuNhapPage.tongSoTrang }).map(
+                      (_, i) => (
                         <button
-                          onClick={() =>
-                            setTrangPhieuNhap(Math.max(1, trangPhieuNhap - 1))
-                          }
-                          disabled={trangPhieuNhap === 1}
-                          className="px-3 py-1 border rounded disabled:opacity-50"
+                          key={i + 1}
+                          onClick={() => chuyenTrangPhieuNhap(i + 1)}
+                          className={`px-3 py-1 border rounded ${
+                            phieuNhapPage.trangHopLe === i + 1
+                              ? "bg-blue-500 text-white"
+                              : ""
+                          }`}
                         >
-                          ← Trước
+                          {i + 1}
                         </button>
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                          <button
-                            key={i + 1}
-                            onClick={() => setTrangPhieuNhap(i + 1)}
-                            className={`px-3 py-1 border rounded ${
-                              trangPhieuNhap === i + 1
-                                ? "bg-blue-500 text-white"
-                                : ""
-                            }`}
-                          >
-                            {i + 1}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() =>
-                            setTrangPhieuNhap(
-                              Math.min(totalPages, trangPhieuNhap + 1)
-                            )
-                          }
-                          disabled={trangPhieuNhap === totalPages}
-                          className="px-3 py-1 border rounded disabled:opacity-50"
-                        >
-                          Sau →
-                        </button>
-                      </div>
+                      )
                     )}
-                  </>
-                );
-              })()}
+                    <button
+                      onClick={() =>
+                        chuyenTrangPhieuNhap(phieuNhapPage.trangHopLe + 1)
+                      }
+                      disabled={
+                        phieuNhapPage.trangHopLe === phieuNhapPage.tongSoTrang
+                      }
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      Sau →
+                    </button>
+                  </div>
+                )}
+              </>
             </>
           ) : (
             // Hiển thị lịch sử nhập chi tiết
@@ -764,110 +787,102 @@ function QuanLyTonKho() {
               <p className="text-sm text-gray-600 mb-4">
                 Phiếu xuất tự động tạo khi khách mua hàng
               </p>
-              {(() => {
-                const itemsPerPage = 5;
-                const totalPages = Math.ceil(phieuXuats.length / itemsPerPage);
-                const startIdx = (trangPhieuXuat - 1) * itemsPerPage;
-                const endIdx = startIdx + itemsPerPage;
-                const currentData = phieuXuats.slice(startIdx, endIdx);
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border text-black">
+                    <thead>
+                      <tr className="bg-gray-200">
+                        <th className="border p-2">ID Phiếu</th>
+                        <th className="border p-2">Ngày Xuát</th>
+                        <th className="border p-2">Khách Hàng</th>
+                        <th className="border p-2">Loại Xuát</th>
+                        <th className="border p-2">Đơn Hàng</th>
+                        <th className="border p-2">Số Lượng SP</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {phieuXuatPage.duLieuTrongTrang.map((phieu) => (
+                        <tr key={phieu.phieuXuatID}>
+                          <td className="border p-2 text-center font-semibold">
+                            {phieu.phieuXuatID}
+                          </td>
+                          <td className="border p-2">
+                            {new Date(phieu.ngayXuat).toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          </td>
+                          <td className="border p-2 font-medium">
+                            {phieu.tenNguoiDung || "-"}
+                          </td>
+                          <td className="border p-2 text-center">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                              {phieu.loaiXuat}
+                            </span>
+                          </td>
+                          <td className="border p-2 text-center">
+                            {phieu.donHangID ? (
+                              <span className="font-semibold text-blue-600">
+                                #{phieu.donHangID}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="border p-2 text-center">
+                            {phieu.chiTietPhieuXuats?.length || 0}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {phieuXuats.length === 0 && (
+                    <p className="text-center text-gray-500 py-4">
+                      Chưa có phiếu xuát nào
+                    </p>
+                  )}
+                </div>
 
-                return (
-                  <>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border text-black">
-                        <thead>
-                          <tr className="bg-gray-200">
-                            <th className="border p-2">ID Phiếu</th>
-                            <th className="border p-2">Ngày Xuát</th>
-                            <th className="border p-2">Khách Hàng</th>
-                            <th className="border p-2">Loại Xuát</th>
-                            <th className="border p-2">Đơn Hàng</th>
-                            <th className="border p-2">Số Lượng SP</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentData.map((phieu) => (
-                            <tr key={phieu.phieuXuatID}>
-                              <td className="border p-2 text-center font-semibold">
-                                {phieu.phieuXuatID}
-                              </td>
-                              <td className="border p-2">
-                                {new Date(phieu.ngayXuat).toLocaleDateString(
-                                  "vi-VN"
-                                )}
-                              </td>
-                              <td className="border p-2 font-medium">
-                                {phieu.tenNguoiDung || "-"}
-                              </td>
-                              <td className="border p-2 text-center">
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                                  {phieu.loaiXuat}
-                                </span>
-                              </td>
-                              <td className="border p-2 text-center">
-                                {phieu.donHangID ? (
-                                  <span className="font-semibold text-blue-600">
-                                    #{phieu.donHangID}
-                                  </span>
-                                ) : (
-                                  <span className="text-gray-400">-</span>
-                                )}
-                              </td>
-                              <td className="border p-2 text-center">
-                                {phieu.chiTietPhieuXuats?.length || 0}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {phieuXuats.length === 0 && (
-                        <p className="text-center text-gray-500 py-4">
-                          Chưa có phiếu xuát nào
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Phân trang Phiếu Xuất */}
-                    {totalPages > 1 && (
-                      <div className="flex justify-center items-center gap-2 mt-4 text-black">
+                {/* Phân trang Phiếu Xuất */}
+                {phieuXuatPage.tongSoTrang > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-4 text-black">
+                    <button
+                      onClick={() =>
+                        chuyenTrangPhieuXuat(phieuXuatPage.trangHopLe - 1)
+                      }
+                      disabled={phieuXuatPage.trangHopLe === 1}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      ← Trước
+                    </button>
+                    {Array.from({ length: phieuXuatPage.tongSoTrang }).map(
+                      (_, i) => (
                         <button
-                          onClick={() =>
-                            setTrangPhieuXuat(Math.max(1, trangPhieuXuat - 1))
-                          }
-                          disabled={trangPhieuXuat === 1}
-                          className="px-3 py-1 border rounded disabled:opacity-50"
+                          key={i + 1}
+                          onClick={() => chuyenTrangPhieuXuat(i + 1)}
+                          className={`px-3 py-1 border rounded ${
+                            phieuXuatPage.trangHopLe === i + 1
+                              ? "bg-blue-500 text-white"
+                              : ""
+                          }`}
                         >
-                          ← Trước
+                          {i + 1}
                         </button>
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                          <button
-                            key={i + 1}
-                            onClick={() => setTrangPhieuXuat(i + 1)}
-                            className={`px-3 py-1 border rounded ${
-                              trangPhieuXuat === i + 1
-                                ? "bg-blue-500 text-white"
-                                : ""
-                            }`}
-                          >
-                            {i + 1}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() =>
-                            setTrangPhieuXuat(
-                              Math.min(totalPages, trangPhieuXuat + 1)
-                            )
-                          }
-                          disabled={trangPhieuXuat === totalPages}
-                          className="px-3 py-1 border rounded disabled:opacity-50"
-                        >
-                          Sau →
-                        </button>
-                      </div>
+                      )
                     )}
-                  </>
-                );
-              })()}
+                    <button
+                      onClick={() =>
+                        chuyenTrangPhieuXuat(phieuXuatPage.trangHopLe + 1)
+                      }
+                      disabled={
+                        phieuXuatPage.trangHopLe === phieuXuatPage.tongSoTrang
+                      }
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      Sau →
+                    </button>
+                  </div>
+                )}
+              </>
             </>
           ) : (
             // Hiển thị lịch sử xuát chi tiết

@@ -154,23 +154,31 @@ function QuanLyDonHang() {
     return order.trangThai === filterStatus; // lọc theo trạng thái
   });
 
-  // --- Tính phân trang từ filteredOrders ---
-  // Tổng số trang dựa trên số phần tử và số phần tử/trang
-  const tongTrang = Math.max(
+  // --- Phân trang gom gọn ---
+  const donHangLoc = filteredOrders;
+  const tongSoDonHang = donHangLoc.length;
+  const tongSoTrang = Math.max(
     1,
-    Math.ceil(filteredOrders.length / donHangMotTrang)
-  ); // Tổng trang
-
-  // Nếu bộ lọc thay đổi, reset về trang 1 để tránh trang vượt quá tổng
-  useEffect(() => {
-    setTrangHienTai(1); // Khi lọc thay đổi, quay về trang 1
-  }, [filterStatus]);
-
-  // Lấy danh sách đơn hàng hiển thị cho trang hiện tại
-  const donHangHienThi = filteredOrders.slice(
-    (trangHienTai - 1) * donHangMotTrang, // start index
-    trangHienTai * donHangMotTrang // end index
+    Math.ceil(tongSoDonHang / donHangMotTrang)
   );
+  const trangDangXem = Math.min(trangHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * donHangMotTrang;
+  const donHangTrongTrang = donHangLoc.slice(
+    viTriBatDau,
+    viTriBatDau + donHangMotTrang
+  );
+
+  // Điều chỉnh trang khi bộ lọc hoặc dữ liệu đổi
+  useEffect(() => {
+    setTrangHienTai(1);
+  }, [filterStatus]);
+  useEffect(() => {
+    if (trangHienTai > tongSoTrang) setTrangHienTai(tongSoTrang);
+  }, [trangHienTai, tongSoTrang]);
+
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) setTrangHienTai(trang);
+  };
   // Helper function để định dạng tiền tệ
   const formatMoney = (value) =>
     typeof value === "number"
@@ -248,9 +256,9 @@ function QuanLyDonHang() {
               </tr>
             </thead>
             <tbody>
-              {donHangHienThi && donHangHienThi.length > 0 ? (
+              {donHangTrongTrang && donHangTrongTrang.length > 0 ? (
                 // Duyệt các đơn hàng đã được cắt theo trang
-                donHangHienThi.map((order, idx) => (
+                donHangTrongTrang.map((order, idx) => (
                   <tr
                     key={idx}
                     className="border-b hover:bg-[#F9FAFB] transition-colors duration-300 text-black"
@@ -320,14 +328,14 @@ function QuanLyDonHang() {
         {/* --- Phân trang đơn giản --- */}
         <div className="mt-4 flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Trang {trangHienTai} / {tongTrang}
+            Trang {trangDangXem} / {tongSoTrang}
           </div>
           <div className="flex items-center gap-2 text-black">
             <button
-              onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
-              disabled={trangHienTai === 1}
+              onClick={() => chuyenTrang(trangDangXem - 1)}
+              disabled={trangDangXem === 1}
               className={`px-3 py-1 rounded-md border ${
-                trangHienTai === 1
+                trangDangXem === 1
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-gray-100"
               }`}
@@ -335,12 +343,12 @@ function QuanLyDonHang() {
               Trước
             </button>
             {/* Hiển thị các nút trang (nếu nhiều trang có thể tối giản) */}
-            {Array.from({ length: tongTrang }).map((_, i) => (
+            {Array.from({ length: tongSoTrang }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => setTrangHienTai(i + 1)}
+                onClick={() => chuyenTrang(i + 1)}
                 className={`px-3 py-1 rounded-md border ${
-                  trangHienTai === i + 1
+                  trangDangXem === i + 1
                     ? "bg-[#004C61] text-white"
                     : "hover:bg-gray-100"
                 }`}
@@ -349,12 +357,10 @@ function QuanLyDonHang() {
               </button>
             ))}
             <button
-              onClick={() =>
-                setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
-              }
-              disabled={trangHienTai === tongTrang}
+              onClick={() => chuyenTrang(trangDangXem + 1)}
+              disabled={trangDangXem === tongSoTrang}
               className={`px-3 py-1 rounded-md border ${
-                trangHienTai === tongTrang
+                trangDangXem === tongSoTrang
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-gray-100"
               }`}

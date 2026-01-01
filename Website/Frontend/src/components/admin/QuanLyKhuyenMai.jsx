@@ -128,11 +128,26 @@ function QuanLyKhuyenMai() {
     napDonHang();
   }, []);
 
+  // Phân trang gom gọn
+  const tongSoKhuyenMai = promos.length;
+  const tongSoTrang = Math.max(
+    1,
+    Math.ceil(tongSoKhuyenMai / promosMotTrang)
+  );
+  const trangDangXem = Math.min(trangHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * promosMotTrang;
+  const promosTrongTrang = promos.slice(
+    viTriBatDau,
+    viTriBatDau + promosMotTrang
+  );
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) setTrangHienTai(trang);
+  };
+
   // đảm bảo trang hiện tại không vượt quá tổng số trang khi danh sách thay đổi
   useEffect(() => {
-    const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
-    setTrangHienTai((prev) => Math.min(prev, tongTrang));
-  }, [promos]);
+    setTrangHienTai((prev) => Math.min(prev, tongSoTrang));
+  }, [promos, tongSoTrang]);
 
   // Hàm định dạng ngày tháng từ ISO sang dd/mm/yyyy
   const formatDate = (isoDate) => {
@@ -148,13 +163,6 @@ function QuanLyKhuyenMai() {
     // 3. Trả về định dạng mong muốn
     return `${day}/${month}/${year}`; // Định dạng dd/mm/yyyy
   };
-
-  // tính toán phân trang
-  const tongTrang = Math.max(1, Math.ceil(promos.length / promosMotTrang));
-  const promosHienThi = promos.slice(
-    (trangHienTai - 1) * promosMotTrang,
-    trangHienTai * promosMotTrang
-  );
 
   return (
     <div className="w-full space-y-6">
@@ -420,8 +428,8 @@ function QuanLyKhuyenMai() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
-              {promosHienThi && promosHienThi.length > 0 ? (
-                promosHienThi.map((promo, idx) => (
+              {promosTrongTrang && promosTrongTrang.length > 0 ? (
+                promosTrongTrang.map((promo, idx) => (
                   <tr
                     key={promo.khuyenMaiID}
                     className="hover:bg-slate-50 transition-colors"
@@ -535,30 +543,31 @@ function QuanLyKhuyenMai() {
         </div>
 
         {/* Phân trang */}
-        {tongTrang > 1 && (
+        {tongSoTrang > 1 && (
           <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
                 Hiển thị{" "}
                 <span className="font-semibold text-slate-900">
-                  {(trangHienTai - 1) * promosMotTrang + 1}
+                  {(trangDangXem - 1) * promosMotTrang + 1}
                 </span>{" "}
                 -{" "}
                 <span className="font-semibold text-slate-900">
-                  {Math.min(trangHienTai * promosMotTrang, promos.length)}
+                  {Math.min(
+                    trangDangXem * promosMotTrang,
+                    tongSoKhuyenMai
+                  )}
                 </span>{" "}
                 của{" "}
-                <span className="font-semibold text-slate-900">
-                  {promos.length}
-                </span>{" "}
+                <span className="font-semibold text-slate-900">{tongSoKhuyenMai}</span>{" "}
                 mã
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setTrangHienTai(Math.max(1, trangHienTai - 1))}
-                  disabled={trangHienTai === 1}
+                  onClick={() => chuyenTrang(trangDangXem - 1)}
+                  disabled={trangDangXem === 1}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                    trangHienTai === 1
+                    trangDangXem === 1
                       ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
                       : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
                   }`}
@@ -566,19 +575,19 @@ function QuanLyKhuyenMai() {
                   ← Trước
                 </button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: tongTrang }).map((_, i) => {
+                  {Array.from({ length: tongSoTrang }).map((_, i) => {
                     const page = i + 1;
                     if (
                       page === 1 ||
-                      page === tongTrang ||
-                      (page >= trangHienTai - 1 && page <= trangHienTai + 1)
+                      page === tongSoTrang ||
+                      (page >= trangDangXem - 1 && page <= trangDangXem + 1)
                     ) {
                       return (
                         <button
                           key={i}
-                          onClick={() => setTrangHienTai(page)}
+                          onClick={() => chuyenTrang(page)}
                           className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                            trangHienTai === page
+                            trangDangXem === page
                               ? "bg-purple-600 text-white border-purple-600 shadow-sm"
                               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
                           }`}
@@ -587,8 +596,8 @@ function QuanLyKhuyenMai() {
                         </button>
                       );
                     } else if (
-                      page === trangHienTai - 2 ||
-                      page === trangHienTai + 2
+                      page === trangDangXem - 2 ||
+                      page === trangDangXem + 2
                     ) {
                       return (
                         <span key={i} className="px-2 text-slate-400">
@@ -600,12 +609,10 @@ function QuanLyKhuyenMai() {
                   })}
                 </div>
                 <button
-                  onClick={() =>
-                    setTrangHienTai(Math.min(tongTrang, trangHienTai + 1))
-                  }
-                  disabled={trangHienTai === tongTrang}
+                  onClick={() => chuyenTrang(trangDangXem + 1)}
+                  disabled={trangDangXem === tongSoTrang}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                    trangHienTai === tongTrang
+                    trangDangXem === tongSoTrang
                       ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
                       : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-purple-500"
                   }`}

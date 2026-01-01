@@ -350,23 +350,27 @@ function QuanLySach() {
   });
 
   // --- TÍNH PHÂN TRANG ---
-  const tongTrangSach = Math.max(
+  const tongSoSach = sachDaLoc.length;
+  const tongSoTrang = Math.max(
     1,
-    Math.ceil(sachDaLoc.length / soLuongSachMotTrang)
+    Math.ceil(tongSoSach / soLuongSachMotTrang)
   );
+  const trangDangXem = Math.min(trangSachHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangXem - 1) * soLuongSachMotTrang;
+  const sachTrongTrang = sachDaLoc.slice(
+    viTriBatDau,
+    viTriBatDau + soLuongSachMotTrang
+  );
+  const chuyenTrang = (trang) => {
+    if (trang >= 1 && trang <= tongSoTrang) setTrangSachHienTai(trang);
+  };
 
   // Nếu số trang thay đổi (ví dụ sau khi xóa), đảm bảo trang hiện tại hợp lệ
   useEffect(() => {
-    if (trangSachHienTai > tongTrangSach) {
-      setTrangSachHienTai(tongTrangSach);
+    if (trangSachHienTai > tongSoTrang) {
+      setTrangSachHienTai(tongSoTrang);
     }
-  }, [tongTrangSach, trangSachHienTai]);
-
-  // Mảng sách sẽ hiển thị trên trang hiện tại
-  const sachHienThi = sachDaLoc.slice(
-    (trangSachHienTai - 1) * soLuongSachMotTrang,
-    trangSachHienTai * soLuongSachMotTrang
-  );
+  }, [tongSoTrang, trangSachHienTai]);
 
   // Kiểm tra 1 biến có phải là 1 file hay không để hiển thị hình ảnh khi cập nhật
   const isFile = (obj) => {
@@ -731,7 +735,7 @@ function QuanLySach() {
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
               {books && books.length > 0 ? (
-                sachHienThi.map((book, idx) => {
+                sachTrongTrang.map((book, idx) => {
                   const danhSachAnh = Array.isArray(book.images)
                     ? book.images.map((anh) => chuanHoaAnhHienThi(anh))
                     : [];
@@ -748,7 +752,7 @@ function QuanLySach() {
                       className="hover:bg-slate-50 transition-colors"
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        {(trangSachHienTai - 1) * soLuongSachMotTrang + idx + 1}
+                        {viTriBatDau + idx + 1}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         {anhDauTien ? (
@@ -881,18 +885,18 @@ function QuanLySach() {
         </div>
 
         {/* Pagination */}
-        {tongTrangSach > 1 && (
+        {tongSoTrang > 1 && (
           <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
                 Hiển thị{" "}
                 <span className="font-semibold text-slate-900">
-                  {(trangSachHienTai - 1) * soLuongSachMotTrang + 1}
+                  {(trangDangXem - 1) * soLuongSachMotTrang + 1}
                 </span>{" "}
                 -{" "}
                 <span className="font-semibold text-slate-900">
                   {Math.min(
-                    trangSachHienTai * soLuongSachMotTrang,
+                    trangDangXem * soLuongSachMotTrang,
                     sachDaLoc.length
                   )}
                 </span>{" "}
@@ -905,11 +909,11 @@ function QuanLySach() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() =>
-                    setTrangSachHienTai(Math.max(1, trangSachHienTai - 1))
+                    chuyenTrang(trangDangXem - 1)
                   }
-                  disabled={trangSachHienTai === 1}
+                  disabled={trangDangXem === 1}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                    trangSachHienTai === 1
+                    trangDangXem === 1
                       ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
                       : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
                   }`}
@@ -917,21 +921,20 @@ function QuanLySach() {
                   ← Trước
                 </button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: tongTrangSach }).map((_, i) => {
+                  {Array.from({ length: tongSoTrang }).map((_, i) => {
                     const page = i + 1;
                     // Show first page, last page, current page, and pages around current
                     if (
                       page === 1 ||
-                      page === tongTrangSach ||
-                      (page >= trangSachHienTai - 1 &&
-                        page <= trangSachHienTai + 1)
+                      page === tongSoTrang ||
+                      (page >= trangDangXem - 1 && page <= trangDangXem + 1)
                     ) {
                       return (
                         <button
                           key={i}
-                          onClick={() => setTrangSachHienTai(page)}
+                          onClick={() => chuyenTrang(page)}
                           className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                            trangSachHienTai === page
+                            trangDangXem === page
                               ? "bg-[#00809D] text-white border-[#00809D] shadow-sm"
                               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
                           }`}
@@ -940,8 +943,8 @@ function QuanLySach() {
                         </button>
                       );
                     } else if (
-                      page === trangSachHienTai - 2 ||
-                      page === trangSachHienTai + 2
+                      page === trangDangXem - 2 ||
+                      page === trangDangXem + 2
                     ) {
                       return (
                         <span key={i} className="px-2 text-slate-400">
@@ -954,13 +957,11 @@ function QuanLySach() {
                 </div>
                 <button
                   onClick={() =>
-                    setTrangSachHienTai(
-                      Math.min(tongTrangSach, trangSachHienTai + 1)
-                    )
+                    chuyenTrang(trangDangXem + 1)
                   }
-                  disabled={trangSachHienTai === tongTrangSach}
+                  disabled={trangDangXem === tongSoTrang}
                   className={`px-4 py-2 rounded-lg border font-medium transition-all ${
-                    trangSachHienTai === tongTrangSach
+                    trangDangXem === tongSoTrang
                       ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
                       : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-[#00809D]"
                   }`}
