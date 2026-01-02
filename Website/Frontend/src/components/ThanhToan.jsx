@@ -53,7 +53,7 @@ function ThanhToan() {
 
   // Giữ nguyên logic/state
   const [cart, setCart] = useState([]); // Giỏ hàng
-  const [tongTien, setTongTien] = useState(0);
+  const [tongTien, setTongTien] = useState(0); // Tổng tiền trước giảm giá và phí vận chuyển
   const [discount, setDiscount] = useState(0); // Số tiền được giảm
   const [coupon, setCoupon] = useState(""); // Mã giảm giá
   const [wards, setWards] = useState([]); // Danh sách xã/phường
@@ -158,10 +158,13 @@ function ThanhToan() {
 
   const total = tongTien - discount + phiPhuongThucGiaoHang; // Tổng cộng cuối cùng
   const total1 = tongTien - discount; // dùng để kiểm tra điều kiện áp dụng mã giảm giá không cộng phí vận chuyển
+
   // Hàm định dạng tiền tệ
   const formatCurrency = (amount) => {
     return amount.toLocaleString("vi-VN") + "đ";
   };
+
+  // Hàm tính ngày giao hàng dự kiến
   const estimatedDate = () => {
     const now = new Date();
     // Tìm phương thức giao hàng đã chọn
@@ -177,6 +180,7 @@ function ThanhToan() {
     return now.toLocaleDateString();
   };
 
+  // Hàm đặt hàng
   const datHang = async (e) => {
     if (e) {
       e.preventDefault();

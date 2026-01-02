@@ -18,9 +18,9 @@ const STATUS_OPTIONS = [
 function QuanLyDonHang() {
   const [selectedOrder, setSelectedOrder] = useState(null); // Để mở modal khi nhấn vào "Xem"
   const [filterStatus, setFilterStatus] = useState(""); // Để lưu trạng thái lọc
-  const [userOrder, setUserOrder] = useState([]);
+  const [userOrder, setUserOrder] = useState([]); // Lưu danh sách đơn hàng
   // Tạo biến trạng thái lưu dữ liệu chi tiết đơn hàng
-  const [duLieuDonHang, setDuLieuDonHang] = useState(null);
+  const [duLieuDonHang, setDuLieuDonHang] = useState(null); // Lưu chi tiết đơn hàng khi mở modal
   const [thongBao, setThongBao] = useState({
     show: false,
     type: "info",
@@ -169,6 +169,8 @@ function QuanLyDonHang() {
   useEffect(() => {
     setTrangHienTai(1);
   }, [filterStatus]);
+
+  // Điều chỉnh trang hiện tại nếu vượt quá tổng số trang
   useEffect(() => {
     if (trangHienTai > tongSoTrang) setTrangHienTai(tongSoTrang);
   }, [trangHienTai, tongSoTrang]);

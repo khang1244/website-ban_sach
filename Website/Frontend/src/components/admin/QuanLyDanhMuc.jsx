@@ -40,57 +40,51 @@ function QuanLyDanhMuc() {
   const danhMucMotTrang = 4; // so muc tren moi trang (giong quan ly don hang)
   const [trangHienTai, setTrangHienTai] = useState(1); // trang hien tai
 
-  // Ham lay ten danh muc du la object hay string
-  const layTenDanhMuc = (cat) =>
-    typeof cat === "string" ? cat : cat?.tenDanhMuc || "";
+  // Tra ve ten danh muc du dau vao la chuoi hay object (hoac null/undefined)
+  const layTenDanhMuc = (cat) => {
+    if (!cat) return "";
+    if (typeof cat === "string") return cat;
+    return cat.tenDanhMuc || "";
+  };
 
   // Ham xu ly khi nhan nut them
-  const xuLyThemDanhMuc = async (e) => {
-    e.preventDefault();
-    const tenMoiDaCat = tenDanhMucMoi.trim(); // loai bo khoang trang thua
-    if (!tenMoiDaCat) return; // neu rong thi dung xu ly
+  const xuLyThemDanhMuc = async (event) => {
+    event.preventDefault();
+    const tenMoi = tenDanhMucMoi.trim();
+    if (!tenMoi) return;
 
-    // Kiem tra trung ten
     const biTrungTen = danhSachDanhMuc.some(
       (danhMuc) =>
-        (danhMuc.tenDanhMuc || danhMuc)?.toLowerCase() ===
-        tenMoiDaCat.toLowerCase()
+        (danhMuc.tenDanhMuc || danhMuc)?.toLowerCase() === tenMoi.toLowerCase()
     );
     if (biTrungTen) {
-      hienThongBao("warning", "Chú ý", `Danh mục "${tenMoiDaCat}" đã tồn tại!`);
+      hienThongBao("warning", "Chú ý", `Danh mục "${tenMoi}" đã tồn tại!`);
       return;
     }
 
     try {
-      setTenDanhMucMoi(""); // xoa truong nhap ngay cho muot
-      const danhMucMoi = await taoDanhMucSachMoi(tenMoiDaCat); // <- lay object co ID
-      setDanhSachDanhMuc((truocDo) => [...truocDo, danhMucMoi]); // <- them vao mang de hien ID lien
-      hienThongBao("success", "Thành công", `Thêm danh mục thành công!`);
-    } catch (err) {
-      console.error("Lỗi khi thêm danh mục:", err);
+      setTenDanhMucMoi("");
+      const danhMucMoi = await taoDanhMucSachMoi(tenMoi);
+      setDanhSachDanhMuc((danhSachCu) => [...danhSachCu, danhMucMoi]);
+      hienThongBao("success", "Thành công", "Thêm danh mục thành công!");
+    } catch (error) {
+      console.error("Lỗi khi thêm danh mục:", error);
       hienThongBao("error", "Lỗi", "Không thể thêm danh mục, thử lại nhé!");
     }
   };
 
   // Ham xu ly khi nhan nut xoa
   const xuLyXoaDanhMuc = async (chiSo) => {
-    const xacNhanXoa = window.confirm(
-      "Bạn có chắc chắn muốn xóa danh mục này?"
-    );
-    if (!xacNhanXoa) return;
+    const xacNhan = window.confirm("Bạn có chắc chắn muốn xóa danh mục này?");
+    if (!xacNhan) return;
 
-    const tenDanhMuc = layTenDanhMuc(danhSachDanhMuc[chiSo]);
     const danhMucID = danhSachDanhMuc[chiSo]?.danhMucSachID;
 
-    console.log("Dang xoa danh muc:", { chiSo, danhMucID, tenDanhMuc });
-
     try {
-      // Goi API xoa truoc
       await xoaDanhMucSach(danhMucID);
-
-      // Sau khi xoa thanh cong, cap nhat giao dien
-      setDanhSachDanhMuc(danhSachDanhMuc.filter((_, viTri) => viTri !== chiSo));
-
+      setDanhSachDanhMuc((danhSachCu) =>
+        danhSachCu.filter((_, viTri) => viTri !== chiSo)
+      );
       hienThongBao("success", "Thành công", "Xóa danh mục thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa danh mục:", error);
@@ -103,38 +97,31 @@ function QuanLyDanhMuc() {
   };
 
   // Ham xu ly khi nhan nut sua
-  const batCheDoSua = (idx) => {
-    setChiSoDangSua(idx);
-    setGiaTriDangSua(layTenDanhMuc(danhSachDanhMuc[idx]));
+  const batCheDoSua = (chiSo) => {
+    setChiSoDangSua(chiSo);
+    setGiaTriDangSua(layTenDanhMuc(danhSachDanhMuc[chiSo]));
   };
 
   // Ham xu ly khi luu cap nhat danh muc
-  const xuLyCapNhatDanhMuc = async (e) => {
-    e.preventDefault();
+  const xuLyCapNhatDanhMuc = async (event) => {
+    event.preventDefault();
     const tenMoi = giaTriDangSua.trim();
     if (!tenMoi) return;
 
     const danhMucID = danhSachDanhMuc[chiSoDangSua]?.danhMucSachID;
 
     try {
-      // Goi API cap nhat truoc
-      await capNhatDanhMucSach(danhMucID, {
-        tenDanhMuc: tenMoi,
-      });
-
-      // Sau khi cap nhat thanh cong, cap nhat giao dien
-      const danhMucDaDuocSua = danhSachDanhMuc.map((cat, i) =>
-        i === chiSoDangSua ? { ...cat, tenDanhMuc: tenMoi } : cat
+      await capNhatDanhMucSach(danhMucID, { tenDanhMuc: tenMoi });
+      setDanhSachDanhMuc((danhSachCu) =>
+        danhSachCu.map((cat, index) =>
+          index === chiSoDangSua ? { ...cat, tenDanhMuc: tenMoi } : cat
+        )
       );
-      setDanhSachDanhMuc(danhMucDaDuocSua);
-
       hienThongBao("success", "Thành công", "Cập nhật danh mục thành công!");
-
-      // Đóng chế độ sửa
       setChiSoDangSua(null);
       setGiaTriDangSua("");
-    } catch (err) {
-      console.error("Lỗi khi cập nhật danh mục:", err);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật danh mục:", error);
       hienThongBao(
         "error",
         "Lỗi",
@@ -170,7 +157,7 @@ function QuanLyDanhMuc() {
     hienThongBao("success", "Thành công", "Hủy sửa thành công!");
   };
 
-  // Dieu chinh trang hien tai neu so trang khong hop le
+  // Dieu chinh trang hien tai neu so trang thay doi
   useEffect(() => {
     const tongSoTrang = Math.max(
       1,

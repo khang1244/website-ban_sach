@@ -61,6 +61,34 @@ function Homepage() {
 
   // // Biến trạng thái để lưu trữ danh sách sản phẩm lấy từ backend
   const [danhSachSanPham, setDanhSachSanPham] = useState([]);
+
+  // Chỉ tải widget chat Tawk.to ở trang chủ
+  useEffect(() => {
+    // Nếu đã có script cũ, gỡ trước khi chèn lại
+    document
+      .querySelectorAll("script[src*='tawk.to']")
+      .forEach((el) => el.parentNode?.removeChild(el));
+
+    const script = document.createElement("script");
+    script.id = "tawk-script";
+    script.async = true;
+    script.src = "https://embed.tawk.to/69531e415823b7197c155294/1jdmascie";
+    script.charset = "UTF-8";
+    script.setAttribute("crossorigin", "*");
+    document.body.appendChild(script);
+
+    return () => {
+      // Gỡ toàn bộ script/iframe/div liên quan Tawk khi rời trang
+      document
+        .querySelectorAll("script[src*='tawk.to']")
+        .forEach((el) => el.parentNode?.removeChild(el));
+      document
+        .querySelectorAll("iframe[src*='tawk.to'], div[id*='tawk']")
+        .forEach((el) => el.parentNode?.removeChild(el));
+      delete window.Tawk_API;
+      delete window.Tawk_LoadStart;
+    };
+  }, []);
   // Lọc sản phẩm theo danh mục và giá của bộ lọc sách mới
   const bolocsachmoi = danhSachSanPham.filter((product) => {
     let matchCategory =

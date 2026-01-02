@@ -29,8 +29,8 @@ import {
 import { layBinhLuanTheoSachID } from "../lib/binh-luan-apis"; // import API lấy bình luận
 import { UserContext } from "../contexts/user-context"; // import UserContext để sử dụng context người dùng
 function ChiTietSanPham() {
-  const [anhIndex, setAnhIndex] = useState(0);
-  const [soLuong, setSoLuong] = useState(1);
+  const [anhIndex, setAnhIndex] = useState(0); // Chỉ số ảnh hiện tại trong bộ sưu tập ảnh sản phẩm
+  const [soLuong, setSoLuong] = useState(1); // Số lượng sản phẩm muốn mua
 
   // Biến trạng thái để lưu trữ thông tin sản phẩm
   const [chiTietSanPham, setChiTietSanPham] = useState(null);

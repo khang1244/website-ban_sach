@@ -74,12 +74,12 @@ app.listen(PORT, () => {
   console.log(`Server đang chạy trên cổng ${PORT}`);
 });
 
-// //Đồng bộ hóa các mô hình với cơ sở dữ liệu
-sequelize
-  .sync()
-  .then(() => {
-    console.log("Tất cả các mô hình đã được đồng bộ hóa với cơ sở dữ liệu.");
-  })
-  .catch((err) => {
-    console.error("Lỗi đồng bộ hóa mô hình với cơ sở dữ liệu:", err);
-  });
+// // //Đồng bộ hóa các mô hình với cơ sở dữ liệu
+// sequelize
+//   .sync()
+//   .then(() => {
+//     console.log("Tất cả các mô hình đã được đồng bộ hóa với cơ sở dữ liệu.");
+//   })
+//   .catch((err) => {
+//     console.error("Lỗi đồng bộ hóa mô hình với cơ sở dữ liệu:", err);
+//   });
